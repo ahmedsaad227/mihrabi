@@ -1241,6 +1241,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     azkarDay: '',
     azkarCounts: {},
     azkarFav: [],
+    lists: [],
+    listCounts: {},
+    listDay: '',
     tasbih: { total: 0, day: '', count: 0, target: 33, vibrate: true },
     fontStep: 0,
     showTranslation: true,
@@ -1340,6 +1343,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'تصحيح التوقيت (دقائق)', highLat: 'خطوط العرض العالية',
       highLatAngle: 'زاوية', highLatNight: 'نصف الليل', highLatNone: 'بدون تعديل',
       azkarCats: 'أقسام الأذكار', azkarSearch: 'ابحث في الأذكار', allAzkar: 'كل الأذكار',
+      saved: 'تم الحفظ',
+      myLists: 'قوائمي', myListsSub: 'قوائم أذكار خاصة بك، من نص حصن المسلم', newList: 'قائمة جديدة',
+      noLists: 'لا توجد قوائم بعد. اضغط «قائمة جديدة» ثم أضف الأذكار التي تريدها.', listItems: 'ذكر',
+      listName: 'اسم القائمة', deleteList: 'حذف القائمة', addZikr: 'أضف ذكرًا', listEmpty: 'القائمة فاضية — اضغط «أضف ذكرًا».',
+      listSourceNote: 'كل الأذكار مأخوذة من حصن المسلم (سعيد بن علي بن وهف القحطاني). العداد محفوظ على جهازك ويعود كل يوم.',
+      remove: 'حذف', add: 'إضافة', inList: 'في القائمة', noResults: 'لا نتائج', listDefaultName: 'قائمتي',
       count: 'التكرار', reset: 'إعادة', resetDay: 'تصفير اليوم', done: 'تم',
       qiblaTitle: 'القبلة', qiblaBearing: 'اتجاه القبلة', fromNorth: 'من الشمال', distance: 'المسافة إلى الكعبة',
       compassNeed: 'وجّه أعلى الشاشة نحو الشمال، أو استخدم البوصلة الحية أدناه.',
@@ -1436,6 +1445,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'Manual correction (minutes)', highLat: 'High latitudes',
       highLatAngle: 'Angle-based', highLatNight: 'Middle of night', highLatNone: 'None',
       azkarCats: 'Azkar sections', azkarSearch: 'Search azkar', allAzkar: 'All azkar',
+      saved: 'Saved',
+      myLists: 'My lists', myListsSub: 'Your own athkar lists, built from the Hisn al-Muslim text', newList: 'New list',
+      noLists: 'No lists yet. Tap "New list", then add the athkar you want.', listItems: 'items',
+      listName: 'List name', deleteList: 'Delete list', addZikr: 'Add athkar', listEmpty: 'This list is empty — tap "Add athkar".',
+      listSourceNote: 'All athkar come from Hisn al-Muslim (Sa‘id b. Ali b. Wahf al-Qahtani). Counts are saved on your device and reset daily.',
+      remove: 'Remove', add: 'Add', inList: 'In list', noResults: 'No results', listDefaultName: 'My list',
       count: 'Repeats', reset: 'Reset', resetDay: 'Reset today', done: 'Done',
       qiblaTitle: 'Qibla', qiblaBearing: 'Qibla direction', fromNorth: 'from north', distance: 'Distance to the Kaaba',
       compassNeed: 'Point the top of your phone north, or use the live compass below.',
@@ -2261,7 +2276,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('azkar')) + '</h1>' +
       '<p class="sub">' + esc(MIH.isAr() ? 'من حصن المسلم' : 'From Hisn al-Muslim') + ' · ' + MIH.azkar.length + '</p></div>' +
       '<span class="badge badge-green">' + esc(t('offlineReady')) + '</span></div>' +
-      '<div style="position:relative"><input type="search" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="azkar-search"></div>' +
+      (MIH.listsSection ? MIH.listsSection() : '') +
+      '<div style="position:relative;margin-top:16px"><input type="search" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="azkar-search"></div>' +
       '<div class="azkar-grid mt-16">' + cards + '</div>' +
       '<div class="footer-note">' + (MIH.isAr() ? 'المصدر: حصن المسلم — سعيد بن علي بن وهف القحطاني. يُنصح بمراجعة شرعية للنص قبل النشر.' : 'Source: Hisn al-Muslim by Sa‘id b. Ali b. Wahf al-Qahtani. Scholarly review is recommended before release.') + '</div>' +
       '</div>';
@@ -3542,6 +3558,138 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 })();
 
+/* views-lists.js */
+/* MIHRABI — custom athkar lists (built from the verified Hisn al-Muslim corpus) */
+(function () {
+  var MIH = window.MIH;
+  if (!MIH) return;
+  function esc(s) { return MIH.esc(s); }
+  function t(k) { return MIH.t(k); }
+
+  MIH.lists = function () { return (MIH.state && MIH.state.lists) || []; };
+  MIH.listById = function (id) {
+    var all = MIH.lists();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    return null;
+  };
+  function itemOf(ref) {
+    var cat = MIH.azkar[ref.c];
+    if (!cat || !cat.i) return null;
+    return cat.i[ref.i] || null;
+  }
+  function ensureDay() {
+    var d = MIH.dayKey();
+    if (MIH.state.listDay !== d) {
+      MIH.state.listDay = d;
+      MIH.state.listCounts = {};
+      MIH.save();
+    }
+  }
+
+  function countsFor(list) {
+    if (!MIH.state.listCounts) MIH.state.listCounts = {};
+    var arr = MIH.state.listCounts[list.id];
+    if (!arr || arr.length !== list.items.length) {
+      arr = list.items.map(function (r) {
+        var it = itemOf(r);
+        return it ? it.c : 1;
+      });
+      MIH.state.listCounts[list.id] = arr;
+    }
+    return arr;
+  }
+  MIH.listCountsFor = countsFor;
+
+  /* section rendered inside the azkar page */
+  MIH.listsSection = function () {
+    ensureDay();
+    var lists = MIH.lists();
+    var cards = lists.map(function (l) {
+      var arr = countsFor(l);
+      var done = arr.filter(function (n) { return n <= 0; }).length;
+      var total = l.items.length;
+      return '<button class="azkar-card" data-action="nav" data-to="#/list/' + esc(l.id) + '">' +
+        '<b>' + esc(l.name) + '</b>' +
+        '<small>' + total + ' ' + esc(t('listItems')) + '</small>' +
+        '<span class="badge ' + (total && done === total ? 'badge-green' : 'badge-gold') + ' num">' + done + '/' + total + '</span>' +
+        '</button>';
+    }).join('');
+
+    return '<div class="section-head" style="margin-top:22px"><div>' +
+      '<h1 class="h1" style="font-size:20px">' + esc(t('myLists')) + '</h1>' +
+      '<p class="sub">' + esc(t('myListsSub')) + '</p></div>' +
+      '<button class="btn btn-sm btn-ghost" data-action="list-new">+ ' + esc(t('newList')) + '</button></div>' +
+      (cards ? '<div class="azkar-grid mt-16">' + cards + '</div>'
+             : '<div class="footer-note">' + esc(t('noLists')) + '</div>');
+  };
+
+  /* #/list/<id> */
+  MIH.views.list = function (id) {
+    var list = MIH.listById(id);
+    if (!list) return MIH.views.azkar();
+    ensureDay();
+    var arr = countsFor(list);
+    var body = list.items.map(function (r, k) {
+      var it = itemOf(r);
+      if (!it) return '';
+      var left = arr[k];
+      var done = left <= 0;
+      return '<div class="zikr">' +
+        '<div class="zikr-text">' + esc(it.t) + '</div>' +
+        '<div class="zikr-count">' +
+          '<button class="counter-btn ' + (done ? 'done' : '') + '" data-action="list-count" data-id="' + esc(list.id) + '" data-k="' + k + '">' +
+            (done ? '✓ ' + esc(t('done')) : esc(t('count'))) + '</button>' +
+          '<span class="count-badge num">' + (done ? it.c : left) + '/' + it.c + '</span>' +
+          '<button class="btn btn-sm btn-ghost" data-action="list-rm" data-id="' + esc(list.id) + '" data-k="' + k + '">' + esc(t('remove')) + '</button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div style="flex:1">' +
+        '<input class="list-name-input" type="text" value="' + esc(list.name) + '" data-action="list-rename" data-id="' + esc(list.id) + '" aria-label="' + esc(t('listName')) + '">' +
+        '<p class="sub">' + list.items.length + ' ' + esc(t('listItems')) + '</p></div>' +
+        '<button class="btn btn-sm btn-ghost" data-action="list-del" data-id="' + esc(list.id) + '">' + esc(t('deleteList')) + '</button></div>' +
+      '<div class="row gap-8" style="display:flex;gap:8px;margin-bottom:12px">' +
+        '<button class="btn btn-sm" data-action="nav" data-to="#/list/' + esc(list.id) + '/add">+ ' + esc(t('addZikr')) + '</button>' +
+        '<button class="btn btn-sm btn-ghost" data-action="list-reset" data-id="' + esc(list.id) + '">' + esc(t('resetDay')) + '</button>' +
+      '</div>' +
+      (body || '<div class="footer-note">' + esc(t('listEmpty')) + '</div>') +
+      '<div class="footer-note">' + esc(t('listSourceNote')) + '</div>' +
+      '</div>';
+  };
+
+  /* #/list/<id>/add — pick items from the verified corpus */
+  MIH.views.listAdd = function (id) {
+    var list = MIH.listById(id);
+    if (!list) return MIH.views.azkar();
+    var q = MIH.state._lq || '';
+    var nq = MIH.norm(q);
+    var rows = [];
+    MIH.azkar.forEach(function (cat, c) {
+      cat.i.forEach(function (it, i) {
+        if (nq && MIH.norm(it.t).indexOf(nq) === -1 && MIH.norm(cat.n).indexOf(nq) === -1) return;
+        var inList = list.items.some(function (r) { return r.c === c && r.i === i; });
+        rows.push('<div class="zikr pick-row">' +
+          '<div class="zikr-text">' + esc(it.t.length > 180 ? it.t.slice(0, 180) + '…' : it.t) +
+            '<small class="sub" style="display:block;margin-top:6px">' + esc(cat.n) + '</small></div>' +
+          '<div class="zikr-count">' +
+            '<button class="btn btn-sm ' + (inList ? 'btn-ghost' : '') + '" data-action="list-toggle" data-id="' + esc(list.id) + '" data-c="' + c + '" data-i="' + i + '">' +
+              (inList ? esc(t('inList')) : '+ ' + esc(t('add'))) + '</button>' +
+          '</div></div>');
+      });
+    });
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div><h1 class="h1" style="font-size:20px">' + esc(t('addZikr')) + '</h1>' +
+      '<p class="sub">' + esc(list.name) + ' · ' + rows.length + ' ' + esc(t('listItems')) + '</p></div>' +
+      '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/list/' + esc(list.id) + '">' + esc(t('done')) + '</button></div>' +
+      '<div style="position:relative"><input type="search" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="list-search"></div>' +
+      '<div class="mt-16">' + (rows.join('') || '<div class="footer-note">' + esc(t('noResults')) + '</div>') + '</div>' +
+      '<div class="footer-note">' + esc(t('listSourceNote')) + '</div>' +
+      '</div>';
+  };
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -3606,7 +3754,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || ((active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -3645,6 +3793,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     else if (parts[0] === 'azkar') {
       if (parts.length >= 2) { view = 'azkarCat'; html = MIH.views.azkarCat(parts[1]); }
       else { view = 'azkar'; html = MIH.views.azkar(); }
+    }
+    else if (parts[0] === 'list') {
+      if (parts[2] === 'add') { view = 'listAdd'; html = MIH.views.listAdd(parts[1]); }
+      else { view = 'list'; html = MIH.views.list(parts[1]); }
     }
     else if (parts[0] === 'qibla') { view = 'qibla'; html = MIH.views.qibla(); }
     else if (parts[0] === 'tasbih') { view = 'tasbih'; html = MIH.views.tasbih(); }
@@ -3732,6 +3884,68 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         render();
       }
       return;
+    }
+    if (a === 'list-new') {
+      var lists = MIH.state.lists || [];
+      var nl = { id: 'l' + Date.now().toString(36), name: t('listDefaultName') + ' ' + (lists.length + 1), items: [] };
+      lists.push(nl); MIH.state.lists = lists;
+      MIH.state.listCounts = MIH.state.listCounts || {};
+      MIH.state.listCounts[nl.id] = [];
+      MIH.save(); window.location.hash = '#/list/' + nl.id; return;
+    }
+    if (a === 'list-del') {
+      var dl = MIH.listById(el.getAttribute('data-id'));
+      if (!dl) return;
+      if (!window.confirm(t('deleteList') + ' — ' + dl.name + '?')) return;
+      MIH.state.lists = MIH.lists().filter(function (x) { return x.id !== dl.id; });
+      if (MIH.state.listCounts) delete MIH.state.listCounts[dl.id];
+      MIH.save(); MIH.toast(t('deleteList')); window.location.hash = '#/azkar'; return;
+    }
+    if (a === 'list-count') {
+      var cl = MIH.listById(el.getAttribute('data-id'));
+      var ck = parseInt(el.getAttribute('data-k'), 10);
+      if (!cl || isNaN(ck)) return;
+      var carr = MIH.listCountsFor(cl);
+      if (carr[ck] > 0) {
+        carr[ck]--;
+        MIH.save();
+        if (MIH.state.tasbih.vibrate && navigator.vibrate) navigator.vibrate(carr[ck] === 0 ? [30, 40, 30] : 12);
+        render();
+      }
+      return;
+    }
+    if (a === 'list-reset') {
+      var rl = MIH.listById(el.getAttribute('data-id'));
+      if (!rl) return;
+      MIH.state.listCounts[rl.id] = rl.items.map(function (r) {
+        var cat = MIH.azkar[r.c]; var it = cat && cat.i[r.i];
+        return it ? it.c : 1;
+      });
+      saveAndRender(); return;
+    }
+    if (a === 'list-rm') {
+      var ml = MIH.listById(el.getAttribute('data-id'));
+      var mk = parseInt(el.getAttribute('data-k'), 10);
+      if (!ml || isNaN(mk)) return;
+      var marr = MIH.listCountsFor(ml);
+      ml.items.splice(mk, 1); marr.splice(mk, 1);
+      MIH.save(); render(); return;
+    }
+    if (a === 'list-toggle') {
+      var tl = MIH.listById(el.getAttribute('data-id'));
+      var tc = parseInt(el.getAttribute('data-c'), 10), ti = parseInt(el.getAttribute('data-i'), 10);
+      if (!tl || isNaN(tc) || isNaN(ti)) return;
+      var tarr = MIH.listCountsFor(tl);
+      var at = -1;
+      tl.items.forEach(function (r, k) { if (r.c === tc && r.i === ti) at = k; });
+      if (at >= 0) { tl.items.splice(at, 1); tarr.splice(at, 1); }
+      else {
+        var cat = MIH.azkar[tc], it = cat && cat.i[ti];
+        if (!it) return;
+        tl.items.push({ c: tc, i: ti });
+        tarr.push(it.c);
+      }
+      MIH.save(); render(); return;
     }
     if (a === 'reset-azkar') {
       var ci = parseInt(el.getAttribute('data-cat'), 10);
@@ -3828,6 +4042,16 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     }
   });
 
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el || el.getAttribute('data-action') !== 'list-rename') return;
+    var l = MIH.listById(el.getAttribute('data-id'));
+    if (!l) return;
+    var v = (el.value || '').trim().slice(0, 60);
+    if (!v) { render(); return; }
+    l.name = v; MIH.save(); MIH.toast(t('saved')); render();
+  });
+
   var searchTimer = null;
   document.addEventListener('input', function (e) {
     var el = e.target;
@@ -3837,6 +4061,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       searchTimer = setTimeout(function () {
         render();
         var inp = document.querySelector('[data-action="quran-search"]');
+        if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      }, 260);
+    }
+    if (el.getAttribute('data-action') === 'list-search') {
+      MIH.state._lq = el.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () {
+        render();
+        var inp = document.querySelector('[data-action="list-search"]');
         if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
       }, 260);
     }
