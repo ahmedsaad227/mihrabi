@@ -617,7 +617,7 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .jbar { display: block; height: 5px; border-radius: 999px; background: var(--line); margin-top: 6px; overflow: hidden; }
 .jbar > span { display: block; height: 100%; background: var(--green-700); border-radius: 999px; }
 .jstep { display: flex; gap: 6px; }
-.jstep button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font-size: 16px; cursor: pointer; }
+.jstep button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font-size: 16px; cursor: pointer; }
 /* MIHRABI — design system
    Palette: deep green / ivory / quiet gold. Fonts: Cairo, IBM Plex Sans Arabic, Inter, Amiri Quran. */
 
@@ -1193,7 +1193,7 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .jbar { display: block; height: 5px; border-radius: 999px; background: var(--line); margin-top: 6px; overflow: hidden; }
 .jbar > span { display: block; height: 100%; background: var(--green-700); border-radius: 999px; }
 .jstep { display: flex; gap: 6px; }
-.jstep button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font-size: 16px; cursor: pointer; }
+.jstep button { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font-size: 16px; cursor: pointer; }
 
 /* custom athkar list reminder */
 .reminder-card { margin: 0 0 14px; }
@@ -1209,6 +1209,10 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 }
 .list-name-input:focus { outline: none; border-color: var(--brand, #1f6f52); background: var(--surface-2); }
 .pick-row { align-items: flex-start; }
+
+/* screen-reader-only label */
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 </style>
 </head>
@@ -2333,7 +2337,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     var ev = MIH.nextEvent();
 
-    return '<div class="view">' + beta + MIH.journeyCard() +
+    return '<div class="view">' +
+      '<h1 class="sr-only">' + esc(t('app')) + ' — ' + esc(t('todayTimes')) + '</h1>' + beta + MIH.journeyCard() +
       '<div class="hero">' +
         '<div class="hero-top">' +
           '<div>' +
@@ -2767,7 +2772,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '</div>' +
 
       '<div class="mt-16" style="position:relative">' +
-        '<input type="search" placeholder="' + esc(t('searchQuran')) + '" value="' + esc(q) + '" data-action="quran-search">' +
+        '<input type="search" aria-label="' + esc(t('searchQuran')) + '" placeholder="' + esc(t('searchQuran')) + '" value="' + esc(q) + '" data-action="quran-search">' +
       '</div>' +
 
       (bm.length ? '<div class="section-head"><h2 class="h2">' + esc(t('bookmarks')) + '</h2></div><div class="card" style="padding:6px 16px">' +
@@ -2870,7 +2875,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<p class="sub">' + esc(MIH.isAr() ? 'من حصن المسلم' : 'From Hisn al-Muslim') + ' · ' + MIH.azkar.length + '</p></div>' +
       '<span class="badge badge-green">' + esc(t('offlineReady')) + '</span></div>' +
       (MIH.listsSection ? MIH.listsSection() : '') +
-      '<div style="position:relative;margin-top:16px"><input type="search" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="azkar-search"></div>' +
+      '<div style="position:relative;margin-top:16px"><input type="search" aria-label="' + esc(t('azkarSearch')) + '" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="azkar-search"></div>' +
       '<div class="azkar-grid mt-16">' + cards + '</div>' +
       '<div class="footer-note">' + (MIH.isAr() ? 'المصدر: حصن المسلم — سعيد بن علي بن وهف القحطاني. يُنصح بمراجعة شرعية للنص قبل النشر.' : 'Source: Hisn al-Muslim by Sa‘id b. Ali b. Wahf al-Qahtani. Scholarly review is recommended before release.') + '</div>' +
       '</div>';
@@ -3012,7 +3017,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       row('data-action="ms-marks"', t('bookmarks'), String((MIH.state.bookmarks || []).length)) +
 
       '<div id="ms-search-panel" hidden style="margin-top:12px">' +
-      '<input class="ms-input" id="ms-search" type="search" placeholder="' + esc(t('msSearchPh')) + '" autocomplete="off">' +
+      '<input class="ms-input" id="ms-search" type="search" aria-label="' + esc(t('msSearchPh')) + '" placeholder="' + esc(t('msSearchPh')) + '" autocomplete="off">' +
       '<p class="sub" id="ms-search-count" style="margin:8px 2px"></p>' +
       '<div id="ms-results"></div></div>' +
       '<div id="ms-marks-panel" hidden style="margin-top:12px"></div>' +
@@ -4288,7 +4293,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1" style="font-size:20px">' + esc(t('addZikr')) + '</h1>' +
       '<p class="sub">' + esc(list.name) + ' · ' + rows.length + ' ' + esc(t('listItems')) + '</p></div>' +
       '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/list/' + esc(list.id) + '">' + esc(t('done')) + '</button></div>' +
-      '<div style="position:relative"><input type="search" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="list-search"></div>' +
+      '<div style="position:relative"><input type="search" aria-label="' + esc(t('azkarSearch')) + '" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="list-search"></div>' +
       '<div class="mt-16">' + (rows.join('') || '<div class="footer-note">' + esc(t('noResults')) + '</div>') + '</div>' +
       '<div class="footer-note">' + esc(t('listSourceNote')) + '</div>' +
       '</div>';
