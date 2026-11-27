@@ -1357,7 +1357,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       geoBtn: 'استخدم موقعي', geoDenied: 'لم نتمكن من قراءة الموقع. اختر مدينتك يدوياً.', geoOk: 'تم تحديد موقعك',
       todayTimes: 'مواقيت اليوم', midnight: 'منتصف الليل', lastThird: 'الثلث الأخير',
       adhanTitle: 'الأذان', adhanNone: 'اختر الأذان الذي يشتغل وقت الصلاة.',
-      audioLibrary: 'مكتبة الصوتيات', audioSub: 'أذان وتلاوات بترخيص حر من ويكيميديا كومنز',
+      audioLibrary: 'مكتبة الصوتيات', audioSub: 'أذان وتلاوات بترخيص حر من ويكيميديا كومنز', audioSpeed: 'سرعة التشغيل', audioRepeat: 'التكرار', audioRepOff: 'بدون', audioRepOne: 'الملف الحالي', audioRepAll: 'المجموعة كلها',
       listen: 'استماع', source: 'المصدر', adhanBy: 'بصوت', adhanOn: 'تشغيل الأذان وقت الصلاة',
       adhanPick: 'اختر الأذان', adhanTest: 'تجربة', adhanNote: 'الأذان يشتغل والتطبيق مفتوح أو مثبت. بعد إغلاق المتصفح تماماً لا يضمن المتصفح التنبيه.',
       credits: 'المصادر والتراخيص', creditsSub: 'كل مصدر وترخيصه واسم صاحبه',
@@ -1453,7 +1453,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       geoBtn: 'Use my location', geoDenied: 'Could not read your location. Pick your city manually.', geoOk: 'Location set',
       todayTimes: 'Today’s times', midnight: 'Midnight', lastThird: 'Last third',
       adhanTitle: 'Adhan', adhanNone: 'Choose the adhan that plays at prayer time.',
-      audioLibrary: 'Audio library', audioSub: 'Adhan and recitations under open licences from Wikimedia Commons',
+      audioLibrary: 'Audio library', audioSub: 'Adhan and recitations under open licences from Wikimedia Commons', audioSpeed: 'Playback speed', audioRepeat: 'Repeat', audioRepOff: 'Off', audioRepOne: 'This file', audioRepAll: 'Whole list',
       listen: 'Listen', source: 'Source', adhanBy: 'By', adhanOn: 'Play adhan at prayer time',
       adhanPick: 'Adhan sound', adhanTest: 'Preview', adhanNote: 'The adhan plays while the app is open or installed. Once the browser is fully closed, the browser does not guarantee the alert.',
       credits: 'Sources & licences', creditsSub: 'Every source, its licence and its author',
@@ -2866,9 +2866,19 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       el.preload = 'none';
       document.body.appendChild(el);
       el.addEventListener('ended', function () {
+        var rep = MIH.state.repeat || 'off';
+        if (rep === 'one') { try { el.currentTime = 0; el.play(); } catch (e) {} return; }
+        var cur = MIH._playing;
         MIH._playing = null;
         var on = document.querySelectorAll('.play-btn.on');
         for (var i = 0; i < on.length; i++) on[i].classList.remove('on');
+        if (rep === 'all' && cur) {
+          var list = MIH.audio.filter(function (x) { return x.kind === (MIH.audioById(cur) || {}).kind; });
+          var idx = -1;
+          for (var k = 0; k < list.length; k++) if (list[k].id === cur) idx = k;
+          var next = list[(idx + 1) % list.length];
+          if (next && list.length > 1) MIH.play(next);
+        }
       });
     }
     return el;
@@ -2883,6 +2893,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     for (var i = 0; i < on.length; i++) on[i].classList.remove('on');
     if (same) return;
     el.src = track.file;
+    el.playbackRate = MIH.state.speed || 1;
     el.play().then(function () {
       MIH._playing = track.id;
       var btn = document.querySelector('.play-btn[data-track="' + track.id + '"]');
@@ -2925,6 +2936,16 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     return '<div class="view">' +
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('audioLibrary')) + '</h1>' +
       '<p class="sub">' + esc(t('audioSub')) + '</p></div><span class="badge badge-green">' + MIH.audio.length + '</span></div>' +
+      '<div class="card" style="padding:12px 14px" id="audio-controls">' +
+        '<div class="row-sub" style="margin-bottom:6px">' + esc(t('audioSpeed')) + '</div>' +
+        '<div class="seg" id="speed-seg">' + [0.75, 1, 1.25, 1.5, 2].map(function (v) {
+          return '<button data-action="audio-speed" data-v="' + v + '" aria-pressed="' + ((MIH.state.speed || 1) === v) + '">' + (v === 1 ? '1×' : v + '×') + '</button>';
+        }).join('') + '</div>' +
+        '<div class="row-sub" style="margin:12px 0 6px">' + esc(t('audioRepeat')) + '</div>' +
+        '<div class="seg" id="repeat-seg">' + [['off', 'audioRepOff'], ['one', 'audioRepOne'], ['all', 'audioRepAll']].map(function (r) {
+          return '<button data-action="audio-repeat" data-v="' + r[0] + '" aria-pressed="' + ((MIH.state.repeat || 'off') === r[0]) + '">' + esc(t(r[1])) + '</button>';
+        }).join('') + '</div>' +
+      '</div>' +
       '<div class="card">' +
         '<div class="eyebrow" style="margin-bottom:6px">' + esc(t('adhanTitle')) + '</div>' +
         adhans.map(audioRow).join('') +
@@ -3741,6 +3762,16 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       return;
     }
     if (a === 'play') { var tr = MIH.audioById(el.getAttribute('data-track')); if (tr) MIH.play(tr); return; }
+    if (a === 'audio-speed') {
+      MIH.state.speed = parseFloat(el.getAttribute('data-v')) || 1;
+      var pl = document.getElementById('mih-audio');
+      if (pl) pl.playbackRate = MIH.state.speed;
+      MIH.save(); render(); return;
+    }
+    if (a === 'audio-repeat') {
+      MIH.state.repeat = el.getAttribute('data-v') || 'off';
+      MIH.save(); render(); return;
+    }
     if (a === 'close-sheet') { MIH.closeSheet(); return; }
     if (a === 'hifz-toggle') { MIH.hifzToggle(parseInt(el.getAttribute('data-n'), 10)); render(); return; }
     if (a === 'tasmi-reveal') {
