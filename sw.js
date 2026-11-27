@@ -1,5 +1,5 @@
 /* MIHRABI service worker — offline app shell + prayer plan for background sync */
-const CACHE = 'mihrabi-v25';
+const CACHE = 'mihrabi-v26';
 const PLAN = 'mihrabi-plan';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
