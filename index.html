@@ -561,6 +561,15 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .hadith-ar{padding:12px 16px 6px;font-family:'Amiri',serif;font-size:19px;line-height:2;text-align:right;white-space:pre-wrap}
 .hadith-en{padding:4px 16px 14px;font-size:12.5px;line-height:1.65;color:var(--muted,#5c6b63);white-space:pre-wrap}
 
+/* ---- hifz and tasmi ---- */
+.hifz-row{width:100%;text-align:right}
+.hifz-state{width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(20,81,60,.08);font-size:12px;color:var(--green-700)}
+.hifz-state.on{background:var(--green-700);color:#fff}
+.tasmi-item{padding:12px 16px;margin-bottom:10px}
+.tasmi-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.tasmi-text{font-family:'Amiri',serif;font-size:20px;line-height:2;text-align:right;transition:filter .15s}
+.tasmi-text.hidden{filter:blur(4px);opacity:.65;user-select:none}
+
 </style>
 </head>
 <body>
@@ -1223,6 +1232,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       wirdLocal: 'الورد يُحفظ على جهازك فقط ويُصفَّر تلقائيًا كل يوم. لا يحتاج حسابًا.',
       khatmaCount: 'أجزاء مقروءة', khatmaNext: 'التالي: الجزء', khatmaReset: 'مسح التقدم', khatmaResetDone: 'تم مسح تقدم الختمة',
       khatmaLocal: 'تقدم الختمة محفوظ على جهازك فقط، بدون حساب ولا مزامنة.',
+      hifzTitle: 'الحفظ والتسميع', hifzSub: 'علّم السور التي حفظتها، ثم اختبر نفسك بآيات مخفية',
+      hifzAyahs: 'آية', hifzCount: 'حفظت', hifzTest: 'اختبر حفظي', hifzTestSub: 'اقرأ من حفظك ثم اكشف الآية للتأكد',
+      hifzReveal: 'اكشف', hifzHide: 'أخفِ', hifzHideAll: 'أخفِ الكل', hifzBack: 'رجوع',
+      hifzLocal: 'حالة الحفظ محفوظة على جهازك فقط، بدون حساب ولا مزامنة.',
       hadithTitle: 'الحديث النبوي', hadithSub: 'الأربعون النووية والأحاديث القدسية، كاملة بنصها وترجمتها',
       hadithNawawi: 'الأربعون النووية', hadithQudsi: 'الأحاديث القدسية الأربعون', hadithNum: 'الحديث',
       hadithSource: 'المصدر: مشروع hadith-json (AhmedBaset) بترخيص The Unlicense، مجموعتا nawawi40 وqudsi40 كاملتين بدون تعديل. النص والترجمة لم يُراجَعا بعد من متخصص.',
@@ -1293,6 +1306,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       wirdLocal: 'The wird is stored on your device only and resets every day. No account needed.',
       khatmaCount: 'Juz read', khatmaNext: 'Next: juz', khatmaReset: 'Clear progress', khatmaResetDone: 'Khatma progress cleared',
       khatmaLocal: 'Khatma progress is stored on your device only, with no account and no sync.',
+      hifzTitle: 'Memorisation and reciting', hifzSub: 'Mark the surahs you have memorised, then test yourself with hidden verses',
+      hifzAyahs: 'ayahs', hifzCount: 'memorised', hifzTest: 'Test me', hifzTestSub: 'Recite from memory, then reveal the verse to check',
+      hifzReveal: 'Reveal', hifzHide: 'Hide', hifzHideAll: 'Hide all', hifzBack: 'Back',
+      hifzLocal: 'Your memorisation state is stored on this device only, with no account and no sync.',
       hadithTitle: 'Hadith', hadithSub: 'The forty of al-Nawawi and the forty sacred hadith, complete with translation',
       hadithNawawi: 'Al-Nawawi forty', hadithQudsi: 'Forty sacred hadith', hadithNum: 'Hadith',
       hadithSource: 'Source: the hadith-json project (AhmedBaset), The Unlicense, collections nawawi40 and qudsi40 complete and unedited. Neither the text nor the translation has been reviewed by a specialist yet.',
@@ -2057,6 +2074,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var items = [
       ['#/dua', 'i-azkar', t('duaTitle')],
       ['#/hadith', 'i-azkar', t('hadithTitle')],
+      ['#/hifz', 'i-check', t('hifzTitle')],
       ['#/names', 'i-azkar', t('namesTitle')],
       ['#/wird', 'i-check', t('wirdTitle')],
       ['#/khatma', 'i-bookmark', t('khatmaTitle')],
@@ -2751,6 +2769,89 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 })();
 
+/* views-hifz.js */
+/* MIHRABI - view: hifz (memorisation tracking) and tasmi' (reciting from memory)
+   Local only: the state lives in localStorage. The test mode hides the text of the
+   verses the app already holds; no new religious text is added here. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  var esc = MIH.esc;
+  var KEY = 'mihrabi.hifz.v1';
+
+  function read() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      var s = raw ? JSON.parse(raw) : null;
+      if (!s || !Array.isArray(s.done)) s = { done: [] };
+      return s;
+    } catch (e) { return { done: [] }; }
+  }
+  function write(s) {
+    try { window.localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  function ayahs(n) {
+    var q = (MIH.quran && MIH.quran.a) ? MIH.quran.a : [];
+    var out = [];
+    for (var i = 0; i < q.length; i++) { if (q[i][1] === n) out.push(q[i]); }
+    return out;
+  }
+
+  MIH.hifzToggle = function (n) {
+    var s = read(); var i = s.done.indexOf(n);
+    if (i === -1) s.done.push(n); else s.done.splice(i, 1);
+    write(s); return s;
+  };
+
+  MIH.views.hifz = function () {
+    var t = MIH.t, s = read(), total = 114;
+    var pct = Math.round((s.done.length / total) * 100);
+    var rows = '';
+    for (var n = 1; n <= total; n++) {
+      var meta = MIH.quran.s[n - 1] || ['', '', '', '', 0];
+      var on = s.done.indexOf(n) > -1;
+      rows += '<button class="row hifz-row" data-action="hifz-toggle" data-n="' + n + '" aria-pressed="' + on + '">' +
+        '<span class="hifz-state' + (on ? ' on' : '') + '">' + (on ? '✓' : n) + '</span>' +
+        '<span class="row-main"><span class="row-title">' + esc(meta[0]) + '</span>' +
+        '<span class="row-sub num">' + meta[4] + ' ' + esc(t('hifzAyahs')) + '</span></span></button>';
+    }
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('hifzTitle')) + '</h1>' +
+      '<p class="sub">' + esc(t('hifzSub')) + '</p></div>' +
+      '<span class="badge badge-green num" id="hifz-pct">' + pct + '%</span></div>' +
+      '<div class="card" style="padding:14px 16px">' +
+        '<div style="height:8px;border-radius:99px;background:rgba(20,81,60,.12);overflow:hidden">' +
+          '<div style="height:100%;width:' + pct + '%;background:var(--green-700);transition:width .25s"></div></div>' +
+        '<div class="row-sub" style="margin-top:10px">' + esc(t('hifzCount')) + ' <span id="hifz-done">' + s.done.length + '</span> / 114</div>' +
+        '<div class="rowflex" style="margin-top:12px"><button class="btn btn-sm btn-primary" data-action="nav" data-to="#/hifz/1">' + esc(t('hifzTest')) + '</button></div>' +
+      '</div>' +
+      '<div id="hifz-list" style="margin-top:12px">' + rows + '</div>' +
+      '<div class="footer-note">' + esc(t('hifzLocal')) + '</div>' +
+      '</div>';
+  };
+
+  MIH.views.tasmi = function (n) {
+    var t = MIH.t, list = ayahs(n);
+    var meta = MIH.quran.s[n - 1] || ['', '', '', '', 0];
+    var rows = list.map(function (v) {
+      return '<div class="card tasmi-item" data-a="' + v[2] + '">' +
+        '<div class="tasmi-head"><span class="num">' + v[2] + '</span>' +
+        '<button class="btn btn-sm btn-ghost" data-action="tasmi-reveal" data-a="' + v[2] + '">' + esc(t('hifzReveal')) + '</button></div>' +
+        '<div class="tasmi-text hidden">' + esc(v[0]) + '</div></div>';
+    }).join('');
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(meta[0]) + '</h1>' +
+      '<p class="sub">' + esc(t('hifzTestSub')) + '</p></div>' +
+      '<span class="badge badge-green num">' + meta[4] + '</span></div>' +
+      '<div class="rowflex" style="justify-content:flex-end;margin-bottom:10px">' +
+        '<button class="btn btn-sm btn-ghost" data-action="tasmi-hide-all">' + esc(t('hifzHideAll')) + '</button>' +
+        '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/hifz">' + esc(t('hifzBack')) + '</button></div>' +
+      '<div id="tasmi-list">' + rows + '</div>' +
+      '<div class="footer-note">' + esc(t('hifzLocal')) + '</div>' +
+      '</div>';
+  };
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -2815,7 +2916,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -2867,6 +2968,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     else if (parts[0] === 'names') { view = 'names'; html = MIH.views.names(); }
     else if (parts[0] === 'dua') { view = 'dua'; html = MIH.views.dua(); }
     else if (parts[0] === 'hadith') { view = 'hadith'; html = MIH.views.hadith(); }
+    else if (parts[0] === 'hifz') {
+      if (parts[1]) { view = 'tasmi'; html = MIH.views.tasmi(parseInt(parts[1], 10)); }
+      else { view = 'hifz'; html = MIH.views.hifz(); }
+    }
     else if (parts[0] === 'more') { view = 'more'; html = MIH.views.more(); }
     else { view = 'home'; html = MIH.views.home(); }
 
@@ -2962,6 +3067,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     }
     if (a === 'play') { var tr = MIH.audioById(el.getAttribute('data-track')); if (tr) MIH.play(tr); return; }
     if (a === 'close-sheet') { MIH.closeSheet(); return; }
+    if (a === 'hifz-toggle') { MIH.hifzToggle(parseInt(el.getAttribute('data-n'), 10)); render(); return; }
+    if (a === 'tasmi-reveal') {
+      var box = el.closest('.tasmi-item'); var txt = box ? box.querySelector('.tasmi-text') : null;
+      if (txt) { txt.classList.toggle('hidden'); el.textContent = txt.classList.contains('hidden') ? t('hifzReveal') : t('hifzHide'); }
+      return;
+    }
+    if (a === 'tasmi-hide-all') {
+      Array.prototype.forEach.call(document.querySelectorAll('.tasmi-text'), function (x) { x.classList.add('hidden'); });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-action="tasmi-reveal"]'), function (x) { x.textContent = t('hifzReveal'); });
+      return;
+    }
     if (a === 'wird-toggle') { MIH.wirdToggle(el.getAttribute('data-k')); render(); return; }
     if (a === 'wird-reset') { MIH.wirdReset(); render(); MIH.toast(t('wirdResetDone')); return; }
     if (a === 'khatma-toggle') { MIH.khatmaToggle(el.getAttribute('data-j')); render(); return; }
