@@ -609,6 +609,16 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .ms-sheet-panel { background: var(--surface); width: 100%; max-width: 640px; border-radius: 22px 22px 0 0; padding: 16px 18px calc(22px + env(safe-area-inset-bottom)); max-height: 82vh; overflow: auto; box-shadow: var(--shadow-lg); }
 .ms-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 
+/* journey card (home) */
+.journey { padding: 10px 16px 6px; margin-top: 12px; }
+.journey-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 6px 0 2px; }
+.journey .row { border-bottom: 1px solid var(--line); }
+.journey .row:last-child { border-bottom: 0; }
+.jbar { display: block; height: 5px; border-radius: 999px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.jbar > span { display: block; height: 100%; background: var(--green-700); border-radius: 999px; }
+.jstep { display: flex; gap: 6px; }
+.jstep button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font-size: 16px; cursor: pointer; }
+
 </style>
 </head>
 <body>
@@ -1291,6 +1301,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       hifzAyahs: 'آية', hifzCount: 'حفظت', hifzTest: 'اختبر حفظي', hifzTestSub: 'اقرأ من حفظك ثم اكشف الآية للتأكد',
       hifzReveal: 'اكشف', hifzHide: 'أخفِ', hifzHideAll: 'أخفِ الكل', hifzBack: 'رجوع',
       hifzLocal: 'حالة الحفظ محفوظة على جهازك فقط، بدون حساب ولا مزامنة.',
+      jTitle: 'رحلتي', jSub: 'من بياناتك على هذا الجهاز', jLast: 'أين أنا في القرآن', jStart: 'ابدأ القراءة',
+      jToday: 'تقدم اليوم', jStreak: 'يوم متتالي', jNextWird: 'الورد القادم', jWirdDone: 'تم ورد اليوم',
+      jWeek: 'هدف الأسبوع', jDays: 'أيام', jHifz: 'مستوى الحفظ', jSurahs: 'سورة محفوظة', jKhatma: 'الختمة', jJuz: 'جزءًا',
       msTitle: 'المصحف', msClose: 'إغلاق', msMode: 'طريقة عرض المصحف', msVertical: 'رأسي', msPage: 'صفحة',
       msMushaf: 'المصحف', msAuto: 'التصفح التلقائي', msAutoOn: 'يعمل الآن · اضغط للإيقاف', msAutoOff: 'متوقف',
       msIndex: 'الفهرس', msSearch: 'البحث', msSearchPh: 'ابحث في المصحف', msSearchHint: 'اكتب حرفين على الأقل',
@@ -1384,6 +1397,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       hifzAyahs: 'ayahs', hifzCount: 'memorised', hifzTest: 'Test me', hifzTestSub: 'Recite from memory, then reveal the verse to check',
       hifzReveal: 'Reveal', hifzHide: 'Hide', hifzHideAll: 'Hide all', hifzBack: 'Back',
       hifzLocal: 'Your memorisation state is stored on this device only, with no account and no sync.',
+      jTitle: 'My journey', jSub: 'From what is on this device', jLast: 'Where I am in the Quran', jStart: 'Start reading',
+      jToday: 'Today', jStreak: 'day streak', jNextWird: 'Next wird', jWirdDone: 'Today\'s wird is done',
+      jWeek: 'Weekly goal', jDays: 'days', jHifz: 'Memorisation', jSurahs: 'surahs memorised', jKhatma: 'Khatma', jJuz: 'juz',
       msTitle: 'Mushaf', msClose: 'Close', msMode: 'Mushaf display', msVertical: 'Vertical', msPage: 'Page',
       msMushaf: 'Mushaf', msAuto: 'Auto-scroll', msAutoOn: 'Running · tap to stop', msAutoOff: 'Off',
       msIndex: 'Index', msSearch: 'Search', msSearchPh: 'Search the mushaf', msSearchHint: 'Type at least two letters',
@@ -1638,7 +1654,6 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.trFile = function (code) {
     return { yusufali: 'data/tr-yusufali.js', ahmedali: 'data/tr-ahmedali.js', indonesian: 'data/tr-indonesian.js' }[code] || null;
   };
-  MIH.tafsirArray = function () { return window.MIH_TAFSIR_JALALAYN || null; };
 
   /* ---------- bottom sheet ---------- */
   MIH.sheet = function (title, html) {
@@ -1710,7 +1725,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     var ev = MIH.nextEvent();
 
-    return '<div class="view">' + beta +
+    return '<div class="view">' + beta + MIH.journeyCard() +
       '<div class="hero">' +
         '<div class="hero-top">' +
           '<div>' +
@@ -1889,6 +1904,170 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     if (!s) return '';
     return MIH.isAr() ? s[0] : s[1];
   };
+})();
+
+/* views-journey.js */
+/* MIHRABI - رحلتي (the journey card on the home screen)
+   Everything here is computed from data already on the device: the last verse marked read,
+   a local per-day reading log, the wird tracker, the memorisation list, the khatma progress
+   and a weekly goal the user sets. No server, no account, no new religious text. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  var esc = MIH.esc;
+  var t = function (k) { return MIH.t(k); };
+
+  var WIRD_KEY = 'mihrabi.wird.v1';
+  var KHATMA_KEY = 'mihrabi.khatma.v1';
+  var HIFZ_KEY = 'mihrabi.hifz.v1';
+  var LOG_KEY = 'mihrabi.readlog.v1';
+  var GOAL_KEY = 'mihrabi.goal.v1';
+
+  var WIRD_ORDER = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha', 'morning', 'evening', 'quran', 'istighfar', 'salawat'];
+  var WIRD_LABEL = {
+    fajr: 'wirdFajr', dhuhr: 'wirdDhuhr', asr: 'wirdAsr', maghrib: 'wirdMaghrib', isha: 'wirdIsha',
+    morning: 'wirdMorning', evening: 'wirdEvening', quran: 'wirdQuran', istighfar: 'wirdIstighfar', salawat: 'wirdSalawat'
+  };
+
+  function read(key, fallback) {
+    try { var raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function write(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { return false; }
+  }
+  function dayKey(d) {
+    if (!d) return MIH.dayKey();
+    var n = { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+    return n.y + '-' + n.m + '-' + n.d;
+  }
+
+  MIH.journey = {};
+
+  /* local reading log: { 'YYYY-MM-DD': verses } */
+  MIH.journey.log = function () {
+    var l = read(LOG_KEY, {});
+    return (l && typeof l === 'object' && !Array.isArray(l)) ? l : {};
+  };
+  MIH.journey.bumpRead = function (n) {
+    var l = MIH.journey.log();
+    var k = dayKey();
+    l[k] = (l[k] || 0) + (n || 1);
+    write(LOG_KEY, l);
+    return l[k];
+  };
+  MIH.journey.goal = function () {
+    var g = read(GOAL_KEY, null);
+    var days = (g && typeof g.days === 'number') ? g.days : 5;
+    return Math.max(1, Math.min(7, days));
+  };
+  MIH.journey.setGoal = function (days) {
+    var d = Math.max(1, Math.min(7, days));
+    write(GOAL_KEY, { days: d });
+    return d;
+  };
+
+  function weekDays() {
+    var out = [];
+    var now = new Date();
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(now.getTime() - i * 86400000);
+      out.push(dayKey(d));
+    }
+    return out;
+  }
+  function streak(log) {
+    var n = 0;
+    var now = new Date();
+    for (var i = 0; i < 400; i++) {
+      var k = dayKey(new Date(now.getTime() - i * 86400000));
+      if ((log[k] || 0) > 0) n++; else break;
+    }
+    return n;
+  }
+
+  MIH.journey.state = function () {
+    var log = MIH.journey.log();
+    var today = log[dayKey()] || 0;
+    var week = weekDays();
+    var weekDone = week.filter(function (k) { return (log[k] || 0) > 0; }).length;
+    var wird = read(WIRD_KEY, null);
+    var wirdDone = {};
+    if (wird && wird.day === dayKey()) wirdDone = wird.done || {};
+    var nextWird = null;
+    for (var i = 0; i < WIRD_ORDER.length; i++) {
+      if (!wirdDone[WIRD_ORDER[i]]) { nextWird = WIRD_ORDER[i]; break; }
+    }
+    var hifz = read(HIFZ_KEY, { done: [] });
+    var hifzDone = (hifz && Array.isArray(hifz.done)) ? hifz.done : [];
+    var khatma = read(KHATMA_KEY, { juz: [] });
+    var juz = (khatma && Array.isArray(khatma.juz)) ? khatma.juz.length : 0;
+    return {
+      last: MIH.state.lastRead || null,
+      everRead: Object.keys(log).some(function (k) { return (log[k] || 0) > 0; }),
+      today: today,
+      weekDone: weekDone,
+      goal: MIH.journey.goal(),
+      streak: streak(log),
+      nextWird: nextWird,
+      wirdLeft: WIRD_ORDER.filter(function (k) { return !wirdDone[k]; }).length,
+      hifz: hifzDone.length,
+      juz: juz
+    };
+  };
+
+  function bar(pct) {
+    return '<span class="jbar"><span style="width:' + Math.max(0, Math.min(100, pct)) + '%"></span></span>';
+  }
+
+  MIH.journeyCard = function () {
+    var s = MIH.journey.state();
+    var started = !!(s.last && (s.today > 0 || s.everRead));
+    var lastTxt = started
+      ? esc(MIH.surahName(s.last.s)) + ' · ' + esc(t('ayah')) + ' ' + s.last.a
+      : esc(t('jStart'));
+    var lastTo = started ? '#/quran/' + s.last.s + '/' + s.last.a : '#/quran';
+    var wirdTxt = s.nextWird ? esc(t(WIRD_LABEL[s.nextWird])) : esc(t('jWirdDone'));
+    var goalPct = Math.round((s.weekDone / s.goal) * 100);
+
+    return '<div class="card journey" id="journey-card">' +
+      '<div class="journey-head"><strong>' + esc(t('jTitle')) + '</strong>' +
+      '<span class="sub">' + esc(t('jSub')) + '</span></div>' +
+
+      '<button class="row" data-action="nav" data-to="' + lastTo + '" id="j-last">' +
+        '<span class="row-main"><span class="row-title">' + esc(t('jLast')) + '</span>' +
+        '<span class="row-sub">' + lastTxt + '</span></span><span class="row-chev">‹</span></button>' +
+
+      '<div class="row" id="j-today"><span class="row-main"><span class="row-title">' + esc(t('jToday')) + '</span>' +
+        '<span class="row-sub">' + s.today + ' ' + esc(t('ayah')) + (s.streak ? ' · ' + s.streak + ' ' + esc(t('jStreak')) : '') + '</span></span></div>' +
+
+      '<button class="row" data-action="nav" data-to="#/wird" id="j-wird">' +
+        '<span class="row-main"><span class="row-title">' + esc(t('jNextWird')) + '</span>' +
+        '<span class="row-sub">' + wirdTxt + '</span></span><span class="row-chev">‹</span></button>' +
+
+      '<div class="row" id="j-week"><span class="row-main"><span class="row-title">' + esc(t('jWeek')) + '</span>' +
+        '<span class="row-sub">' + s.weekDone + ' / ' + s.goal + ' ' + esc(t('jDays')) + '</span>' + bar(goalPct) + '</span>' +
+        '<span class="jstep"><button data-action="journey-goal" data-v="-1" aria-label="-">−</button>' +
+        '<button data-action="journey-goal" data-v="1" aria-label="+">+</button></span></div>' +
+
+      '<button class="row" data-action="nav" data-to="#/hifz" id="j-hifz">' +
+        '<span class="row-main"><span class="row-title">' + esc(t('jHifz')) + '</span>' +
+        '<span class="row-sub">' + s.hifz + ' ' + esc(t('jSurahs')) + '</span></span><span class="row-chev">‹</span></button>' +
+
+      '<button class="row" data-action="nav" data-to="#/khatma" id="j-khatma">' +
+        '<span class="row-main"><span class="row-title">' + esc(t('jKhatma')) + '</span>' +
+        '<span class="row-sub">' + s.juz + ' / 30 ' + esc(t('jJuz')) + '</span></span><span class="row-chev">‹</span></button>' +
+      '</div>';
+  };
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-action="journey-goal"]') : null;
+    if (!el) return;
+    var v = parseInt(el.getAttribute('data-v'), 10) || 0;
+    MIH.journey.setGoal(MIH.journey.goal() + v);
+    MIH.render();
+  });
 })();
 
 /* views-quran.js */
@@ -2814,7 +2993,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
     catch (e) { return false; }
   }
-  function todayKey() { return MIH.gregLabel(new Date()); }
+  function todayKey() { return MIH.dayKey(); }
 
   /* ---------------- wird / muhasaba ---------------- */
   var WIRD = [
@@ -3512,6 +3691,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     }
     if (a === 'mark-read') {
       MIH.state.lastRead = { s: parseInt(el.getAttribute('data-s'), 10), a: parseInt(el.getAttribute('data-a'), 10) };
+      if (MIH.journey && MIH.journey.bumpRead) MIH.journey.bumpRead(1);
       MIH.save(); MIH.toast(t('markRead')); return;
     }
     if (a === 'bookmark') {
