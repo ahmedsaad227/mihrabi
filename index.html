@@ -526,6 +526,13 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .audio-item .row-main { min-width: 0; }
 .audio-item .row-main div { overflow: hidden; text-overflow: ellipsis; }
 
+/* ---------- khatma grid ---------- */
+.kh-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.kh-cell{aspect-ratio:1/1;border-radius:14px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);font:600 15px/1 'Inter',system-ui;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.kh-cell.on{background:var(--green-700);border-color:var(--green-700);color:#fff}
+.kh-cell:active{transform:scale(.96)}
+
 </style>
 </head>
 <body>
@@ -1169,6 +1176,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     ar: {
       app: 'مِحرابي', tagline: 'رفيقك في كل صلاة.. وكل يوم',
       home: 'الرئيسية', prayer: 'الصلاة', quran: 'القرآن', azkar: 'الأذكار', more: 'المزيد',
+      wirdTitle: 'ورد المحاسبة', khatmaTitle: 'الختمة',
+      wirdSub: 'تابع وردك اليومي وعلامة كل ما أنجزته', khatmaSub: 'علّم الأجزاء التي قرأتها — محفوظ على جهازك فقط',
+      wirdFajr: 'صلاة الفجر', wirdDhuhr: 'صلاة الظهر', wirdAsr: 'صلاة العصر', wirdMaghrib: 'صلاة المغرب', wirdIsha: 'صلاة العشاء',
+      wirdMorning: 'أذكار الصباح', wirdEvening: 'أذكار المساء', wirdQuran: 'ورد القرآن اليومي',
+      wirdIstighfar: 'استغفار 100 مرة', wirdSalawat: 'صلاة على النبي 100 مرة',
+      wirdCount: 'أنجزت', wirdReset: 'ابدأ يومًا جديدًا', wirdResetDone: 'تم تصفير ورد اليوم',
+      wirdLocal: 'الورد يُحفظ على جهازك فقط ويُصفَّر تلقائيًا كل يوم. لا يحتاج حسابًا.',
+      khatmaCount: 'أجزاء مقروءة', khatmaNext: 'التالي: الجزء', khatmaReset: 'مسح التقدم', khatmaResetDone: 'تم مسح تقدم الختمة',
+      khatmaLocal: 'تقدم الختمة محفوظ على جهازك فقط، بدون حساب ولا مزامنة.',
       greetingMorning: 'صباح الخير', greetingEvening: 'مساء الخير', greetingNight: 'طاب ليلك',
       nextPrayer: 'الصلاة القادمة', next: 'التالي', remaining: 'المتبقي', at: 'في',
       fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء',
@@ -1221,6 +1237,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     en: {
       app: 'MIHRABI', tagline: 'Your companion in every prayer, every day',
       home: 'Home', prayer: 'Prayer', quran: 'Quran', azkar: 'Azkar', more: 'More',
+      wirdTitle: 'Daily wird', khatmaTitle: 'Khatma',
+      wirdSub: 'Track your daily wird and mark what you finished', khatmaSub: 'Mark the juz you have read — saved on this device only',
+      wirdFajr: 'Fajr prayer', wirdDhuhr: 'Dhuhr prayer', wirdAsr: 'Asr prayer', wirdMaghrib: 'Maghrib prayer', wirdIsha: 'Isha prayer',
+      wirdMorning: 'Morning azkar', wirdEvening: 'Evening azkar', wirdQuran: 'Daily Quran portion',
+      wirdIstighfar: 'Istighfar 100 times', wirdSalawat: 'Salawat 100 times',
+      wirdCount: 'Done', wirdReset: 'Start a new day', wirdResetDone: 'Today\'s wird reset',
+      wirdLocal: 'The wird is stored on your device only and resets every day. No account needed.',
+      khatmaCount: 'Juz read', khatmaNext: 'Next: juz', khatmaReset: 'Clear progress', khatmaResetDone: 'Khatma progress cleared',
+      khatmaLocal: 'Khatma progress is stored on your device only, with no account and no sync.',
       greetingMorning: 'Good morning', greetingEvening: 'Good evening', greetingNight: 'Peaceful night',
       nextPrayer: 'Next prayer', next: 'Next', remaining: 'in', at: 'at',
       fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha',
@@ -1507,6 +1532,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   }
 
   MIH.views.home = function () {
+    var beta = '<div class="card" style="padding:12px 14px;margin-top:10px;border-color:rgba(180,140,60,.45);background:rgba(180,140,60,.08)">' +
+      '<div class="row-sub" style="color:var(--ink)"><strong>' + esc(MIH.isAr() ? 'نسخة تجريبية (بيتا)' : 'Beta build') + '</strong> — ' +
+      esc(MIH.isAr()
+        ? 'الترجمات الآلية (الفرنسية والتركية والأوردو والإندونيسية والماليزية) والنصوص الشرعية لم تُراجَع بعد من متخصص.'
+        : 'Machine translations (French, Turkish, Urdu, Indonesian, Malay) and the religious texts have not yet been reviewed by a specialist.') +
+      '</div></div>';
     var now = MIH.cityNow();
     var times = MIH.times(now);
     var np = MIH.nextPrayer();
@@ -1521,7 +1552,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     var ev = MIH.nextEvent();
 
-    return '<div class="view">' +
+    return '<div class="view">' + beta +
       '<div class="hero">' +
         '<div class="hero-top">' +
           '<div>' +
@@ -2138,11 +2169,16 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   /* ---------- settings ---------- */
   MIH.views.settings = function () {
     var bg = (MIH.bgSync && MIH.bgSync.state) || 'unknown';
+    var exact = MIH.isNative ? MIH.exactAlarm() : null;
     var bgText = MIH.isNative
-      ? (MIH.isAr() ? 'يعمل عبر منبه أندرويد — يشتغل والتطبيق مقفول' : 'On via the Android alarm — works with the app closed')
+      ? (exact === false
+        ? (MIH.isAr() ? 'إذن «المنبهات والتذكيرات» مرفوض — التنبيه قد يتأخر حتى تسمح به' : 'The Alarms & reminders permission is off — alerts may be late until you allow it')
+        : (MIH.isAr() ? 'يعمل عبر منبه أندرويد — يشتغل والتطبيق مقفول' : 'On via the Android alarm — works with the app closed'))
       : (bg === 'on' ? t('bgOn') : bg === 'off' ? t('bgNeeds') : t('bgOff'));
     var bgBtn = MIH.isNative
-      ? '<span class="badge badge-green">✓</span>'
+      ? (exact === false
+        ? '<button class="btn btn-sm btn-ghost" data-action="exact-alarm-fix">' + esc(MIH.isAr() ? 'اسمح بالمنبه الدقيق' : 'Allow exact alarms') + '</button>'
+        : '<span class="badge badge-green">✓</span>')
       : (bg === 'off'
         ? '<button class="btn btn-sm btn-ghost" data-action="bg-enable">' + esc(t('bgAsk')) + '</button>'
         : '<span class="badge ' + (bg === 'on' ? 'badge-green' : '') + '">' + (bg === 'on' ? '✓' : '—') + '</span>');
@@ -2420,6 +2456,18 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   var nav = document.getElementById('nav');
 
   MIH.state = MIH.load();
+  MIH.exactAlarm = function () {
+    try {
+      if (window.MihrabiNative && window.MihrabiNative.exactAlarmState) {
+        return window.MihrabiNative.exactAlarmState() === 1;
+      }
+    } catch (e) { }
+    return null;
+  };
+  MIH.openExactAlarmSettings = function () {
+    try { if (window.MihrabiNative && window.MihrabiNative.openExactAlarmSettings) window.MihrabiNative.openExactAlarmSettings(); }
+    catch (e) { }
+  };
   MIH.isNative = typeof window.MihrabiNative !== 'undefined' && window.MihrabiNative !== null;
 
   // deep-link overrides for screenshots / sharing: ?theme=dark&lang=en
@@ -2596,6 +2644,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     if (a === 'play') { var tr = MIH.audioById(el.getAttribute('data-track')); if (tr) MIH.play(tr); return; }
     if (a === 'close-sheet') { MIH.closeSheet(); return; }
     if (a === 'adhan-sound') { MIH.state.adhan.sound = el.getAttribute('data-v'); MIH.save(); MIH.syncAdhanNative(); render(); return; }
+    if (a === 'exact-alarm-fix') { MIH.openExactAlarmSettings(); return; }
     if (a === 'bg-enable') {
       MIH.enableBgSync(function (ok) { MIH.toast(ok ? t('bgOn') : t('bgDenied')); render(); });
       return;
