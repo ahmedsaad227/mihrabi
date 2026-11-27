@@ -1999,6 +1999,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   MIH.views.more = function () {
     var items = [
+      ['#/wird', 'i-check', t('wirdTitle')],
+      ['#/khatma', 'i-bookmark', t('khatmaTitle')],
       ['#/audio', 'i-play', t('audioLibrary')],
       ['#/qibla', 'i-compass', t('qiblaTitle')],
       ['#/tasbih', 'i-beads', t('tasbihTitle')],
@@ -2437,6 +2439,136 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 })();
 
+/* views-worship.js */
+/* MIHRABI — views: wird (daily tracker) and khatma (local Quran progress)
+   Both are local-only: nothing leaves the device, no account needed. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  var esc = MIH.esc;
+  var WIRD_KEY = 'mihrabi.wird.v1';
+  var KHATMA_KEY = 'mihrabi.khatma.v1';
+
+  function read(key, fallback) {
+    try { var raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function write(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { return false; }
+  }
+  function todayKey() { return MIH.gregLabel(new Date()); }
+
+  /* ---------------- wird / muhasaba ---------------- */
+  var WIRD = [
+    ['fajr', 'wirdFajr'], ['dhuhr', 'wirdDhuhr'], ['asr', 'wirdAsr'],
+    ['maghrib', 'wirdMaghrib'], ['isha', 'wirdIsha'],
+    ['morning', 'wirdMorning'], ['evening', 'wirdEvening'],
+    ['quran', 'wirdQuran'], ['istighfar', 'wirdIstighfar'], ['salawat', 'wirdSalawat']
+  ];
+
+  function wirdState() {
+    var s = read(WIRD_KEY, null);
+    var day = todayKey();
+    if (!s || s.day !== day) { s = { day: day, done: {} }; }
+    return s;
+  }
+
+  MIH.views.wird = function () {
+    var t = MIH.t;
+    var s = wirdState();
+    var done = WIRD.filter(function (w) { return s.done[w[0]]; }).length;
+    var pct = Math.round((done / WIRD.length) * 100);
+    var rows = WIRD.map(function (w) {
+      var on = !!s.done[w[0]];
+      return '<button class="row" data-action="wird-toggle" data-k="' + w[0] + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        '<span class="icon-btn" style="pointer-events:none;' + (on ? 'background:rgba(20,81,60,.12);border-color:transparent;color:var(--green-700)' : 'color:var(--muted)') + '">' +
+        '<svg><use href="#' + (on ? 'i-check' : 'i-info') + '"/></svg></span>' +
+        '<span class="row-main"><span class="row-title">' + esc(t(w[1])) + '</span></span>' +
+        (on ? '<span class="badge badge-green">✓</span>' : '') + '</button>';
+    }).join('');
+
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('wirdTitle')) + '</h1>' +
+      '<p class="sub">' + esc(t('wirdSub')) + '</p></div>' +
+      '<span class="badge badge-green num" id="wird-pct">' + pct + '%</span></div>' +
+      '<div class="card" style="padding:14px 16px">' +
+        '<div style="height:8px;border-radius:99px;background:rgba(20,81,60,.12);overflow:hidden">' +
+          '<div id="wird-bar" style="height:100%;width:' + pct + '%;background:var(--green-700);transition:width .25s"></div>' +
+        '</div>' +
+        '<div class="row-sub" style="margin-top:10px">' + esc(t('wirdCount')) + ' ' + done + ' / ' + WIRD.length + ' · ' + esc(s.day) + '</div>' +
+      '</div>' +
+      '<div class="card" style="padding:6px 16px" id="wird-list">' + rows + '</div>' +
+      '<div class="rowflex" style="justify-content:flex-end;margin-top:12px">' +
+        '<button class="btn btn-sm btn-ghost" data-action="wird-reset">' + esc(t('wirdReset')) + '</button>' +
+      '</div>' +
+      '<div class="footer-note">' + esc(t('wirdLocal')) + '</div>' +
+      '</div>';
+  };
+
+  /* ---------------- khatma ---------------- */
+  function khatmaState() {
+    var s = read(KHATMA_KEY, null);
+    if (!s || !Array.isArray(s.juz)) s = { juz: [], updated: 0 };
+    return s;
+  }
+
+  MIH.views.khatma = function () {
+    var t = MIH.t;
+    var s = khatmaState();
+    var done = s.juz.length;
+    var pct = Math.round((done / 30) * 100);
+    var cells = [];
+    for (var j = 1; j <= 30; j++) {
+      var on = s.juz.indexOf(j) >= 0;
+      cells.push('<button class="kh-cell' + (on ? ' on' : '') + '" data-action="khatma-toggle" data-j="' + j + '" aria-pressed="' + (on ? 'true' : 'false') + '">' + String(j) + '</button>');
+    }
+    var next = 1;
+    for (var k = 1; k <= 30; k++) { if (s.juz.indexOf(k) < 0) { next = k; break; } }
+
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('khatmaTitle')) + '</h1>' +
+      '<p class="sub">' + esc(t('khatmaSub')) + '</p></div>' +
+      '<span class="badge badge-green num" id="khatma-pct">' + pct + '%</span></div>' +
+      '<div class="card" style="padding:14px 16px">' +
+        '<div style="height:8px;border-radius:99px;background:rgba(20,81,60,.12);overflow:hidden">' +
+          '<div id="khatma-bar" style="height:100%;width:' + pct + '%;background:var(--green-700);transition:width .25s"></div>' +
+        '</div>' +
+        '<div class="row-sub" style="margin-top:10px">' + esc(t('khatmaCount')) + ' ' + String(done) + ' / ' + String(30) + '</div>' +
+      '</div>' +
+      '<div class="kh-grid" id="khatma-grid">' + cells.join('') + '</div>' +
+      '<div class="rowflex" style="justify-content:space-between;margin-top:12px">' +
+        '<button class="btn btn-sm btn-primary" data-action="khatma-next" data-j="' + next + '">' + esc(t('khatmaNext')) + ' ' + String(next) + '</button>' +
+        '<button class="btn btn-sm btn-ghost" data-action="khatma-reset">' + esc(t('khatmaReset')) + '</button>' +
+      '</div>' +
+      '<div class="footer-note">' + esc(t('khatmaLocal')) + '</div>' +
+      '</div>';
+  };
+
+  /* ---------------- actions ---------------- */
+  MIH.wirdToggle = function (key) {
+    var s = wirdState();
+    if (s.done[key]) delete s.done[key]; else s.done[key] = true;
+    write(WIRD_KEY, s);
+    return s;
+  };
+  MIH.wirdReset = function () { write(WIRD_KEY, { day: todayKey(), done: {} }); };
+  MIH.wirdState = wirdState;
+
+  MIH.khatmaToggle = function (j) {
+    var s = khatmaState();
+    j = parseInt(j, 10);
+    var i = s.juz.indexOf(j);
+    if (i >= 0) s.juz.splice(i, 1); else s.juz.push(j);
+    s.juz.sort(function (a, b) { return a - b; });
+    s.updated = Date.now();
+    write(KHATMA_KEY, s);
+    return s;
+  };
+  MIH.khatmaReset = function () { write(KHATMA_KEY, { juz: [], updated: Date.now() }); };
+  MIH.khatmaState = khatmaState;
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -2501,7 +2633,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -2548,6 +2680,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     else if (parts[0] === 'status') { view = 'status'; html = MIH.views.status(); }
     else if (parts[0] === 'audio') { view = 'audio'; html = MIH.views.audio(); }
     else if (parts[0] === 'credits') { view = 'credits'; html = MIH.views.credits(); }
+    else if (parts[0] === 'wird') { view = 'wird'; html = MIH.views.wird(); }
+    else if (parts[0] === 'khatma') { view = 'khatma'; html = MIH.views.khatma(); }
     else if (parts[0] === 'more') { view = 'more'; html = MIH.views.more(); }
     else { view = 'home'; html = MIH.views.home(); }
 
@@ -2643,6 +2777,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     }
     if (a === 'play') { var tr = MIH.audioById(el.getAttribute('data-track')); if (tr) MIH.play(tr); return; }
     if (a === 'close-sheet') { MIH.closeSheet(); return; }
+    if (a === 'wird-toggle') { MIH.wirdToggle(el.getAttribute('data-k')); render(); return; }
+    if (a === 'wird-reset') { MIH.wirdReset(); render(); MIH.toast(t('wirdResetDone')); return; }
+    if (a === 'khatma-toggle') { MIH.khatmaToggle(el.getAttribute('data-j')); render(); return; }
+    if (a === 'khatma-next') { MIH.khatmaToggle(el.getAttribute('data-j')); render(); return; }
+    if (a === 'khatma-reset') { MIH.khatmaReset(); render(); MIH.toast(t('khatmaResetDone')); return; }
     if (a === 'adhan-sound') { MIH.state.adhan.sound = el.getAttribute('data-v'); MIH.save(); MIH.syncAdhanNative(); render(); return; }
     if (a === 'exact-alarm-fix') { MIH.openExactAlarmSettings(); return; }
     if (a === 'bg-enable') {
