@@ -570,6 +570,15 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .tasmi-text{font-family:'Amiri',serif;font-size:20px;line-height:2;text-align:right;transition:filter .15s}
 .tasmi-text.hidden{filter:blur(4px);opacity:.65;user-select:none}
 
+/* ---- library ---- */
+.lib-src{padding:12px 0;border-bottom:1px solid rgba(20,81,60,.08)}
+.lib-src:last-child{border-bottom:0}
+.lib-src-name{font-weight:600;font-size:14px}
+.lib-src-meta{font-size:12px;color:var(--muted,#5c6b63);margin-top:2px;direction:ltr;text-align:right;unicode-bidi:isolate}
+
+/* ---- library row chevron ---- */
+.row-chev{font-size:18px;color:var(--muted,#5c6b63);line-height:1;padding-inline-start:6px}
+
 </style>
 </head>
 <body>
@@ -1232,6 +1241,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       wirdLocal: 'الورد يُحفظ على جهازك فقط ويُصفَّر تلقائيًا كل يوم. لا يحتاج حسابًا.',
       khatmaCount: 'أجزاء مقروءة', khatmaNext: 'التالي: الجزء', khatmaReset: 'مسح التقدم', khatmaResetDone: 'تم مسح تقدم الختمة',
       khatmaLocal: 'تقدم الختمة محفوظ على جهازك فقط، بدون حساب ولا مزامنة.',
+      libTitle: 'المكتبة الإسلامية', libSub: 'كل محتوى التطبيق في مكان واحد، ومع كل قسم مصدره وترخيصه',
+      libSurahs: 'سورة', libAyahs: 'آية', libSections: 'قسمًا', libNames: 'اسمًا', libItems: 'بندًا', libHadith: 'حديثًا',
+      libHifzSub: 'متابعة الحفظ ووضع التسميع', libWirdSub: 'ورد يومي ومحاسبة النفس', libKhatmaSub: 'ختمة فردية بثلاثين جزءًا', libAudioSub: 'أذان وتلاوات بتراخيصها',
+      libSources: 'المصادر والتراخيص', libVia: 'عبر', libPublic: 'ملكية عامة', libAudioNames: 'تسجيلات الأذان والتلاوات',
+      libSrcQuran: 'نص القرآن (الرسم العثماني)', libSrcTr: 'الترجمات الأربع', libSrcTafsir: 'التفسير', libSrcAzkar: 'الأذكار',
+      libSrcNames: 'أسماء الله الحسنى', libSrcHadith: 'الحديث', libSrcAudio: 'الصوتيات', libSrcFonts: 'الخطوط',
+      libNote: 'كل نص ديني هنا مأخوذ من مصدره المذكور بدون تعديل، ولم يُراجَع بعد من متخصص. المراجعة الشرعية مسؤولية صاحب التطبيق.',
       hifzTitle: 'الحفظ والتسميع', hifzSub: 'علّم السور التي حفظتها، ثم اختبر نفسك بآيات مخفية',
       hifzAyahs: 'آية', hifzCount: 'حفظت', hifzTest: 'اختبر حفظي', hifzTestSub: 'اقرأ من حفظك ثم اكشف الآية للتأكد',
       hifzReveal: 'اكشف', hifzHide: 'أخفِ', hifzHideAll: 'أخفِ الكل', hifzBack: 'رجوع',
@@ -1306,6 +1322,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       wirdLocal: 'The wird is stored on your device only and resets every day. No account needed.',
       khatmaCount: 'Juz read', khatmaNext: 'Next: juz', khatmaReset: 'Clear progress', khatmaResetDone: 'Khatma progress cleared',
       khatmaLocal: 'Khatma progress is stored on your device only, with no account and no sync.',
+      libTitle: 'Islamic library', libSub: 'Everything in the app in one place, with the source and licence of each part',
+      libSurahs: 'surahs', libAyahs: 'ayahs', libSections: 'sections', libNames: 'names', libItems: 'items', libHadith: 'hadith',
+      libHifzSub: 'Memorisation tracking and reciting mode', libWirdSub: 'Daily wird and self-accounting', libKhatmaSub: 'A personal khatma in thirty juz', libAudioSub: 'Adhan and recitations with their licences',
+      libSources: 'Sources and licences', libVia: 'via', libPublic: 'public domain', libAudioNames: 'Adhan and recitation recordings',
+      libSrcQuran: 'Quran text (Uthmani script)', libSrcTr: 'The four translations', libSrcTafsir: 'Tafsir', libSrcAzkar: 'Azkar',
+      libSrcNames: 'The 99 names', libSrcHadith: 'Hadith', libSrcAudio: 'Audio', libSrcFonts: 'Fonts',
+      libNote: 'Every religious text here is taken from its stated source unedited, and none of it has been reviewed by a specialist yet. The scholarly review is the owner’s responsibility.',
       hifzTitle: 'Memorisation and reciting', hifzSub: 'Mark the surahs you have memorised, then test yourself with hidden verses',
       hifzAyahs: 'ayahs', hifzCount: 'memorised', hifzTest: 'Test me', hifzTestSub: 'Recite from memory, then reveal the verse to check',
       hifzReveal: 'Reveal', hifzHide: 'Hide', hifzHideAll: 'Hide all', hifzBack: 'Back',
@@ -2075,6 +2098,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       ['#/dua', 'i-azkar', t('duaTitle')],
       ['#/hadith', 'i-azkar', t('hadithTitle')],
       ['#/hifz', 'i-check', t('hifzTitle')],
+      ['#/library', 'i-azkar', t('libTitle')],
       ['#/names', 'i-azkar', t('namesTitle')],
       ['#/wird', 'i-check', t('wirdTitle')],
       ['#/khatma', 'i-bookmark', t('khatmaTitle')],
@@ -2852,6 +2876,72 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 })();
 
+/* views-library.js */
+/* MIHRABI - view: المكتبة الإسلامية
+   An index of the Islamic content the app already holds, with the source and licence of
+   each piece. It adds no new text of its own: every count is read from the loaded data. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  var esc = MIH.esc;
+
+  function count(fn, fallback) {
+    try { var n = fn(); return (typeof n === 'number' && isFinite(n)) ? n : fallback; } catch (e) { return fallback; }
+  }
+
+  MIH.views.library = function () {
+    var t = MIH.t;
+    var ayahs = count(function () { return MIH.quran.a.length; }, 6236);
+    var surahs = count(function () { return MIH.quran.s.length; }, 114);
+    var azkar = count(function () { return window.MIH_AZKAR.length; }, 0);
+    var names = count(function () { return window.MIH_NAMES.length; }, 99);
+    var duas = count(function () { return window.MIH_DUA.ruqyah.length + window.MIH_DUA.duas.length; }, 44);
+    var hadith = count(function () { return window.MIH_HADITH.nawawi.length + window.MIH_HADITH.qudsi.length; }, 82);
+
+    var items = [
+      ['#/quran', 'quran', surahs + ' ' + t('libSurahs') + ' · ' + ayahs + ' ' + t('libAyahs')],
+      ['#/azkar', 'azkar', azkar + ' ' + t('libSections')],
+      ['#/names', 'namesTitle', names + ' ' + t('libNames')],
+      ['#/dua', 'duaTitle', duas + ' ' + t('libItems')],
+      ['#/hadith', 'hadithTitle', hadith + ' ' + t('libHadith')],
+      ['#/hifz', 'hifzTitle', t('libHifzSub')],
+      ['#/wird', 'wirdTitle', t('libWirdSub')],
+      ['#/khatma', 'khatmaTitle', t('libKhatmaSub')],
+      ['#/audio', 'audioLibrary', t('libAudioSub')]
+    ];
+    var rows = items.map(function (x) {
+      return '<button class="row" data-action="nav" data-to="' + x[0] + '">' +
+        '<span class="row-main"><span class="row-title">' + esc(t(x[1])) + '</span>' +
+        '<span class="row-sub">' + esc(x[2]) + '</span></span>' +
+        '<span class="row-chev">‹</span></button>';
+    }).join('');
+
+    var sources = [
+      ['libSrcQuran', 'Tanzil (tanzil.net) ' + t('libVia') + ' AlQuran Cloud', 'CC BY 3.0'],
+      ['libSrcTr', 'Yusuf Ali · Pickthall · Ahmed Ali · Indonesian', t('libPublic')],
+      ['libSrcTafsir', 'Tafsir al-Jalalayn', t('libPublic')],
+      ['libSrcAzkar', 'Hisn al-Muslim', t('libPublic')],
+      ['libSrcNames', 'asma-al-husna-api', 'MIT'],
+      ['libSrcHadith', 'hadith-json (AhmedBaset)', 'The Unlicense'],
+      ['libSrcAudio', t('libAudioNames'), 'CC BY-SA 4.0 / 3.0 / CC BY 4.0'],
+      ['libSrcFonts', 'Cairo · Amiri · IBM Plex Sans Arabic · Inter', 'SIL OFL 1.1']
+    ];
+    var srows = sources.map(function (s) {
+      return '<div class="lib-src"><div class="lib-src-name">' + esc(t(s[0])) + '</div>' +
+        '<div class="lib-src-meta">' + esc(s[1]) + ' · <span class="num">' + esc(s[2]) + '</span></div></div>';
+    }).join('');
+
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('libTitle')) + '</h1>' +
+      '<p class="sub">' + esc(t('libSub')) + '</p></div></div>' +
+      '<div class="card" style="padding:6px 16px" id="lib-list">' + rows + '</div>' +
+      '<h2 class="h2" style="margin:20px 0 8px">' + esc(t('libSources')) + '</h2>' +
+      '<div class="card" style="padding:6px 16px" id="lib-sources">' + srows + '</div>' +
+      '<div class="footer-note">' + esc(t('libNote')) + '</div>' +
+      '</div>';
+  };
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -2916,7 +3006,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || (active === 'reader' && n[0] === '#/quran') || (active === 'azkarCat' && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -2968,6 +3058,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     else if (parts[0] === 'names') { view = 'names'; html = MIH.views.names(); }
     else if (parts[0] === 'dua') { view = 'dua'; html = MIH.views.dua(); }
     else if (parts[0] === 'hadith') { view = 'hadith'; html = MIH.views.hadith(); }
+    else if (parts[0] === 'library') { view = 'library'; html = MIH.views.library(); }
     else if (parts[0] === 'hifz') {
       if (parts[1]) { view = 'tasmi'; html = MIH.views.tasmi(parseInt(parts[1], 10)); }
       else { view = 'hifz'; html = MIH.views.hifz(); }
