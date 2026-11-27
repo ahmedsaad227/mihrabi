@@ -1250,6 +1250,46 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 [data-theme="dark"] .mp-pageimg { filter: invert(.92) hue-rotate(180deg) contrast(.94); background: #12100b; }
 .mp-mode { margin: 10px auto 0; max-width: 520px; }
 
+/* ---------- auto-browse bar (smooth ayah-by-ayah) ---------- */
+.ab-bar { position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--nav-h) + 10px + env(safe-area-inset-bottom)); z-index: 60;
+  display: flex; align-items: center; gap: 9px; width: min(520px, calc(100% - 20px)); box-sizing: border-box;
+  padding: 8px 10px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg); }
+.ab-play { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 12px; border: 0; cursor: pointer;
+  background: var(--green-700); color: #fff; font-size: 12px; line-height: 1; display: grid; place-items: center; }
+.ab-play:active { transform: scale(.96); }
+.ab-mid { flex: 1; min-width: 0; }
+.ab-track { height: 5px; border-radius: 99px; background: var(--bg-2); overflow: hidden; }
+.ab-fill { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: right center;
+  background: linear-gradient(90deg, var(--gold-500), var(--green-600)); transition: transform .12s linear; }
+html[dir="ltr"] .ab-fill { transform-origin: left center; }
+.ab-label { font-size: 11px; color: var(--muted); margin-top: 5px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.ab-speed { display: flex; align-items: center; gap: 1px; background: var(--bg-2); border-radius: 12px; padding: 2px; flex: 0 0 auto; }
+.ab-sbtn { width: 27px; height: 30px; border: 0; background: transparent; color: inherit; font-size: 16px;
+  cursor: pointer; border-radius: 9px; }
+.ab-sbtn:active { background: var(--line); }
+.ab-x { min-width: 46px; text-align: center; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums;
+  direction: ltr; }
+.ab-bar.on { border-color: var(--green-600); }
+.ab-bar.on .ab-play { background: var(--gold-600); }
+.view.reader, .view.mp-view { padding-bottom: 84px; }
+
+/* the ayah being browsed */
+.ayah.ab-cur { background: rgba(184,145,47,.13); border-radius: 14px; padding-inline: 10px;
+  margin-inline: -10px; box-shadow: inset 3px 0 0 var(--gold-500); transition: background .35s var(--ease); }
+[data-theme="dark"] .ayah.ab-cur { background: rgba(217,192,132,.12); }
+
+/* page turn on the printed page */
+.mp-stage.ab-fade img, .mp-stage.ab-fade .mp-sheet { animation: abFade .42s var(--ease) both; }
+@keyframes abFade { from { opacity: .25; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ayah.ab-cur { transition: none; }
+  .mp-stage.ab-fade img, .mp-stage.ab-fade .mp-sheet { animation: none; }
+  .ab-fill { transition: none; }
+}
+
 </style>
 </head>
 <body>
@@ -1977,7 +2017,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'تصحيح التوقيت (دقائق)', highLat: 'خطوط العرض العالية',
       highLatAngle: 'زاوية', highLatNight: 'نصف الليل', highLatNone: 'بدون تعديل',
       azkarCats: 'أقسام الأذكار', azkarSearch: 'ابحث في الأذكار', allAzkar: 'كل الأذكار',
-      saved: 'تم الحفظ', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
+      saved: 'تم الحفظ', abStart: 'تشغيل التصفح التلقائي', abPause: 'إيقاف مؤقت', abSpeed: 'السرعة', abSlower: 'أبطأ', abFaster: 'أسرع', abHint: 'تصفح تلقائي سلس · آية بآية', abRunning: 'يتصفح…', abAyah: 'آية', abOf: 'من', abPageWord: 'صفحة', abNextIn: 'التالية بعد', abSec: 'ث', abEnd: 'انتهى التصفح التلقائي', abStopped: 'تم إيقاف التصفح التلقائي', abNoView: 'التصفح التلقائي يعمل داخل المصحف والقراءة فقط', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
       openInReader: 'افتح في القارئ', back: 'رجوع', mushafPages: 'المصحف (٦٠٤ صفحات)', mushafPagesSub: 'صفحات المصحف المدني كاملة',
       mpNote: 'فواصل الصفحات من بيانات تنزيل (tanzil.net) عبر Mushaf-Learning/quran-text (MIT). النص العثماني من تنزيل (CC BY 3.0). الخط: KFGQPC Uthmanic Hafs. تقسيم الأسطر داخل الصفحة من عندنا، وليس مطابقًا لأسطر مصحف المدينة.', remindMe: 'تذكير يومي', remindNote: 'ينبّهك مرة واحدة في اليوم في هذا الوقت — يعمل والتطبيق مفتوح، ويحتاج إذن الإشعارات.',
       enableNotif: 'تشغيل الإشعارات', remindSaved: 'التذكير محفوظ الساعة', listReminderBody: 'موعد قائمتك من الأذكار', noNotifSupport: 'جهازك لا يدعم الإشعارات',
@@ -2082,7 +2122,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'Manual correction (minutes)', highLat: 'High latitudes',
       highLatAngle: 'Angle-based', highLatNight: 'Middle of night', highLatNone: 'None',
       azkarCats: 'Azkar sections', azkarSearch: 'Search azkar', allAzkar: 'All azkar',
-      saved: 'Saved', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
+      saved: 'Saved', abStart: 'Start auto-browse', abPause: 'Pause', abSpeed: 'Speed', abSlower: 'Slower', abFaster: 'Faster', abHint: 'Smooth auto-browse · ayah by ayah', abRunning: 'Browsing…', abAyah: 'Ayah', abOf: 'of', abPageWord: 'Page', abNextIn: 'next in', abSec: 's', abEnd: 'Auto-browse finished', abStopped: 'Auto-browse stopped', abNoView: 'Auto-browse works in the mushaf and the reader', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
       openInReader: 'Open in reader', back: 'Back', mushafPages: 'Mushaf (604 pages)', mushafPagesSub: 'The complete Madinah mushaf pages',
       mpNote: 'Page breaks from Tanzil metadata via Mushaf-Learning/quran-text (MIT). Uthmani text from Tanzil (CC BY 3.0). Font: KFGQPC Uthmanic Hafs. Line wrapping inside a page is ours, not the Madinah mushaf line positions.', remindMe: 'Daily reminder', remindNote: 'Notifies you once a day at this time — works while the app is open and needs notification permission.',
       enableNotif: 'Enable notifications', remindSaved: 'Reminder saved at', listReminderBody: 'Time for your athkar list', noNotifSupport: 'This device does not support notifications',
@@ -2892,6 +2932,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '</div>' +
       '<div class="footer-note">' + (MIH.isAr() ? 'النص العثماني: مشروع تنزيل (tanzil.net) عبر AlQuran Cloud · ' : 'Uthmani text: Tanzil via AlQuran Cloud · ') +
         '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/credits">' + esc(t('credits')) + '</button></div>' +
+      (MIH.abBar ? MIH.abBar() : '') +
       MIH.mushafSheet(surah) +
       '</div>';
   };
@@ -3001,9 +3042,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.mushafAuto = function (on) {
     if (MIH._msAuto) { clearInterval(MIH._msAuto); MIH._msAuto = null; }
     MIH.state.mushafAuto = !!on;
-    if (on) {
-      MIH._msAuto = setInterval(function () { window.scrollBy(0, 2); }, 60);
-    }
+    if (MIH.abToggle) { if (!!on !== !!MIH.abRunning()) MIH.abToggle(); }
     MIH.save();
   };
 
@@ -3017,7 +3056,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.mushafSheet = function (surah) {
     var mode = MIH.mushafMode();
     var paper = MIH.mushafPaper();
-    var auto = !!MIH.state.mushafAuto;
+    var auto = !!(MIH.abRunning ? MIH.abRunning() : MIH.state.mushafAuto);
     var sw = function (id, on) {
       return '<span class="switch"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '><span></span></span>';
     };
@@ -3326,9 +3365,261 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<input class="mp-jump" type="number" min="1" max="' + TOTAL + '" value="' + n + '" data-action="mp-jump" aria-label="' + esc(t('pageWord')) + '">' +
         '<button class="mp-btn" data-action="mp-next" ' + (n >= TOTAL ? 'disabled' : '') + '>' + esc(t('nextPage')) + ' ›</button>' +
       '</div>' +
+      (MIH.abBar ? MIH.abBar() : '') +
       '<div class="footer-note">' + esc(t('mpNote')) + '</div>' +
       '</div>';
   };
+})();
+
+/* auto-browse.js */
+/* MIHRABI — auto-browse (smooth, ayah by ayah)
+   Reader: moves from ayah to ayah with a highlight and a smooth scroll, and
+   carries on into the next surah. Mushaf page view: turns the page when the
+   reading time for that page is up. The printed page is a raster image, so
+   there is no ayah to highlight on it; the progress bar and the page turn are
+   what it gets. Speed is a visible stepper (x0.5 .. x3.0) and is remembered. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+  var t = function (k) { return MIH.t(k); };
+
+  var SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
+  var LABELS = ['×0.5', '×0.75', '×1.0', '×1.25', '×1.5', '×2.0', '×2.5', '×3.0'];
+
+  /* reading time at x1: a long ayah gets more time than a short one */
+  var AYAH_BASE = 2600, AYAH_PER_CHAR = 45, AYAH_MIN = 2600, AYAH_MAX = 12000;
+  var PAGE_BASE = 8000, PAGE_PER_AYAH = 900, PAGE_MIN = 12000, PAGE_MAX = 45000;
+
+  function speedIdx() {
+    var i = parseInt(MIH.state && MIH.state.abSpeedI, 10);
+    return (i >= 0 && i < SPEEDS.length) ? i : 2;
+  }
+  MIH.abSpeedIndex = speedIdx;
+  MIH.abSpeed = function () { return SPEEDS[speedIdx()]; };
+  MIH.abRunning = function () { return !!MIH._abOn; };
+  MIH.abPointer = function () { return MIH._abIdx || 0; };
+
+  var timer = null, raf = null, t0 = 0, dur = 0, lastLabel = 0;
+
+  function stopTimers() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+  }
+
+  function route() {
+    var p = (window.location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
+    return { view: p[0] || 'home', a: p[1], b: p[2] };
+  }
+  function isReader(r) { return r.view === 'quran' && !!r.a; }
+  function isPage(r) { return r.view === 'mushaf'; }
+  MIH.abSupported = function () { var r = route(); return isReader(r) || isPage(r); };
+
+  function ayahEls() { return Array.prototype.slice.call(document.querySelectorAll('#app .ayah')); }
+  function curPage() {
+    var st = document.getElementById('mp-stage');
+    return st ? (parseInt(st.getAttribute('data-page'), 10) || 1) : 1;
+  }
+
+  function stepDuration() {
+    var sp = MIH.abSpeed(), r = route();
+    if (isPage(r)) {
+      var cnt = 15;
+      try { cnt = MIH.pageAyahs(curPage()).length || 15; } catch (e) { }
+      var d = Math.max(PAGE_MIN, Math.min(PAGE_MAX, PAGE_BASE + PAGE_PER_AYAH * cnt));
+      return d / sp;
+    }
+    var els = ayahEls();
+    var el = els[MIH._abIdx || 0];
+    var len = el ? (el.textContent || '').length : 80;
+    var d2 = Math.max(AYAH_MIN, Math.min(AYAH_MAX, AYAH_BASE + AYAH_PER_CHAR * len));
+    return d2 / sp;
+  }
+
+  /* ---------- the control bar ---------- */
+  MIH.abBar = function () {
+    var on = MIH.abRunning();
+    return '<div class="ab-bar' + (on ? ' on' : '') + '" id="ab-bar" data-on="' + (on ? '1' : '0') + '" data-speed="' + LABELS[speedIdx()] + '">' +
+      '<button class="ab-play" data-action="ab-toggle" aria-label="' + esc(on ? t('abPause') : t('abStart')) + '">' + (on ? '❚❚' : '▶') + '</button>' +
+      '<div class="ab-mid">' +
+        '<div class="ab-track"><span class="ab-fill" id="ab-fill"></span></div>' +
+        '<div class="ab-label" id="ab-label">' + esc(on ? t('abRunning') : t('abHint')) + '</div>' +
+      '</div>' +
+      '<div class="ab-speed" role="group" aria-label="' + esc(t('abSpeed')) + '">' +
+        '<button class="ab-sbtn" data-action="ab-dec" aria-label="' + esc(t('abSlower')) + '">−</button>' +
+        '<span class="ab-x" id="ab-x">' + LABELS[speedIdx()] + '</span>' +
+        '<button class="ab-sbtn" data-action="ab-inc" aria-label="' + esc(t('abFaster')) + '">+</button>' +
+      '</div>' +
+      '</div>';
+  };
+
+  MIH.abRefreshBar = function () {
+    var bar = document.getElementById('ab-bar');
+    if (!bar) return;
+    var tmp = document.createElement('div');
+    tmp.innerHTML = MIH.abBar();
+    bar.parentNode.replaceChild(tmp.firstChild, bar);
+    var fill = document.getElementById('ab-fill');
+    if (fill && MIH._abOn) {
+      var p = dur > 0 ? Math.min(1, (Date.now() - t0) / dur) : 0;
+      fill.style.transform = 'scaleX(' + p + ')';
+    }
+  };
+
+  function clearHighlight() {
+    Array.prototype.slice.call(document.querySelectorAll('.ayah.ab-cur')).forEach(function (e) {
+      e.classList.remove('ab-cur');
+    });
+  }
+
+  function highlight() {
+    var r = route();
+    if (isReader(r)) {
+      var els = ayahEls(), i = MIH._abIdx || 0;
+      els.forEach(function (e, k) { e.classList.toggle('ab-cur', k === i); });
+      var cur = els[i];
+      if (cur && cur.scrollIntoView) {
+        try { cur.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+        catch (e) { cur.scrollIntoView(); }
+      }
+    } else if (isPage(r)) {
+      var st = document.getElementById('mp-stage');
+      if (st) { st.classList.remove('ab-fade'); void st.offsetWidth; st.classList.add('ab-fade'); }
+    }
+  }
+
+  function label() {
+    var r = route();
+    var el = document.getElementById('ab-label');
+    if (!el) return;
+    if (isPage(r)) {
+      var left = Math.max(0, Math.ceil((dur - (Date.now() - t0)) / 1000));
+      el.textContent = t('abPageWord') + ' ' + MIH.arNum(curPage()) + ' · ' + t('abNextIn') + ' ' + MIH.arNum(left) + t('abSec');
+    } else {
+      var n = ayahEls().length;
+      el.textContent = t('abAyah') + ' ' + MIH.arNum((MIH._abIdx || 0) + 1) + ' ' + t('abOf') + ' ' + MIH.arNum(n);
+    }
+  }
+
+  function loop() {
+    if (!MIH._abOn) return;
+    var p = dur > 0 ? Math.min(1, (Date.now() - t0) / dur) : 0;
+    var fill = document.getElementById('ab-fill');
+    if (fill) fill.style.transform = 'scaleX(' + p + ')';
+    var now = Date.now();
+    if (now - lastLabel > 300) { lastLabel = now; label(); }
+    raf = requestAnimationFrame(loop);
+  }
+
+  function markProgress(r) {
+    try {
+      if (isReader(r)) {
+        var s = parseInt(r.a, 10) || 1, a = (MIH._abIdx || 0) + 1;
+        MIH.state.lastRead = { s: s, a: a };
+        MIH.save();
+      }
+    } catch (e) { }
+  }
+
+  function schedule() {
+    stopTimers();
+    if (!MIH._abOn) return;
+    if (!MIH.abSupported()) { MIH.abStop(true); return; }
+    dur = stepDuration();
+    t0 = Date.now();
+    lastLabel = 0;
+    timer = setTimeout(next, dur);
+    highlight();
+    label();
+    raf = requestAnimationFrame(loop);
+  }
+
+  function finish() {
+    MIH._abOn = false;
+    stopTimers();
+    clearHighlight();
+    MIH.abRefreshBar();
+    MIH.toast(t('abEnd'));
+  }
+
+  function next() {
+    if (!MIH._abOn) return;
+    var r = route();
+    if (isPage(r)) {
+      var n = curPage();
+      if (n >= MIH.mushafPageCount()) { finish(); return; }
+      MIH._abIdx = 0;
+      window.location.hash = '#/mushaf/' + (n + 1);
+      return;
+    }
+    if (isReader(r)) {
+      var els = ayahEls(), i = (MIH._abIdx || 0) + 1;
+      if (i >= els.length) {
+        var s = parseInt(r.a, 10) || 1;
+        if (s < 114) { MIH._abIdx = 0; window.location.hash = '#/quran/' + (s + 1) + '/1'; return; }
+        finish(); return;
+      }
+      MIH._abIdx = i;
+      markProgress(r);
+      schedule();
+    }
+  }
+
+  /* ---------- public controls ---------- */
+  MIH.abStart = function () {
+    var r = route();
+    if (!(isReader(r) || isPage(r))) { MIH.toast(t('abNoView')); return; }
+    MIH._abOn = true;
+    if (isReader(r)) {
+      var els = ayahEls(), best = 0, bestD = Infinity, mid = window.innerHeight / 2;
+      els.forEach(function (e, i) {
+        var b = e.getBoundingClientRect();
+        var d = Math.abs((b.top + b.height / 2) - mid);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      MIH._abIdx = best;
+    } else {
+      MIH._abIdx = 0;
+    }
+    schedule();
+    MIH.abRefreshBar();
+  };
+
+  MIH.abStop = function (silent) {
+    MIH._abOn = false;
+    stopTimers();
+    clearHighlight();
+    MIH.abRefreshBar();
+    if (!silent) MIH.toast(t('abStopped'));
+  };
+
+  MIH.abToggle = function () { if (MIH._abOn) MIH.abStop(); else MIH.abStart(); };
+
+  MIH.abSetSpeed = function (delta) {
+    var i = Math.max(0, Math.min(SPEEDS.length - 1, speedIdx() + delta));
+    MIH.state.abSpeedI = i;
+    MIH.save();
+    MIH.abRefreshBar();
+    if (MIH._abOn) schedule();
+  };
+
+  /* advance one step now — used by the tests and by a keyboard shortcut */
+  MIH.abStep = function () { if (MIH._abOn) next(); };
+
+  /* called after every render */
+  MIH.abMount = function () {
+    if (!MIH._abOn) { stopTimers(); clearHighlight(); return; }
+    if (!MIH.abSupported()) { MIH.abStop(true); return; }
+    schedule();
+  };
+
+  /* one page turn / ayah step should be doable by keyboard as well */
+  document.addEventListener('keydown', function (e) {
+    if (!MIH._abOn) return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { MIH.abSetSpeed(e.key === 'ArrowRight' ? 1 : -1); }
+    if (e.key === 'Escape') { MIH.abStop(); }
+  });
 })();
 
 /* views-more.js */
@@ -4683,6 +4974,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     }
     if (view === 'qibla') startCompass();
     else stopCompass();
+    if (MIH.abMount) MIH.abMount();
   }
   MIH.render = render;
 
@@ -4740,6 +5032,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       Notification.requestPermission().then(function () { render(); });
       return;
     }
+    if (a === 'ab-toggle') { if (MIH.abToggle) MIH.abToggle(); return; }
+    if (a === 'ab-inc') { if (MIH.abSetSpeed) MIH.abSetSpeed(1); return; }
+    if (a === 'ab-dec') { if (MIH.abSetSpeed) MIH.abSetSpeed(-1); return; }
     if (a === 'mp-mode') {
       MIH.state.pageMode = el.getAttribute('data-v') === 'text' ? 'text' : 'image';
       MIH.save(); render(); return;
