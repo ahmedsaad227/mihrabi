@@ -496,13 +496,13 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
   display: flex; align-items: flex-end; justify-content: center;
   animation: fade .18s var(--ease);
 }
-.sheet {
+.sheet, .ms-sheet-panel {
   background: var(--surface); width: 100%; max-width: 640px;
   border-radius: 22px 22px 0 0; padding: 16px 18px calc(22px + env(safe-area-inset-bottom));
   max-height: 82vh; overflow: auto; box-shadow: var(--shadow-lg);
   animation: rise .22s var(--ease);
 }
-.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; position: sticky; top: 0; background: var(--surface); }
+.sheet-head, .ms-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; position: sticky; top: 0; background: var(--surface); }
 .sheet-body { font-size: 15.5px; line-height: 1.95; }
 .sheet-body .tafsir-src { display: block; margin-top: 14px; font-size: 11.5px; color: var(--muted); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -594,6 +594,20 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .rec-meta { display: flex; flex-direction: column; min-width: 0; }
 .rec-name { font-weight: 600; }
 .rec-sub { font-size: 12px; color: var(--muted); }
+
+/* mushaf menu + page mode (live app) */
+.sheet-back[hidden] { display: none; }
+.papers { display: flex; gap: 10px; margin: 4px 0 6px; }
+.paper { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.paper[aria-pressed="true"] { border-color: var(--gold-600); }
+.ms-input { width: 100%; box-sizing: border-box; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; }
+.reader-page .ayah { display: inline; }
+.reader-page .ayah-text { display: inline; font-size: 20px !important; line-height: 2.15; }
+.reader-page .ayah-tools, .reader-page .ayah-en { display: none; }
+.reader-page .bismillah { display: block; }
+
+.ms-sheet-panel { background: var(--surface); width: 100%; max-width: 640px; border-radius: 22px 22px 0 0; padding: 16px 18px calc(22px + env(safe-area-inset-bottom)); max-height: 82vh; overflow: auto; box-shadow: var(--shadow-lg); }
+.ms-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 
 </style>
 </head>
@@ -1279,6 +1293,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       hifzAyahs: 'آية', hifzCount: 'حفظت', hifzTest: 'اختبر حفظي', hifzTestSub: 'اقرأ من حفظك ثم اكشف الآية للتأكد',
       hifzReveal: 'اكشف', hifzHide: 'أخفِ', hifzHideAll: 'أخفِ الكل', hifzBack: 'رجوع',
       hifzLocal: 'حالة الحفظ محفوظة على جهازك فقط، بدون حساب ولا مزامنة.',
+      msTitle: 'المصحف', msClose: 'إغلاق', msMode: 'طريقة عرض المصحف', msVertical: 'رأسي', msPage: 'صفحة',
+      msMushaf: 'المصحف', msAuto: 'التصفح التلقائي', msAutoOn: 'يعمل الآن · اضغط للإيقاف', msAutoOff: 'متوقف',
+      msIndex: 'الفهرس', msSearch: 'البحث', msSearchPh: 'ابحث في المصحف', msSearchHint: 'اكتب حرفين على الأقل',
+      msResults: 'نتيجة', msHifz: 'التحفيظ', msHifzSub: 'متابعة الحفظ واختبار التسميع', msFeatures: 'الخصائص',
+      msNoSource: 'غير متاح: لا مصدر مرخّص يمكن التحقق منه', msTafsirWhere: 'يُفتح من زر التفسير تحت كل آية', msMeanings: 'المعاني', msAudio: 'الصوتيات',
+      msAudioSub: 'تلاوة هذه السورة', msTr: 'الترجمة', msNight: 'الوضع الليلي', msPaper: 'لون المصحف',
+      msFav: 'المفضلة', msNoMarks: 'لا علامات بعد. اضغط أيقونة العلامة تحت الآية.',
       recTitle: 'القُرّاء', recSub: 'المصحف كاملًا سورة بسورة، لأكثر من مئة قارئ',
       recSearch: 'ابحث عن قارئ', recCount: 'قارئًا', recSurahs: 'سورة', recAyahs: 'آية', recPlay: 'تشغيل',
       recPick: 'اختر سورة للاستماع', recBack: 'رجوع', recNotFound: 'القارئ غير موجود',
@@ -1364,6 +1385,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       hifzAyahs: 'ayahs', hifzCount: 'memorised', hifzTest: 'Test me', hifzTestSub: 'Recite from memory, then reveal the verse to check',
       hifzReveal: 'Reveal', hifzHide: 'Hide', hifzHideAll: 'Hide all', hifzBack: 'Back',
       hifzLocal: 'Your memorisation state is stored on this device only, with no account and no sync.',
+      msTitle: 'Mushaf', msClose: 'Close', msMode: 'Mushaf display', msVertical: 'Vertical', msPage: 'Page',
+      msMushaf: 'Mushaf', msAuto: 'Auto-scroll', msAutoOn: 'Running · tap to stop', msAutoOff: 'Off',
+      msIndex: 'Index', msSearch: 'Search', msSearchPh: 'Search the mushaf', msSearchHint: 'Type at least two letters',
+      msResults: 'results', msHifz: 'Memorisation', msHifzSub: 'Track what you memorised and test yourself', msFeatures: 'Features',
+      msNoSource: 'Not available: no licensed source that can be verified', msTafsirWhere: 'Opens from the tafsir button under each verse', msMeanings: 'Meanings', msAudio: 'Audio',
+      msAudioSub: 'Recitation of this surah', msTr: 'Translation', msNight: 'Night mode', msPaper: 'Mushaf colour',
+      msFav: 'Favourites', msNoMarks: 'No bookmarks yet. Tap the bookmark icon under a verse.',
       recTitle: 'Reciters', recSub: 'The whole mushaf, surah by surah, from more than a hundred reciters',
       recSearch: 'Search a reciter', recCount: 'reciters', recSurahs: 'surahs', recAyahs: 'ayahs', recPlay: 'Play',
       recPick: 'Pick a surah to listen', recBack: 'Back', recNotFound: 'That reciter is not in the list',
@@ -2013,23 +2041,25 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div><h1 class="h1">' + esc(MIH.isAr() ? s[0] : s[1]) + '</h1>' +
         '<p class="sub">' + count + ' ' + esc(t('ayah')) + ' · ' + esc(MIH.isAr() ? (s[3] === 'Meccan' ? t('meccan') : t('medinan')) : s[3]) + (MIH.isAr() ? ' · <span dir="ltr">' + esc(s[1]) + '</span>' : ' · ' + esc(s[2])) + '</p></div>' +
         '<div class="rowflex">' +
+          '<button class="btn btn-sm btn-ghost" data-action="mushaf-sheet">☰ ' + esc(t('msTitle')) + '</button>' +
           '<button class="icon-btn" data-action="font" data-v="-1" aria-label="A-"><svg><use href="#i-minus"/></svg></button>' +
           '<button class="icon-btn" data-action="font" data-v="1" aria-label="A+"><svg><use href="#i-plus"/></svg></button>' +
         '</div>' +
       '</div>' +
-      (audio.length ? '<div class="card">' + audio.map(function (x) { return MIH.audioRow(x); }).join('') + '</div>' : '') +
+      (audio.length ? '<div class="card" id="reader-audio">' + audio.map(function (x) { return MIH.audioRow(x); }).join('') + '</div>' : '') +
       '<div class="rowflex" style="justify-content:space-between;gap:8px;margin-bottom:8px">' +
         '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/quran/' + Math.max(1, surah - 1) + '">' + esc(t('back')) + '</button>' +
         '<select data-action="set-translation" style="max-width:56%;font-size:12.5px;padding:8px 10px">' + trOpts + '</select>' +
         '<button class="btn btn-sm btn-ghost" data-action="toggle-translation" aria-pressed="' + (!!MIH.state.showTranslation) + '">' + (MIH.state.showTranslation ? '✓' : '✕') + '</button>' +
       '</div>' +
       (!loaded ? '<div class="note"><svg><use href="#i-info"/></svg><span>' + esc(t('trLoading')) + '</span></div>' : '') +
-      '<div class="card">' +
+      '<div class="card' + (MIH.mushafMode() === 'page' ? ' reader-page' : '') + '" id="reader-card" style="background:' + MIH.mushafPaper().bg + ';color:' + MIH.mushafPaper().fg + '">' +
         (surah !== 1 && surah !== 9 ? '<div class="bismillah">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>' : '') +
         html.join('') +
       '</div>' +
       '<div class="footer-note">' + (MIH.isAr() ? 'النص العثماني: مشروع تنزيل (tanzil.net) عبر AlQuran Cloud · التفسير: الجلالين · ' : 'Uthmani text: Tanzil via AlQuran Cloud · Tafsir: al-Jalalayn · ') +
         '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/credits">' + esc(t('credits')) + '</button></div>' +
+      MIH.mushafSheet(surah) +
       '</div>';
   };
 
@@ -2090,6 +2120,198 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div class="footer-note">' + (MIH.isAr() ? 'العداد محفوظ على جهازك ويعود للبداية كل يوم.' : 'Counts are saved on your device and reset daily.') + '</div>' +
       '</div>';
   };
+})();
+
+/* views-mushaf.js */
+/* MIHRABI - mushaf menu for the reader (live app)
+   Layout inspired by common mushaf apps: display mode, auto-scroll, index, search,
+   memorisation, audio, translation, night mode, paper colour, bookmarks.
+   Everything here is wired to real behaviour; tafsir and meanings are marked as
+   unavailable because no licensed source can be verified. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  var esc = MIH.esc;
+  var t = function (k) { return MIH.t(k); };
+
+  var PAPERS = [
+    { id: 'cream', name: 'عاجي', bg: '#FBF6E9', fg: '#1B2A22' },
+    { id: 'white', name: 'أبيض', bg: '#FFFFFF', fg: '#14201A' },
+    { id: 'sepia', name: 'بني فاتح', bg: '#F3E7D3', fg: '#2B1F12' },
+    { id: 'green', name: 'أخضر', bg: '#E8F0E6', fg: '#12291C' },
+    { id: 'night', name: 'ليلي', bg: '#0D1B15', fg: '#E8E2CF' }
+  ];
+
+  MIH.mushafPaper = function () {
+    var id = MIH.state.paper || 'cream';
+    for (var i = 0; i < PAPERS.length; i++) { if (PAPERS[i].id === id) return PAPERS[i]; }
+    return PAPERS[0];
+  };
+  MIH.mushafMode = function () { return MIH.state.mushafMode === 'page' ? 'page' : 'vertical'; };
+
+  /* search across the whole mushaf, diacritic-insensitive */
+  MIH.quranSearch = function (q, limit) {
+    var needle = MIH.norm(String(q || '').trim());
+    if (needle.length < 2) return [];
+    var out = [];
+    var a = MIH.quran.a;
+    for (var i = 0; i < a.length; i++) {
+      if (MIH.norm(a[i][0]).indexOf(needle) > -1) {
+        out.push({ s: a[i][1], a: a[i][2], text: a[i][0] });
+        if (out.length >= (limit || 60)) break;
+      }
+    }
+    return out;
+  };
+
+  MIH.mushafAuto = function (on) {
+    if (MIH._msAuto) { clearInterval(MIH._msAuto); MIH._msAuto = null; }
+    MIH.state.mushafAuto = !!on;
+    if (on) {
+      MIH._msAuto = setInterval(function () { window.scrollBy(0, 2); }, 60);
+    }
+    MIH.save();
+  };
+
+  function row(attrs, title, sub, right) {
+    return '<button class="row" ' + attrs + '>' +
+      '<span class="row-main"><span class="row-title">' + esc(title) + '</span>' +
+      (sub ? '<span class="row-sub">' + esc(sub) + '</span>' : '') + '</span>' +
+      (right || '<span class="row-chev">‹</span>') + '</button>';
+  }
+
+  MIH.mushafSheet = function (surah) {
+    var mode = MIH.mushafMode();
+    var paper = MIH.mushafPaper();
+    var auto = !!MIH.state.mushafAuto;
+    var sw = function (id, on) {
+      return '<span class="switch"><input type="checkbox" id="' + id + '"' + (on ? ' checked' : '') + '><span></span></span>';
+    };
+    var papers = PAPERS.map(function (p) {
+      return '<button class="paper" data-action="ms-paper" data-v="' + p.id + '" aria-label="' + esc(p.name) + '"' +
+        ' aria-pressed="' + (paper.id === p.id) + '" style="background:' + p.bg + '"></button>';
+    }).join('');
+    return '<div class="sheet-back" id="ms-sheet" hidden>' +
+      '<div class="ms-sheet-panel" role="dialog" aria-modal="true" aria-label="' + esc(t('msTitle')) + '">' +
+      '<div class="ms-sheet-head"><strong>' + esc(t('msTitle')) + '</strong>' +
+      '<button class="btn btn-sm btn-ghost" data-action="ms-close">' + esc(t('msClose')) + '</button></div>' +
+
+      '<div class="sub" style="margin:4px 0 6px">' + esc(t('msMode')) + '</div>' +
+      '<div class="seg" id="ms-mode">' +
+      '<button data-action="ms-mode" data-v="vertical" aria-pressed="' + (mode === 'vertical') + '">' + esc(t('msVertical')) + '</button>' +
+      '<button data-action="ms-mode" data-v="page" aria-pressed="' + (mode === 'page') + '">' + esc(t('msPage')) + '</button>' +
+      '</div>' +
+
+      row('data-action="ms-close"', t('msMushaf'), '') +
+      row('data-action="ms-auto" data-v="' + (auto ? '0' : '1') + '"', t('msAuto'), auto ? t('msAutoOn') : t('msAutoOff'), sw('ms-auto-sw', auto)) +
+      row('data-action="nav" data-to="#/quran"', t('msIndex'), '114') +
+      row('data-action="ms-search"', t('msSearch'), '') +
+
+      '<div class="sub" style="margin:14px 0 4px">' + esc(t('msHifz')) + '</div>' +
+      row('data-action="nav" data-to="#/hifz"', t('hifzTitle'), t('msHifzSub')) +
+
+      '<div class="sub" style="margin:14px 0 4px">' + esc(t('msFeatures')) + '</div>' +
+      '<div class="row"><span class="row-main"><span class="row-title">' + esc(t('tafsir')) + '</span>' +
+      '<span class="row-sub">' + esc(t('msTafsirWhere')) + '</span></span></div>' +
+      '<div class="row" style="opacity:.6"><span class="row-main"><span class="row-title">' + esc(t('msMeanings')) + '</span>' +
+      '<span class="row-sub">' + esc(t('msNoSource')) + '</span></span></div>' +
+      row('data-action="ms-audio"', t('msAudio'), t('msAudioSub')) +
+      row('data-action="toggle-translation"', t('msTr'), '') +
+      row('data-action="toggle-theme"', t('msNight'), '', '<span class="row-chev">' + (MIH.state.theme === 'dark' ? '✓' : '‹') + '</span>') +
+
+      '<div class="sub" style="margin:10px 0 6px">' + esc(t('msPaper')) + '</div>' +
+      '<div class="papers" id="ms-papers">' + papers + '</div>' +
+
+      '<div class="sub" style="margin:14px 0 4px">' + esc(t('msFav')) + '</div>' +
+      row('data-action="ms-marks"', t('bookmarks'), String((MIH.state.bookmarks || []).length)) +
+
+      '<div id="ms-search-panel" hidden style="margin-top:12px">' +
+      '<input class="ms-input" id="ms-search" type="search" placeholder="' + esc(t('msSearchPh')) + '" autocomplete="off">' +
+      '<p class="sub" id="ms-search-count" style="margin:8px 2px"></p>' +
+      '<div id="ms-results"></div></div>' +
+      '<div id="ms-marks-panel" hidden style="margin-top:12px"></div>' +
+      '</div></div>';
+  };
+
+  function sheet() { return document.getElementById('ms-sheet'); }
+  function openSheet() { var s = sheet(); if (s) { s.hidden = false; document.body.style.overflow = 'hidden'; } }
+  function closeSheet() { var s = sheet(); if (s) { s.hidden = true; document.body.style.overflow = ''; } }
+  MIH.mushafClose = closeSheet;
+
+  function renderResults() {
+    var box = document.getElementById('ms-results');
+    var count = document.getElementById('ms-search-count');
+    var input = document.getElementById('ms-search');
+    if (!box || !input) return;
+    var q = input.value.trim();
+    if (q.length < 2) { box.innerHTML = ''; if (count) count.textContent = t('msSearchHint'); return; }
+    var hits = MIH.quranSearch(q, 40);
+    if (count) count.textContent = hits.length + ' ' + t('msResults');
+    box.innerHTML = hits.map(function (h) {
+      var name = MIH.quran.s[h.s - 1][0];
+      return '<button class="row" data-action="nav" data-to="#/quran/' + h.s + '/' + h.a + '">' +
+        '<span class="row-main"><span class="row-title">' + esc(name) + ' · ' + h.s + ':' + h.a + '</span>' +
+        '<span class="row-sub">' + esc(h.text.slice(0, 70)) + '…</span></span></button>';
+    }).join('');
+  }
+
+  function renderMarks() {
+    var box = document.getElementById('ms-marks-panel');
+    if (!box) return;
+    var marks = MIH.state.bookmarks || [];
+    if (!marks.length) { box.innerHTML = '<p class="sub">' + esc(t('msNoMarks')) + '</p>'; return; }
+    box.innerHTML = marks.map(function (b) {
+      return '<button class="row" data-action="nav" data-to="#/quran/' + b.s + '/' + b.a + '">' +
+        '<span class="row-main"><span class="row-title">' + esc(MIH.quran.s[b.s - 1][0]) + '</span>' +
+        '<span class="row-sub">' + b.s + ':' + b.a + '</span></span></button>';
+    }).join('');
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-action]') : null;
+    if (!el) return;
+    var a = el.getAttribute('data-action');
+    if (a === 'mushaf-sheet') { openSheet(); return; }
+    if (a === 'ms-close') { closeSheet(); return; }
+    if (a === 'ms-mode') {
+      MIH.state.mushafMode = el.getAttribute('data-v');
+      MIH.save(); closeSheet(); MIH.render(); return;
+    }
+    if (a === 'ms-auto') {
+      MIH.mushafAuto(el.getAttribute('data-v') === '1');
+      closeSheet(); MIH.render(); return;
+    }
+    if (a === 'ms-paper') {
+      MIH.state.paper = el.getAttribute('data-v');
+      MIH.save(); closeSheet(); MIH.render(); return;
+    }
+    if (a === 'ms-search') {
+      var p = document.getElementById('ms-search-panel');
+      if (p) { p.hidden = false; var i = document.getElementById('ms-search'); if (i) i.focus(); renderResults(); }
+      return;
+    }
+    if (a === 'ms-marks') {
+      var m = document.getElementById('ms-marks-panel');
+      if (m) { m.hidden = false; renderMarks(); }
+      return;
+    }
+    if (a === 'ms-audio') {
+      var card = document.getElementById('reader-audio');
+      closeSheet();
+      if (card) card.scrollIntoView({ block: 'center' });
+      return;
+    }
+    if (a === 'ms-backdrop') { closeSheet(); return; }
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'ms-search') renderResults();
+  });
+
+  /* stop auto-scroll when leaving the reader */
+  window.addEventListener('hashchange', function () {
+    if (MIH.state.mushafAuto && !/^#\/quran\/\d+/.test(window.location.hash)) MIH.mushafAuto(false);
+  });
 })();
 
 /* views-more.js */
