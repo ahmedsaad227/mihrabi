@@ -1923,7 +1923,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     showTranslation: true,
     translation: 'pickthall',
     adhan: { sound: 'aqib', on: true },
-    onboarded: false
+    onboarded: false,
+    qada: { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 },
+    zakat: { cash: '', gold: '', silver: '', goods: '', debts: '', gp: '', sp: '' }
   };
 
   var KEY = 'mihrabi.v1';
@@ -2017,7 +2019,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'تصحيح التوقيت (دقائق)', highLat: 'خطوط العرض العالية',
       highLatAngle: 'زاوية', highLatNight: 'نصف الليل', highLatNone: 'بدون تعديل',
       azkarCats: 'أقسام الأذكار', azkarSearch: 'ابحث في الأذكار', allAzkar: 'كل الأذكار',
-      saved: 'تم الحفظ', abStart: 'تشغيل التصفح التلقائي', abPause: 'إيقاف مؤقت', abSpeed: 'السرعة', abSlower: 'أبطأ', abFaster: 'أسرع', abHint: 'تصفح تلقائي سلس · آية بآية', abRunning: 'يتصفح…', abAyah: 'آية', abOf: 'من', abPageWord: 'صفحة', abNextIn: 'التالية بعد', abSec: 'ث', abEnd: 'انتهى التصفح التلقائي', abStopped: 'تم إيقاف التصفح التلقائي', abNoView: 'التصفح التلقائي يعمل داخل المصحف والقراءة فقط', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
+      saved: 'تم الحفظ', abStart: 'تشغيل التصفح التلقائي', abPause: 'إيقاف مؤقت', abSpeed: 'السرعة', abSlower: 'أبطأ', abFaster: 'أسرع', abHint: 'تصفح تلقائي سلس · آية بآية', abRunning: 'يتصفح…', abAyah: 'آية', abOf: 'من', abPageWord: 'صفحة', abNextIn: 'التالية بعد', abSec: 'ث', abEnd: 'انتهى التصفح التلقائي', abStopped: 'تم إيقاف التصفح التلقائي', abNoView: 'التصفح التلقائي يعمل داخل المصحف والقراءة فقط', trkTitle: 'صلاتي', trkSub: 'سجل صلواتك وأيامك', trkToday: 'اليوم', trkWeek: 'آخر ٧ أيام', trkStreak: 'أيام متتالية بخمس صلوات', trk30: 'الالتزام (٣٠ يومًا)', trkWird: 'ورد المحاسبة', trkLocal: 'محفوظ على جهازك فقط', qadaTitle: 'قضاء الصلوات', qadaSub: 'سجّل ما عليك وأنقصه كلما قضيت', qadaTotal: 'الإجمالي', qadaNote: 'هذا عدّاد تقديري لمساعدتك على المتابعة، وليس فتوى. أحكام القضاء تختلف بحسب الحال، فاسأل عالمًا تثق به.', qadaLocal: 'محفوظ على جهازك فقط', zakTitle: 'حاسبة الزكاة', zakSub: '٢٫٥٪ إذا بلغ المال النصاب وحال عليه الحول', zakCash: 'النقد والأرصدة', zakGold: 'الذهب (جرام)', zakSilver: 'الفضة (جرام)', zakGoods: 'عروض التجارة', zakDebts: 'الديون المستحقة عليك', zakPrices: 'أسعار اليوم (تُدخل يدويًا)', zakGoldPrice: 'سعر جرام الذهب', zakSilverPrice: 'سعر جرام الفضة', zakNet: 'صافي المال', zakNisab: 'النصاب', zakDue: 'الزكاة التقديرية', zakBelow: 'لم يبلغ النصاب — لا زكاة الآن.', zakNeedPrice: 'أدخل سعر الذهب أو الفضة لحساب النصاب.', zakNote: 'نتيجة تقديرية للاسترشاد فقط وليست فتوى. الزكاة لها شروط وأحكام (الحول، الديون، الأصول) — راجع عالمًا أو جهة إفتاء معتمدة قبل الإخراج.', zakNisabNote: 'النصاب: ٨٥ جرامًا من الذهب أو ٥٩٥ جرامًا من الفضة، والأخذ بأقلهما أنفع للفقراء.', bkTitle: 'نسخ احتياطي', bkSub: 'بياناتك محلية على جهازك فقط', bkExport: 'تصدير بياناتي (ملف JSON)', bkImport: 'استيراد نسخة', bkWhat: 'الملف يحتوي إعداداتك وقراءتك وأذكارك ووردك وسجل صلواتك — احفظه في مكان آمن.', bkLocal: 'لا يُرسل شيء إلى أي خادم؛ الملف يُنشأ ويُقرأ على جهازك.', bkExported: 'تم إنشاء الملف', bkFailed: 'تعذّر إتمام العملية', bkBadFile: 'ملف غير صالح', bkConfirm: 'سيتم استبدال بياناتك الحالية بالنسخة المستوردة. متابعة؟', bkRestored: 'تم الاستيراد — جارٍ إعادة التحميل', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
       openInReader: 'افتح في القارئ', back: 'رجوع', mushafPages: 'المصحف (٦٠٤ صفحات)', mushafPagesSub: 'صفحات المصحف المدني كاملة',
       mpNote: 'فواصل الصفحات من بيانات تنزيل (tanzil.net) عبر Mushaf-Learning/quran-text (MIT). النص العثماني من تنزيل (CC BY 3.0). الخط: KFGQPC Uthmanic Hafs. تقسيم الأسطر داخل الصفحة من عندنا، وليس مطابقًا لأسطر مصحف المدينة.', remindMe: 'تذكير يومي', remindNote: 'ينبّهك مرة واحدة في اليوم في هذا الوقت — يعمل والتطبيق مفتوح، ويحتاج إذن الإشعارات.',
       enableNotif: 'تشغيل الإشعارات', remindSaved: 'التذكير محفوظ الساعة', listReminderBody: 'موعد قائمتك من الأذكار', noNotifSupport: 'جهازك لا يدعم الإشعارات',
@@ -2122,7 +2124,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'Manual correction (minutes)', highLat: 'High latitudes',
       highLatAngle: 'Angle-based', highLatNight: 'Middle of night', highLatNone: 'None',
       azkarCats: 'Azkar sections', azkarSearch: 'Search azkar', allAzkar: 'All azkar',
-      saved: 'Saved', abStart: 'Start auto-browse', abPause: 'Pause', abSpeed: 'Speed', abSlower: 'Slower', abFaster: 'Faster', abHint: 'Smooth auto-browse · ayah by ayah', abRunning: 'Browsing…', abAyah: 'Ayah', abOf: 'of', abPageWord: 'Page', abNextIn: 'next in', abSec: 's', abEnd: 'Auto-browse finished', abStopped: 'Auto-browse stopped', abNoView: 'Auto-browse works in the mushaf and the reader', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
+      saved: 'Saved', abStart: 'Start auto-browse', abPause: 'Pause', abSpeed: 'Speed', abSlower: 'Slower', abFaster: 'Faster', abHint: 'Smooth auto-browse · ayah by ayah', abRunning: 'Browsing…', abAyah: 'Ayah', abOf: 'of', abPageWord: 'Page', abNextIn: 'next in', abSec: 's', abEnd: 'Auto-browse finished', abStopped: 'Auto-browse stopped', abNoView: 'Auto-browse works in the mushaf and the reader', trkTitle: 'My prayers', trkSub: 'Your prayer record and history', trkToday: 'Today', trkWeek: 'Last 7 days', trkStreak: 'Full-day streak', trk30: 'Consistency (30 days)', trkWird: 'Daily tracker', trkLocal: 'Stored on your device only', qadaTitle: 'Missed prayers', qadaSub: 'Log what you owe and reduce it as you make up', qadaTotal: 'Total', qadaNote: 'A counting aid to help you keep track, not a fatwa. Rulings on making up prayers depend on your situation, so ask a scholar you trust.', qadaLocal: 'Stored on your device only', zakTitle: 'Zakat calculator', zakSub: '2.5% once wealth reaches nisab for a lunar year', zakCash: 'Cash & savings', zakGold: 'Gold (grams)', zakSilver: 'Silver (grams)', zakGoods: 'Trade goods', zakDebts: 'Debts you owe', zakPrices: 'Prices today (you enter them)', zakGoldPrice: 'Gold price / gram', zakSilverPrice: 'Silver price / gram', zakNet: 'Net wealth', zakNisab: 'Nisab', zakDue: 'Estimated zakat', zakBelow: 'Below nisab - nothing due now.', zakNeedPrice: 'Enter a gold or silver price to work out nisab.', zakNote: 'An estimate for guidance only, not a fatwa. Zakat has conditions (the lunar year, debts, assets), so check with a scholar or an official fatwa body before paying.', zakNisabNote: 'Nisab: 85g of gold or 595g of silver; the lower of the two is used, which benefits those in need.', bkTitle: 'Backup & restore', bkSub: 'Your data stays on your device', bkExport: 'Export my data (JSON file)', bkImport: 'Import a backup', bkWhat: 'The file holds your settings, reading, azkar, daily tracker and prayer history - keep it somewhere safe.', bkLocal: 'Nothing is sent to a server; the file is made and read on your device.', bkExported: 'File created', bkFailed: 'Could not complete that', bkBadFile: 'Not a MIHRABI backup file', bkConfirm: 'This will replace your current data with the imported copy. Continue?', bkRestored: 'Imported - reloading', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
       openInReader: 'Open in reader', back: 'Back', mushafPages: 'Mushaf (604 pages)', mushafPagesSub: 'The complete Madinah mushaf pages',
       mpNote: 'Page breaks from Tanzil metadata via Mushaf-Learning/quran-text (MIT). Uthmani text from Tanzil (CC BY 3.0). Font: KFGQPC Uthmanic Hafs. Line wrapping inside a page is ours, not the Madinah mushaf line positions.', remindMe: 'Daily reminder', remindNote: 'Notifies you once a day at this time — works while the app is open and needs notification permission.',
       enableNotif: 'Enable notifications', remindSaved: 'Reminder saved at', listReminderBody: 'Time for your athkar list', noNotifSupport: 'This device does not support notifications',
@@ -2182,6 +2184,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.t = function (k) {
     var lang = MIH.state ? MIH.state.lang : 'ar';
     return (S[lang] && S[lang][k]) || S.ar[k] || k;
+  };
+  /* fall back to English, not Arabic, for strings a language has not got yet */
+  MIH.tx = function (k) {
+    var lang = MIH.state ? MIH.state.lang : 'ar';
+    return (S[lang] && S[lang][k]) || S.en[k] || S.ar[k] || k;
   };
   MIH.S = S;
   MIH.lang = function () { return MIH.state ? MIH.state.lang : 'ar'; };
@@ -3667,6 +3674,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       ['#/library', 'i-azkar', t('libTitle')],
       ['#/names', 'i-azkar', t('namesTitle')],
       ['#/wird', 'i-check', t('wirdTitle')],
+      ['#/tracker', 'i-check', MIH.tx('trkTitle')],
+      ['#/qada', 'i-check', MIH.tx('qadaTitle')],
+      ['#/zakat', 'i-star', MIH.tx('zakTitle')],
+      ['#/backup', 'i-info', MIH.tx('bkTitle')],
       ['#/khatma', 'i-bookmark', t('khatmaTitle')],
       ['#/audio', 'i-play', t('audioLibrary')],
       ['#/qibla', 'i-compass', t('qiblaTitle')],
@@ -4139,6 +4150,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   var esc = MIH.esc;
   var WIRD_KEY = 'mihrabi.wird.v1';
   var KHATMA_KEY = 'mihrabi.khatma.v1';
+  var HIST_KEY = 'mihrabi.wird.hist.v1';
+  var PRAYERS = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
   function read(key, fallback) {
     try { var raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
@@ -4237,13 +4250,29 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 
   /* ---------------- actions ---------------- */
+  /* one history entry per day, so the prayer record survives the daily reset */
+  MIH.wirdHist = function () {
+    var h = read(HIST_KEY, null);
+    return (h && typeof h === 'object' && !Array.isArray(h)) ? h : {};
+  };
+  function recordHist(done) {
+    var h = MIH.wirdHist();
+    var row = {};
+    PRAYERS.forEach(function (p) { if (done[p]) row[p] = 1; });
+    h[todayKey()] = row;
+    var keys = Object.keys(h).sort();
+    while (keys.length > 400) { delete h[keys.shift()]; }
+    write(HIST_KEY, h);
+  }
+
   MIH.wirdToggle = function (key) {
     var s = wirdState();
     if (s.done[key]) delete s.done[key]; else s.done[key] = true;
     write(WIRD_KEY, s);
+    recordHist(s.done);
     return s;
   };
-  MIH.wirdReset = function () { write(WIRD_KEY, { day: todayKey(), done: {} }); };
+  MIH.wirdReset = function () { write(WIRD_KEY, { day: todayKey(), done: {} }); recordHist({}); };
   MIH.wirdState = wirdState;
 
   MIH.khatmaToggle = function (j) {
@@ -4258,6 +4287,230 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   MIH.khatmaReset = function () { write(KHATMA_KEY, { juz: [], updated: Date.now() }); };
   MIH.khatmaState = khatmaState;
+})();
+
+/* views-extras.js */
+/* MIHRABI — extras: صلاتي (prayer history) · قضاء · زكاة · نسخ احتياطي
+   Merged from the "extras v0.4" zip Ahmed sent (27 Nov 2026) and reworked to the
+   app's own conventions:
+   - prayers are read and written through the existing wird tracker, so there is
+     one prayer record, not two
+   - qada and zakat live in MIH.state, so "reset data" clears them and the backup
+     carries them
+   - zakat and qada are labelled as estimates, never as a fatwa
+   Everything is local: no network, no account, no trackers. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+  var tx = function (k) { return MIH.tx ? MIH.tx(k) : MIH.t(k); };
+
+  var PR = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  var PK = { fajr: 'wirdFajr', dhuhr: 'wirdDhuhr', asr: 'wirdAsr', maghrib: 'wirdMaghrib', isha: 'wirdIsha' };
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function dkey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today() { var n = MIH.cityNow(); return new Date(n.y, n.m - 1, n.d); }
+  function daysBack(n) {
+    var out = [], t = today();
+    for (var i = 0; i < n; i++) { var d = new Date(t); d.setDate(t.getDate() - i); out.push(d); }
+    return out;
+  }
+  /* today's state comes from the wird tracker; older days from its history */
+  function doneOn(hist, d) {
+    var k = dkey(d);
+    var row = hist[k] || {};
+    if (k === MIH.dayKey()) {
+      var s = MIH.wirdState ? MIH.wirdState() : null;
+      var live = (s && s.day === k) ? (s.done || {}) : {};
+      return PR.filter(function (p) { return live[p]; }).length;
+    }
+    return PR.filter(function (p) { return row[p]; }).length;
+  }
+
+  function head(title, sub) {
+    return '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(title) + '</h1>' +
+      (sub ? '<p class="sub">' + esc(sub) + '</p>' : '') + '</div></div>';
+  }
+  function estimateNote(text) {
+    return '<div class="note" style="margin-top:12px"><svg><use href="#i-info"/></svg><span>' + esc(text) + '</span></div>';
+  }
+
+  /* ---------------- صلاتي ---------------- */
+  MIH.views.tracker = function () {
+    var hist = MIH.wirdHist ? MIH.wirdHist() : {};
+    var s = MIH.wirdState ? MIH.wirdState() : { done: {} };
+    var done = (s.day === MIH.dayKey() ? s.done : {}) || {};
+    var count = PR.filter(function (p) { return done[p]; }).length;
+
+    var rows = PR.map(function (p) {
+      var on = !!done[p];
+      return '<button class="row" data-action="wird-toggle" data-k="' + p + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        '<span class="icon-btn" style="pointer-events:none;' + (on ? 'background:rgba(20,81,60,.12);border-color:transparent;color:var(--green-700)' : 'color:var(--muted)') + '">' +
+        '<svg><use href="#' + (on ? 'i-check' : 'i-info') + '"/></svg></span>' +
+        '<span class="row-main"><span class="row-title">' + esc(MIH.t(PK[p])) + '</span></span>' +
+        (on ? '<span class="badge badge-green">✓</span>' : '') + '</button>';
+    }).join('');
+
+    var week = daysBack(7).map(function (d) {
+      var c = doneOn(hist, d), w = Math.round(c / 5 * 100);
+      return '<div class="rowflex" style="justify-content:space-between;gap:10px;margin:7px 0">' +
+        '<span class="num" style="min-width:58px">' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '</span>' +
+        '<div style="flex:1;height:8px;background:var(--bg-2);border-radius:6px;overflow:hidden">' +
+        '<div style="width:' + w + '%;height:100%;background:var(--green-700)"></div></div>' +
+        '<span class="num">' + c + '/5</span></div>';
+    }).join('');
+
+    /* a streak counts only days where all five were marked */
+    var streak = 0, ds = daysBack(400);
+    for (var i = 0; i < ds.length; i++) {
+      if (doneOn(hist, ds[i]) === 5) streak++;
+      else if (i === 0) continue;
+      else break;
+    }
+    var tot = 0;
+    daysBack(30).forEach(function (d) { tot += doneOn(hist, d); });
+
+    return '<div class="view">' + head(tx('trkTitle'), tx('trkSub')) +
+      '<div class="card"><div class="rowflex" style="justify-content:space-between;align-items:center">' +
+      '<b>' + esc(tx('trkToday')) + '</b><span class="badge badge-gold num" id="trk-count" dir="ltr">' + count + ' / 5</span></div>' +
+      '<div style="margin-top:12px" id="trk-list">' + rows + '</div></div>' +
+      '<div class="section-head"><h2 class="h2">' + esc(tx('trkWeek')) + '</h2></div>' +
+      '<div class="card">' + week + '</div>' +
+      '<div class="card" style="margin-top:12px">' +
+      '<div class="rowflex" style="justify-content:space-between"><span>' + esc(tx('trkStreak')) + '</span><b class="num" id="trk-streak">' + streak + '</b></div>' +
+      '<div class="rowflex" style="justify-content:space-between;margin-top:10px"><span>' + esc(tx('trk30')) + '</span><b class="num" id="trk-30">' + Math.round(tot / 150 * 100) + '%</b></div></div>' +
+      '<div class="rowflex" style="gap:8px;margin-top:12px">' +
+      '<button class="btn btn-ghost" style="flex:1" data-action="nav" data-to="#/wird">' + esc(tx('trkWird')) + '</button>' +
+      '<button class="btn btn-ghost" style="flex:1" data-action="nav" data-to="#/qada">' + esc(tx('qadaTitle')) + '</button></div>' +
+      '<div class="footer-note">' + esc(tx('trkLocal')) + '</div></div>';
+  };
+
+  /* ---------------- القضاء ---------------- */
+  function qadaState() {
+    if (!MIH.state.qada) MIH.state.qada = {};
+    return MIH.state.qada;
+  }
+  MIH.views.qada = function () {
+    var q = qadaState(), total = 0;
+    var rows = PR.map(function (p) {
+      var n = q[p] || 0; total += n;
+      return '<div class="rowflex" style="justify-content:space-between;align-items:center;margin:10px 0">' +
+        '<b>' + esc(MIH.t(PK[p])) + '</b>' +
+        '<div class="rowflex" style="gap:8px;align-items:center">' +
+        '<button class="icon-btn" data-action="qada-dec" data-p="' + p + '" aria-label="-"><svg><use href="#i-minus"/></svg></button>' +
+        '<span class="num" style="min-width:44px;text-align:center" data-q="' + p + '">' + n + '</span>' +
+        '<button class="icon-btn" data-action="qada-inc" data-p="' + p + '" aria-label="+"><svg><use href="#i-plus"/></svg></button></div></div>';
+    }).join('');
+    return '<div class="view">' + head(tx('qadaTitle'), tx('qadaSub')) +
+      '<div class="card">' + rows + '<hr style="border:0;border-top:1px solid var(--line);margin:10px 0">' +
+      '<div class="rowflex" style="justify-content:space-between"><span>' + esc(tx('qadaTotal')) + '</span><b class="num" id="qada-total">' + total + '</b></div></div>' +
+      estimateNote(tx('qadaNote')) +
+      '<div class="footer-note">' + esc(tx('qadaLocal')) + '</div></div>';
+  };
+
+  /* ---------------- الزكاة ---------------- */
+  function zakatState() {
+    if (!MIH.state.zakat || typeof MIH.state.zakat !== 'object') MIH.state.zakat = {};
+    var z = MIH.state.zakat;
+    ['cash', 'gold', 'silver', 'goods', 'debts', 'gp', 'sp'].forEach(function (k) { if (z[k] === undefined) z[k] = ''; });
+    return z;
+  }
+  MIH.zakatCompute = function (z) {
+    var n = function (v) { return parseFloat(String(v == null ? '' : v).replace(/[^\d.]/g, '')) || 0; };
+    var wealth = n(z.cash) + n(z.gold) * n(z.gp) + n(z.silver) * n(z.sp) + n(z.goods) - n(z.debts);
+    var ng = n(z.gp) ? 85 * n(z.gp) : 0;
+    var ns = n(z.sp) ? 595 * n(z.sp) : 0;
+    var nisab = 0;
+    if (ng && ns) nisab = Math.min(ng, ns);
+    else nisab = ng || ns;
+    var due = (nisab > 0 && wealth >= nisab) ? wealth * 0.025 : 0;
+    return { wealth: wealth, nisab: nisab, nisabGold: ng, nisabSilver: ns, due: due, hasPrice: nisab > 0 };
+  };
+  MIH.views.zakat = function () {
+    var z = zakatState();
+    function field(id, label, hint) {
+      return '<label style="display:block;margin:12px 0"><span class="sub">' + esc(label) + '</span>' +
+        '<input id="z-' + id + '" data-action="zakat-in" data-k="' + id + '" inputmode="decimal" value="' + esc(z[id]) + '"' +
+        ' placeholder="' + esc(hint || '0') + '" style="width:100%;box-sizing:border-box;margin-top:6px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit">' +
+        '</label>';
+    }
+    var res = MIH.zakatCompute(z);
+    return '<div class="view">' + head(tx('zakTitle'), tx('zakSub')) +
+      '<div class="card">' +
+      '<div id="z-out" class="z-sum" style="padding:10px 12px;border-radius:12px;background:var(--bg-2);margin-bottom:6px">' + zakatOut(res) + '</div>' +
+      field('cash', tx('zakCash')) + field('gold', tx('zakGold')) + field('silver', tx('zakSilver')) +
+      field('goods', tx('zakGoods')) + field('debts', tx('zakDebts')) +
+      '<div class="sub" style="margin:14px 0 2px">' + esc(tx('zakPrices')) + '</div>' +
+      field('gp', tx('zakGoldPrice')) + field('sp', tx('zakSilverPrice')) + '</div>' +
+      estimateNote(tx('zakNote')) +
+      '<div class="footer-note">' + esc(tx('zakNisabNote')) + '</div></div>';
+  };
+  function zakatOut(r) {
+    if (!r.hasPrice) {
+      return '<span class="sub">' + esc(tx('zakNeedPrice')) + '</span>';
+    }
+    var line = function (label, val, strong) {
+      return '<div class="rowflex" style="justify-content:space-between;margin:6px 0"><span>' + esc(label) + '</span>' +
+        '<b class="num"' + (strong ? ' style="font-size:1.2em"' : '') + '>' + val + '</b></div>';
+    };
+    var html = line(tx('zakNet'), r.wealth.toFixed(2)) + line(tx('zakNisab'), r.nisab.toFixed(2)) +
+      line(tx('zakDue'), r.due.toFixed(2), true);
+    if (r.due === 0) html += '<p class="sub" style="margin-top:6px">' + esc(tx('zakBelow')) + '</p>';
+    return html;
+  }
+  MIH.zakatRefresh = function () {
+    var out = document.getElementById('z-out');
+    if (out) out.innerHTML = zakatOut(MIH.zakatCompute(zakatState()));
+  };
+
+  /* ---------------- نسخ احتياطي ---------------- */
+  function allKeys() {
+    var o = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('mihrabi.') === 0) o[k] = localStorage.getItem(k);
+      }
+    } catch (e) { }
+    return o;
+  }
+  MIH.backupExport = function () {
+    var payload = { app: 'mihrabi', v: 1, at: new Date().toISOString(), data: allKeys() };
+    try {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+      a.download = 'mihrabi-backup-' + dkey(today()) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { try { URL.revokeObjectURL(a.href); } catch (e) { } }, 4000);
+      return true;
+    } catch (e) { return false; }
+  };
+  MIH.backupParse = function (text) {
+    var j;
+    try { j = JSON.parse(text); } catch (e) { return { ok: false, keys: 0 }; }
+    if (!j || j.app !== 'mihrabi' || !j.data || typeof j.data !== 'object') return { ok: false, keys: 0 };
+    var keys = Object.keys(j.data).filter(function (k) { return k.indexOf('mihrabi.') === 0 && typeof j.data[k] === 'string'; });
+    return { ok: keys.length > 0, keys: keys.length, data: j.data, list: keys };
+  };
+  MIH.backupRestore = function (parsed) {
+    if (!parsed || !parsed.ok) return false;
+    try {
+      parsed.list.forEach(function (k) { localStorage.setItem(k, parsed.data[k]); });
+      return true;
+    } catch (e) { return false; }
+  };
+  MIH.views.backup = function () {
+    return '<div class="view">' + head(tx('bkTitle'), tx('bkSub')) +
+      '<div class="card">' +
+      '<button class="btn" style="width:100%" data-action="backup-export">' + esc(tx('bkExport')) + '</button>' +
+      '<label class="btn btn-ghost" style="width:100%;margin-top:10px;display:block;text-align:center;cursor:pointer">' +
+      esc(tx('bkImport')) +
+      '<input type="file" accept="application/json,.json" id="bk-file" data-action="backup-file" style="display:none"></label>' +
+      '<p class="sub" style="margin:12px 0 0">' + esc(tx('bkWhat')) + '</p></div>' +
+      '<div class="footer-note">' + esc(tx('bkLocal')) + '</div></div>';
+  };
 })();
 
 /* views-names.js */
@@ -4952,6 +5205,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (parts[1]) { view = 'tasmi'; html = MIH.views.tasmi(parseInt(parts[1], 10)); }
       else { view = 'hifz'; html = MIH.views.hifz(); }
     }
+    else if (parts[0] === 'tracker') { view = 'tracker'; html = MIH.views.tracker(); }
+    else if (parts[0] === 'qada') { view = 'qada'; html = MIH.views.qada(); }
+    else if (parts[0] === 'zakat') { view = 'zakat'; html = MIH.views.zakat(); }
+    else if (parts[0] === 'backup') { view = 'backup'; html = MIH.views.backup(); }
     else if (parts[0] === 'more') { view = 'more'; html = MIH.views.more(); }
     else { view = 'home'; html = MIH.views.home(); }
 
@@ -5161,6 +5418,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       return;
     }
     if (a === 'wird-toggle') { MIH.wirdToggle(el.getAttribute('data-k')); render(); return; }
+    if (a === 'qada-inc' || a === 'qada-dec') {
+      var qp = el.getAttribute('data-p');
+      MIH.state.qada = MIH.state.qada || {};
+      MIH.state.qada[qp] = Math.max(0, (MIH.state.qada[qp] || 0) + (a === 'qada-inc' ? 1 : -1));
+      MIH.save(); render(); return;
+    }
+    if (a === 'backup-export') { MIH.toast(MIH.backupExport() ? t('bkExported') : t('bkFailed')); return; }
     if (a === 'wird-reset') { MIH.wirdReset(); render(); MIH.toast(t('wirdResetDone')); return; }
     if (a === 'khatma-toggle') { MIH.khatmaToggle(el.getAttribute('data-j')); render(); return; }
     if (a === 'khatma-next') { MIH.khatmaToggle(el.getAttribute('data-j')); render(); return; }
@@ -5246,6 +5510,29 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   });
 
   var searchTimer = null;
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el || el.getAttribute('data-action') !== 'zakat-in') return;
+    MIH.state.zakat = MIH.state.zakat || {};
+    MIH.state.zakat[el.getAttribute('data-k')] = el.value;
+    MIH.save();
+    if (MIH.zakatRefresh) MIH.zakatRefresh();
+  });
+
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el || el.id !== 'bk-file' || !el.files || !el.files[0]) return;
+    var fr = new FileReader();
+    fr.onload = function () {
+      var parsed = MIH.backupParse(String(fr.result));
+      if (!parsed.ok) { MIH.toast(t('bkBadFile')); return; }
+      if (!window.confirm(t('bkConfirm'))) return;
+      if (MIH.backupRestore(parsed)) { MIH.toast(t('bkRestored')); setTimeout(function () { location.reload(); }, 800); }
+      else MIH.toast(t('bkFailed'));
+    };
+    fr.readAsText(el.files[0]);
+  });
+
   document.addEventListener('input', function (e) {
     var el = e.target;
     if (el.getAttribute('data-action') === 'quran-search') {
