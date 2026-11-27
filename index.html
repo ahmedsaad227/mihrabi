@@ -1274,6 +1274,17 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
   direction: ltr; }
 .ab-bar.on { border-color: var(--green-600); }
 .ab-bar.on .ab-play { background: var(--gold-600); }
+/* the visible continue button after a tap paused the run */
+.ab-resume { position: fixed; z-index: 65; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--nav-h) + 74px + env(safe-area-inset-bottom)); display: none;
+  align-items: center; gap: 9px; padding: 12px 20px 12px 16px; border: 0; cursor: pointer;
+  border-radius: 999px; background: var(--green-700); color: #F7F2E3; font: inherit; font-weight: 700;
+  box-shadow: var(--shadow-lg); animation: abResumeIn .18s var(--ease); }
+.ab-resume.on { display: inline-flex; }
+.ab-resume-ico { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--gold-500); color: var(--green-900); font-size: 13px; line-height: 1; }
+.ab-resume-tx { font-size: 14px; }
+@keyframes abResumeIn { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .view.reader, .view.mp-view { padding-bottom: 84px; }
 
 /* the ayah being browsed */
@@ -1292,6 +1303,15 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 
 /* ---------- mushaf: tap an ayah ---------- */
 .mp-aya { cursor: pointer; }
+/* the ayah number is its own target: a tap there bookmarks the ayah */
+.mp-mark { cursor: pointer; padding: 0 2px; border-radius: 6px; }
+.mp-mark:active { background: rgba(184,145,47,.22); }
+.mp-aya[data-mark*="b"] .mp-mark { color: var(--gold-600); font-weight: 700; }
+.mp-aya.ab-cur { background: rgba(184,145,47,.10); border-radius: 6px; }
+/* the line that travels down the page while auto-browse runs */
+.ab-line { position: absolute; left: 4px; right: 4px; height: 0; pointer-events: none;
+  border-top: 2px solid var(--gold-500); box-shadow: 0 0 12px rgba(184,145,47,.55); border-radius: 2px; }
+.mp-sheet, .mp-stage { position: relative; }
 .mp-aya[data-mark*="n"] { box-shadow: inset 0 -2px 0 var(--gold-500); }
 .mp-aya[data-mark*="b"] { background: rgba(184,145,47,.12); border-radius: 6px; }
 .mp-sheet-wrap { position: fixed; inset: 0; z-index: 70; display: flex; align-items: flex-end; }
@@ -2035,7 +2055,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'تصحيح التوقيت (دقائق)', highLat: 'خطوط العرض العالية',
       highLatAngle: 'زاوية', highLatNight: 'نصف الليل', highLatNone: 'بدون تعديل',
       azkarCats: 'أقسام الأذكار', azkarSearch: 'ابحث في الأذكار', allAzkar: 'كل الأذكار',
-      saved: 'تم الحفظ', abStart: 'تشغيل التصفح التلقائي', abPause: 'إيقاف مؤقت', abSpeed: 'السرعة', abSlower: 'أبطأ', abFaster: 'أسرع', abHint: 'تصفح تلقائي سلس · آية بآية', abRunning: 'يتصفح…', abAyah: 'آية', abOf: 'من', abPageWord: 'صفحة', abNextIn: 'التالية بعد', abSec: 'ث', abEnd: 'انتهى التصفح التلقائي', abStopped: 'تم إيقاف التصفح التلقائي', abNoView: 'التصفح التلقائي يعمل داخل المصحف والقراءة فقط', trkTitle: 'صلاتي', trkSub: 'سجل صلواتك وأيامك', trkToday: 'اليوم', trkWeek: 'آخر ٧ أيام', trkStreak: 'أيام متتالية بخمس صلوات', trk30: 'الالتزام (٣٠ يومًا)', trkWird: 'ورد المحاسبة', trkLocal: 'محفوظ على جهازك فقط', qadaTitle: 'قضاء الصلوات', qadaSub: 'سجّل ما عليك وأنقصه كلما قضيت', qadaTotal: 'الإجمالي', qadaNote: 'هذا عدّاد تقديري لمساعدتك على المتابعة، وليس فتوى. أحكام القضاء تختلف بحسب الحال، فاسأل عالمًا تثق به.', qadaLocal: 'محفوظ على جهازك فقط', zakTitle: 'حاسبة الزكاة', zakSub: '٢٫٥٪ إذا بلغ المال النصاب وحال عليه الحول', zakCash: 'النقد والأرصدة', zakGold: 'الذهب (جرام)', zakSilver: 'الفضة (جرام)', zakGoods: 'عروض التجارة', zakDebts: 'الديون المستحقة عليك', zakPrices: 'أسعار اليوم (تُدخل يدويًا)', zakGoldPrice: 'سعر جرام الذهب', zakSilverPrice: 'سعر جرام الفضة', zakNet: 'صافي المال', zakNisab: 'النصاب', zakDue: 'الزكاة التقديرية', zakBelow: 'لم يبلغ النصاب — لا زكاة الآن.', zakNeedPrice: 'أدخل سعر الذهب أو الفضة لحساب النصاب.', zakNote: 'نتيجة تقديرية للاسترشاد فقط وليست فتوى. الزكاة لها شروط وأحكام (الحول، الديون، الأصول) — راجع عالمًا أو جهة إفتاء معتمدة قبل الإخراج.', zakNisabNote: 'النصاب: ٨٥ جرامًا من الذهب أو ٥٩٥ جرامًا من الفضة، والأخذ بأقلهما أنفع للفقراء.', bkTitle: 'نسخ احتياطي', bkSub: 'بياناتك محلية على جهازك فقط', bkExport: 'تصدير بياناتي (ملف JSON)', bkImport: 'استيراد نسخة', bkWhat: 'الملف يحتوي إعداداتك وقراءتك وأذكارك ووردك وسجل صلواتك — احفظه في مكان آمن.', bkLocal: 'لا يُرسل شيء إلى أي خادم؛ الملف يُنشأ ويُقرأ على جهازك.', bkExported: 'تم إنشاء الملف', bkFailed: 'تعذّر إتمام العملية', bkBadFile: 'ملف غير صالح', bkConfirm: 'سيتم استبدال بياناتك الحالية بالنسخة المستوردة. متابعة؟', bkRestored: 'تم الاستيراد — جارٍ إعادة التحميل', mxSearch: 'بحث شامل', mxSearchSub: 'القرآن والأذكار والأحاديث والأسماء والصفحات', mxSearchPh: 'اكتب كلمة أو مرجعًا مثل ٢:٢٥٥', mxSearchHint: 'اكتب كلمة، اسم سورة، أو رقم مثل 2:255', mxNoResults: 'لا نتائج', mxSurahs: 'السور', mxAyahs: 'الآيات', mxAzkar: 'الأذكار', mxHadith: 'الأحاديث', mxHadithNo: 'حديث رقم', mxNames: 'أسماء الله', mxPages: 'صفحات', mxShare: 'مشاركة آية', mxShareSub: 'بطاقة تُنشأ على جهازك وتُحفظ أو تُشارك', mxSurah: 'السورة', mxAyahWord: 'الآية', mxGo: 'اذهب', mxRefHint: 'رقم السورة ثم رقم الآية', mxIncludeTr: 'إضافة الترجمة', mxSave: 'حفظ الصورة', mxCardNote: 'الصورة تُرسم على جهازك من نص المصحف المعتمد؛ لا يُرسل شيء إلى أي خادم.', mxDaily: 'آية اليوم', mxAsImage: 'مشاركة كصورة', mxInReader: 'في المصحف', mxTextSource: 'النص العثماني: مشروع تنزيل (tanzil.net)', mxEvents: 'المناسبات القادمة', mxEventsSub: 'التواريخ الهجرية القادمة بحسب تقويم أم القرى', mxEventsNote: 'التواريخ محسوبة بتقويم أم القرى الموجود في جهازك؛ قد تختلف يومًا عن الرؤية المحلية، فاعتمد إعلان الجهة الرسمية في بلدك.', mxToday: 'اليوم', mxBadRef: 'آية غير موجودة', mpClose: 'إغلاق', mpCopy: 'نسخ الآية', mpShareCard: 'مشاركة كصورة', mpBookmark: 'علامة', mpBookmarkOn: 'إزالة العلامة', mpNoteLabel: 'ملاحظتي', mpNotePh: 'اكتب ملاحظتك على هذه الآية', mpNoteSave: 'حفظ الملاحظة', mpNoteDel: 'حذف الملاحظة', mpNoteSaved: 'تم حفظ الملاحظة', mpCopied: 'تم نسخ الآية', mpCopyFail: 'تعذّر النسخ', mpNotesTitle: 'ملاحظاتي', mpNotesSub: 'ملاحظات كتبتها على الآيات — محفوظة على جهازك فقط', mpNotesEmpty: 'لا ملاحظات بعد. اضغط أي آية في صفحة المصحف لتكتب ملاحظة.', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
+      saved: 'تم الحفظ', abStart: 'تشغيل التصفح التلقائي', abPause: 'إيقاف مؤقت', abSpeed: 'السرعة', abSlower: 'أبطأ', abFaster: 'أسرع', abHint: 'تصفح تلقائي · يمشي بالصفحة لتحت', abRunning: 'يتصفح…', abAyah: 'آية', abOf: 'من', abPageWord: 'صفحة', abNextIn: 'التالية بعد', abSec: 'ث', abEnd: 'انتهى التصفح التلقائي', abStopped: 'تم إيقاف التصفح التلقائي', abJuzIn: 'الجزء في', abMinUnit: 'دقيقة', abPaused: 'متوقف — اضغط استمرار', abResume: 'استمرار', abTapHint: 'اضغط على الشاشة للإيقاف', abLeftMin: 'باقي', abBookmarked: 'حُفظت الآية في العلامات', abBookmarkOff: 'أُزيلت العلامة', mpNumberHint: 'اضغط رقم الآية لحفظها في العلامات', abNoView: 'التصفح التلقائي يعمل داخل المصحف والقراءة فقط', trkTitle: 'صلاتي', trkSub: 'سجل صلواتك وأيامك', trkToday: 'اليوم', trkWeek: 'آخر ٧ أيام', trkStreak: 'أيام متتالية بخمس صلوات', trk30: 'الالتزام (٣٠ يومًا)', trkWird: 'ورد المحاسبة', trkLocal: 'محفوظ على جهازك فقط', qadaTitle: 'قضاء الصلوات', qadaSub: 'سجّل ما عليك وأنقصه كلما قضيت', qadaTotal: 'الإجمالي', qadaNote: 'هذا عدّاد تقديري لمساعدتك على المتابعة، وليس فتوى. أحكام القضاء تختلف بحسب الحال، فاسأل عالمًا تثق به.', qadaLocal: 'محفوظ على جهازك فقط', zakTitle: 'حاسبة الزكاة', zakSub: '٢٫٥٪ إذا بلغ المال النصاب وحال عليه الحول', zakCash: 'النقد والأرصدة', zakGold: 'الذهب (جرام)', zakSilver: 'الفضة (جرام)', zakGoods: 'عروض التجارة', zakDebts: 'الديون المستحقة عليك', zakPrices: 'أسعار اليوم (تُدخل يدويًا)', zakGoldPrice: 'سعر جرام الذهب', zakSilverPrice: 'سعر جرام الفضة', zakNet: 'صافي المال', zakNisab: 'النصاب', zakDue: 'الزكاة التقديرية', zakBelow: 'لم يبلغ النصاب — لا زكاة الآن.', zakNeedPrice: 'أدخل سعر الذهب أو الفضة لحساب النصاب.', zakNote: 'نتيجة تقديرية للاسترشاد فقط وليست فتوى. الزكاة لها شروط وأحكام (الحول، الديون، الأصول) — راجع عالمًا أو جهة إفتاء معتمدة قبل الإخراج.', zakNisabNote: 'النصاب: ٨٥ جرامًا من الذهب أو ٥٩٥ جرامًا من الفضة، والأخذ بأقلهما أنفع للفقراء.', bkTitle: 'نسخ احتياطي', bkSub: 'بياناتك محلية على جهازك فقط', bkExport: 'تصدير بياناتي (ملف JSON)', bkImport: 'استيراد نسخة', bkWhat: 'الملف يحتوي إعداداتك وقراءتك وأذكارك ووردك وسجل صلواتك — احفظه في مكان آمن.', bkLocal: 'لا يُرسل شيء إلى أي خادم؛ الملف يُنشأ ويُقرأ على جهازك.', bkExported: 'تم إنشاء الملف', bkFailed: 'تعذّر إتمام العملية', bkBadFile: 'ملف غير صالح', bkConfirm: 'سيتم استبدال بياناتك الحالية بالنسخة المستوردة. متابعة؟', bkRestored: 'تم الاستيراد — جارٍ إعادة التحميل', mxSearch: 'بحث شامل', mxSearchSub: 'القرآن والأذكار والأحاديث والأسماء والصفحات', mxSearchPh: 'اكتب كلمة أو مرجعًا مثل ٢:٢٥٥', mxSearchHint: 'اكتب كلمة، اسم سورة، أو رقم مثل 2:255', mxNoResults: 'لا نتائج', mxSurahs: 'السور', mxAyahs: 'الآيات', mxAzkar: 'الأذكار', mxHadith: 'الأحاديث', mxHadithNo: 'حديث رقم', mxNames: 'أسماء الله', mxPages: 'صفحات', mxShare: 'مشاركة آية', mxShareSub: 'بطاقة تُنشأ على جهازك وتُحفظ أو تُشارك', mxSurah: 'السورة', mxAyahWord: 'الآية', mxGo: 'اذهب', mxRefHint: 'رقم السورة ثم رقم الآية', mxIncludeTr: 'إضافة الترجمة', mxSave: 'حفظ الصورة', mxCardNote: 'الصورة تُرسم على جهازك من نص المصحف المعتمد؛ لا يُرسل شيء إلى أي خادم.', mxDaily: 'آية اليوم', mxAsImage: 'مشاركة كصورة', mxInReader: 'في المصحف', mxTextSource: 'النص العثماني: مشروع تنزيل (tanzil.net)', mxEvents: 'المناسبات القادمة', mxEventsSub: 'التواريخ الهجرية القادمة بحسب تقويم أم القرى', mxEventsNote: 'التواريخ محسوبة بتقويم أم القرى الموجود في جهازك؛ قد تختلف يومًا عن الرؤية المحلية، فاعتمد إعلان الجهة الرسمية في بلدك.', mxToday: 'اليوم', mxBadRef: 'آية غير موجودة', mpClose: 'إغلاق', mpCopy: 'نسخ الآية', mpShareCard: 'مشاركة كصورة', mpBookmark: 'علامة', mpBookmarkOn: 'إزالة العلامة', mpNoteLabel: 'ملاحظتي', mpNotePh: 'اكتب ملاحظتك على هذه الآية', mpNoteSave: 'حفظ الملاحظة', mpNoteDel: 'حذف الملاحظة', mpNoteSaved: 'تم حفظ الملاحظة', mpCopied: 'تم نسخ الآية', mpCopyFail: 'تعذّر النسخ', mpNotesTitle: 'ملاحظاتي', mpNotesSub: 'ملاحظات كتبتها على الآيات — محفوظة على جهازك فقط', mpNotesEmpty: 'لا ملاحظات بعد. اضغط أي آية في صفحة المصحف لتكتب ملاحظة.', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
       openInReader: 'افتح في القارئ', back: 'رجوع', mushafPages: 'المصحف (٦٠٤ صفحات)', mushafPagesSub: 'صفحات المصحف المدني كاملة',
       mpNote: 'فواصل الصفحات من بيانات تنزيل (tanzil.net) عبر Mushaf-Learning/quran-text (MIT). النص العثماني من تنزيل (CC BY 3.0). الخط: KFGQPC Uthmanic Hafs. تقسيم الأسطر داخل الصفحة من عندنا، وليس مطابقًا لأسطر مصحف المدينة.', remindMe: 'تذكير يومي', remindNote: 'ينبّهك مرة واحدة في اليوم في هذا الوقت — يعمل والتطبيق مفتوح، ويحتاج إذن الإشعارات.',
       enableNotif: 'تشغيل الإشعارات', remindSaved: 'التذكير محفوظ الساعة', listReminderBody: 'موعد قائمتك من الأذكار', noNotifSupport: 'جهازك لا يدعم الإشعارات',
@@ -2140,7 +2160,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'Manual correction (minutes)', highLat: 'High latitudes',
       highLatAngle: 'Angle-based', highLatNight: 'Middle of night', highLatNone: 'None',
       azkarCats: 'Azkar sections', azkarSearch: 'Search azkar', allAzkar: 'All azkar',
-      saved: 'Saved', abStart: 'Start auto-browse', abPause: 'Pause', abSpeed: 'Speed', abSlower: 'Slower', abFaster: 'Faster', abHint: 'Smooth auto-browse · ayah by ayah', abRunning: 'Browsing…', abAyah: 'Ayah', abOf: 'of', abPageWord: 'Page', abNextIn: 'next in', abSec: 's', abEnd: 'Auto-browse finished', abStopped: 'Auto-browse stopped', abNoView: 'Auto-browse works in the mushaf and the reader', trkTitle: 'My prayers', trkSub: 'Your prayer record and history', trkToday: 'Today', trkWeek: 'Last 7 days', trkStreak: 'Full-day streak', trk30: 'Consistency (30 days)', trkWird: 'Daily tracker', trkLocal: 'Stored on your device only', qadaTitle: 'Missed prayers', qadaSub: 'Log what you owe and reduce it as you make up', qadaTotal: 'Total', qadaNote: 'A counting aid to help you keep track, not a fatwa. Rulings on making up prayers depend on your situation, so ask a scholar you trust.', qadaLocal: 'Stored on your device only', zakTitle: 'Zakat calculator', zakSub: '2.5% once wealth reaches nisab for a lunar year', zakCash: 'Cash & savings', zakGold: 'Gold (grams)', zakSilver: 'Silver (grams)', zakGoods: 'Trade goods', zakDebts: 'Debts you owe', zakPrices: 'Prices today (you enter them)', zakGoldPrice: 'Gold price / gram', zakSilverPrice: 'Silver price / gram', zakNet: 'Net wealth', zakNisab: 'Nisab', zakDue: 'Estimated zakat', zakBelow: 'Below nisab - nothing due now.', zakNeedPrice: 'Enter a gold or silver price to work out nisab.', zakNote: 'An estimate for guidance only, not a fatwa. Zakat has conditions (the lunar year, debts, assets), so check with a scholar or an official fatwa body before paying.', zakNisabNote: 'Nisab: 85g of gold or 595g of silver; the lower of the two is used, which benefits those in need.', bkTitle: 'Backup & restore', bkSub: 'Your data stays on your device', bkExport: 'Export my data (JSON file)', bkImport: 'Import a backup', bkWhat: 'The file holds your settings, reading, azkar, daily tracker and prayer history - keep it somewhere safe.', bkLocal: 'Nothing is sent to a server; the file is made and read on your device.', bkExported: 'File created', bkFailed: 'Could not complete that', bkBadFile: 'Not a MIHRABI backup file', bkConfirm: 'This will replace your current data with the imported copy. Continue?', bkRestored: 'Imported - reloading', mxSearch: 'Search', mxSearchSub: 'Quran, azkar, hadith, names and pages', mxSearchPh: 'Type a word or a reference like 2:255', mxSearchHint: 'Type a word, a surah name, or a reference like 2:255', mxNoResults: 'No results', mxSurahs: 'Surahs', mxAyahs: 'Ayahs', mxAzkar: 'Azkar', mxHadith: 'Hadith', mxHadithNo: 'Hadith #', mxNames: 'Names of Allah', mxPages: 'Pages', mxShare: 'Share an ayah', mxShareSub: 'A card drawn on your device, saved or shared', mxSurah: 'Surah', mxAyahWord: 'Ayah', mxGo: 'Go', mxRefHint: 'Surah number, then ayah number', mxIncludeTr: 'Include translation', mxSave: 'Save the image', mxCardNote: 'The image is drawn on your device from the app Quran text; nothing is sent to a server.', mxDaily: 'Ayah of the day', mxAsImage: 'Share as image', mxInReader: 'Open in reader', mxTextSource: 'Uthmani text: Tanzil (tanzil.net)', mxEvents: 'Upcoming dates', mxEventsSub: 'Next Hijri dates by the Umm al-Qura calendar', mxEventsNote: 'Dates are computed with the Umm al-Qura calendar built into your device; a local sighting can differ by a day, so follow your country official announcement.', mxToday: 'Today', mxBadRef: 'No such ayah', mpClose: 'Close', mpCopy: 'Copy the ayah', mpShareCard: 'Share as image', mpBookmark: 'Bookmark', mpBookmarkOn: 'Remove bookmark', mpNoteLabel: 'My note', mpNotePh: 'Write your note on this ayah', mpNoteSave: 'Save note', mpNoteDel: 'Delete note', mpNoteSaved: 'Note saved', mpCopied: 'Ayah copied', mpCopyFail: 'Could not copy', mpNotesTitle: 'My notes', mpNotesSub: 'Notes you wrote on ayahs - stored on your device only', mpNotesEmpty: 'No notes yet. Tap any ayah on the mushaf page to write one.', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
+      saved: 'Saved', abStart: 'Start auto-browse', abPause: 'Pause', abSpeed: 'Speed', abSlower: 'Slower', abFaster: 'Faster', abHint: 'Auto-browse · moves down the page', abRunning: 'Browsing…', abAyah: 'Ayah', abOf: 'of', abPageWord: 'Page', abNextIn: 'next in', abSec: 's', abEnd: 'Auto-browse finished', abStopped: 'Auto-browse stopped', abJuzIn: 'Juz in', abMinUnit: 'min', abPaused: 'Paused - tap resume', abResume: 'Resume', abTapHint: 'tap the screen to pause', abLeftMin: 'left', abBookmarked: 'Ayah bookmarked', abBookmarkOff: 'Bookmark removed', mpNumberHint: 'Tap the ayah number to bookmark it', abNoView: 'Auto-browse works in the mushaf and the reader', trkTitle: 'My prayers', trkSub: 'Your prayer record and history', trkToday: 'Today', trkWeek: 'Last 7 days', trkStreak: 'Full-day streak', trk30: 'Consistency (30 days)', trkWird: 'Daily tracker', trkLocal: 'Stored on your device only', qadaTitle: 'Missed prayers', qadaSub: 'Log what you owe and reduce it as you make up', qadaTotal: 'Total', qadaNote: 'A counting aid to help you keep track, not a fatwa. Rulings on making up prayers depend on your situation, so ask a scholar you trust.', qadaLocal: 'Stored on your device only', zakTitle: 'Zakat calculator', zakSub: '2.5% once wealth reaches nisab for a lunar year', zakCash: 'Cash & savings', zakGold: 'Gold (grams)', zakSilver: 'Silver (grams)', zakGoods: 'Trade goods', zakDebts: 'Debts you owe', zakPrices: 'Prices today (you enter them)', zakGoldPrice: 'Gold price / gram', zakSilverPrice: 'Silver price / gram', zakNet: 'Net wealth', zakNisab: 'Nisab', zakDue: 'Estimated zakat', zakBelow: 'Below nisab - nothing due now.', zakNeedPrice: 'Enter a gold or silver price to work out nisab.', zakNote: 'An estimate for guidance only, not a fatwa. Zakat has conditions (the lunar year, debts, assets), so check with a scholar or an official fatwa body before paying.', zakNisabNote: 'Nisab: 85g of gold or 595g of silver; the lower of the two is used, which benefits those in need.', bkTitle: 'Backup & restore', bkSub: 'Your data stays on your device', bkExport: 'Export my data (JSON file)', bkImport: 'Import a backup', bkWhat: 'The file holds your settings, reading, azkar, daily tracker and prayer history - keep it somewhere safe.', bkLocal: 'Nothing is sent to a server; the file is made and read on your device.', bkExported: 'File created', bkFailed: 'Could not complete that', bkBadFile: 'Not a MIHRABI backup file', bkConfirm: 'This will replace your current data with the imported copy. Continue?', bkRestored: 'Imported - reloading', mxSearch: 'Search', mxSearchSub: 'Quran, azkar, hadith, names and pages', mxSearchPh: 'Type a word or a reference like 2:255', mxSearchHint: 'Type a word, a surah name, or a reference like 2:255', mxNoResults: 'No results', mxSurahs: 'Surahs', mxAyahs: 'Ayahs', mxAzkar: 'Azkar', mxHadith: 'Hadith', mxHadithNo: 'Hadith #', mxNames: 'Names of Allah', mxPages: 'Pages', mxShare: 'Share an ayah', mxShareSub: 'A card drawn on your device, saved or shared', mxSurah: 'Surah', mxAyahWord: 'Ayah', mxGo: 'Go', mxRefHint: 'Surah number, then ayah number', mxIncludeTr: 'Include translation', mxSave: 'Save the image', mxCardNote: 'The image is drawn on your device from the app Quran text; nothing is sent to a server.', mxDaily: 'Ayah of the day', mxAsImage: 'Share as image', mxInReader: 'Open in reader', mxTextSource: 'Uthmani text: Tanzil (tanzil.net)', mxEvents: 'Upcoming dates', mxEventsSub: 'Next Hijri dates by the Umm al-Qura calendar', mxEventsNote: 'Dates are computed with the Umm al-Qura calendar built into your device; a local sighting can differ by a day, so follow your country official announcement.', mxToday: 'Today', mxBadRef: 'No such ayah', mpClose: 'Close', mpCopy: 'Copy the ayah', mpShareCard: 'Share as image', mpBookmark: 'Bookmark', mpBookmarkOn: 'Remove bookmark', mpNoteLabel: 'My note', mpNotePh: 'Write your note on this ayah', mpNoteSave: 'Save note', mpNoteDel: 'Delete note', mpNoteSaved: 'Note saved', mpCopied: 'Ayah copied', mpCopyFail: 'Could not copy', mpNotesTitle: 'My notes', mpNotesSub: 'Notes you wrote on ayahs - stored on your device only', mpNotesEmpty: 'No notes yet. Tap any ayah on the mushaf page to write one.', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
       openInReader: 'Open in reader', back: 'Back', mushafPages: 'Mushaf (604 pages)', mushafPagesSub: 'The complete Madinah mushaf pages',
       mpNote: 'Page breaks from Tanzil metadata via Mushaf-Learning/quran-text (MIT). Uthmani text from Tanzil (CC BY 3.0). Font: KFGQPC Uthmanic Hafs. Line wrapping inside a page is ours, not the Madinah mushaf line positions.', remindMe: 'Daily reminder', remindNote: 'Notifies you once a day at this time — works while the app is open and needs notification permission.',
       enableNotif: 'Enable notifications', remindSaved: 'Reminder saved at', listReminderBody: 'Time for your athkar list', noNotifSupport: 'This device does not support notifications',
@@ -3325,7 +3345,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       var marked = (MIH.state.bookmarks || []).some(function (b) { return b.s === x.s && b.a === x.a; });
       html += '<span class="mp-aya" data-action="mp-ayah" data-s="' + x.s + '" data-a="' + x.a + '"' +
         (noted || marked ? ' data-mark="' + (noted ? 'n' : '') + (marked ? 'b' : '') + '"' : '') + '>' + esc(x.text) +
-        '<span class="mp-mark">۝' + arNum(x.a) + '</span></span> ';
+        '<span class="mp-mark" data-action="mp-bmark" data-s="' + x.s + '" data-a="' + x.a + '" role="button" title="' + esc(t('mpNumberHint')) + '">۝' + arNum(x.a) + '</span></span> ';
     }
     return html;
   }
@@ -3400,41 +3420,40 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 })();
 
 /* auto-browse.js */
-/* MIHRABI — auto-browse (smooth, ayah by ayah)
-   Reader: moves from ayah to ayah with a highlight and a smooth scroll, and
-   carries on into the next surah. Mushaf page view: turns the page when the
-   reading time for that page is up. The printed page is a raster image, so
-   there is no ayah to highlight on it; the progress bar and the page turn are
-   what it gets. Speed is a visible stepper (x0.5 .. x3.0) and is remembered. */
+/* MIHRABI — auto-browse (continuous, paced per juz)
+   The page is read by a line that travels down it, not by ayah jumps. Speed is
+   expressed the way Ahmed asked for it: how many minutes a whole juz should
+   take, 10 to 60, in 1-minute steps (more minutes = slower). A juz is 20 mushaf
+   pages, so each page takes minutes/20, and the reading line sweeps the page
+   body over exactly that time; the ayah under the line is highlighted. When the
+   line reaches the bottom the page turns by itself and carries on.
+   The printed-image page has no ayahs, so it gets the line alone.
+   The reader view has no fixed page, so there the window scrolls down instead,
+   one screenful per "page" of time, and carries on into the next surah.
+   Tapping the screen pauses, and a visible continue button resumes. */
 (function () {
   'use strict';
   var MIH = window.MIH;
   if (!MIH) return;
   var esc = MIH.esc;
+  var arNum = function (n) { return MIH.arNum ? MIH.arNum(n) : String(n); };
   var t = function (k) { return MIH.t(k); };
 
-  var SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3];
-  var LABELS = ['×0.5', '×0.75', '×1.0', '×1.25', '×1.5', '×2.0', '×2.5', '×3.0'];
+  var MIN = 10, MAX = 60, DEFAULT = 20, PAGES_PER_JUZ = 20;
 
-  /* reading time at x1: a long ayah gets more time than a short one */
-  var AYAH_BASE = 2600, AYAH_PER_CHAR = 45, AYAH_MIN = 2600, AYAH_MAX = 12000;
-  var PAGE_BASE = 8000, PAGE_PER_AYAH = 900, PAGE_MIN = 12000, PAGE_MAX = 45000;
-
-  function speedIdx() {
-    var i = parseInt(MIH.state && MIH.state.abSpeedI, 10);
-    return (i >= 0 && i < SPEEDS.length) ? i : 2;
+  function clampMin(v) {
+    v = parseInt(v, 10);
+    if (isNaN(v)) v = DEFAULT;
+    return Math.max(MIN, Math.min(MAX, v));
   }
-  MIH.abSpeedIndex = speedIdx;
-  MIH.abSpeed = function () { return SPEEDS[speedIdx()]; };
+  MIH.abMinutes = function () { return clampMin(MIH.state && MIH.state.abMinPerJuz); };
   MIH.abRunning = function () { return !!MIH._abOn; };
-  MIH.abPointer = function () { return MIH._abIdx || 0; };
+  MIH.abPaused = function () { return !!(MIH._abOn && MIH._abPaused); };
+  function pageSeconds() { return MIH.abMinutes() * 60 / PAGES_PER_JUZ; }
 
-  var timer = null, raf = null, t0 = 0, dur = 0, lastLabel = 0;
-
-  function stopTimers() {
-    if (timer) { clearTimeout(timer); timer = null; }
-    if (raf) { cancelAnimationFrame(raf); raf = null; }
-  }
+  var raf = null, pageDur = 0, elapsed = 0, lastTs = 0, lastLabel = 0;
+  var baseY = 0, endY = 0, pos = 0;      /* reader: window scroll */
+  var curEl = null;
 
   function route() {
     var p = (window.location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
@@ -3444,180 +3463,264 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   function isPage(r) { return r.view === 'mushaf'; }
   MIH.abSupported = function () { var r = route(); return isReader(r) || isPage(r); };
 
-  function ayahEls() { return Array.prototype.slice.call(document.querySelectorAll('#app .ayah')); }
   function curPage() {
     var st = document.getElementById('mp-stage');
     return st ? (parseInt(st.getAttribute('data-page'), 10) || 1) : 1;
   }
+  function pageHost() { return document.getElementById('mp-sheet') || document.getElementById('mp-stage'); }
+  function pageArea() { return document.getElementById('mp-body') || pageHost(); }
 
-  function stepDuration() {
-    var sp = MIH.abSpeed(), r = route();
-    if (isPage(r)) {
-      var cnt = 15;
-      try { cnt = MIH.pageAyahs(curPage()).length || 15; } catch (e) { }
-      var d = Math.max(PAGE_MIN, Math.min(PAGE_MAX, PAGE_BASE + PAGE_PER_AYAH * cnt));
-      return d / sp;
+  /* ---------- the reading line (mushaf page) ---------- */
+  function ensureLine() {
+    var host = pageHost();
+    if (!host) return null;
+    var line = document.getElementById('ab-line');
+    if (!line) {
+      line = document.createElement('div');
+      line.id = 'ab-line';
+      line.className = 'ab-line';
+      line.setAttribute('aria-hidden', 'true');
     }
-    var els = ayahEls();
-    var el = els[MIH._abIdx || 0];
-    var len = el ? (el.textContent || '').length : 80;
-    var d2 = Math.max(AYAH_MIN, Math.min(AYAH_MAX, AYAH_BASE + AYAH_PER_CHAR * len));
-    return d2 / sp;
+    if (line.parentNode !== host) host.appendChild(line);
+    return line;
+  }
+
+  function sweep(frac) {
+    var host = pageHost(), area = pageArea(), line = ensureLine();
+    if (!host || !area || !line) return;
+    var top = area.offsetTop + area.offsetHeight * Math.max(0, Math.min(1, frac));
+    line.style.top = Math.round(top) + 'px';
+    /* if the sheet is taller than the screen, follow the line down */
+    var vh = window.innerHeight;
+    var rect = line.getBoundingClientRect();
+    if (rect.top > vh - 130) {
+      try { window.scrollBy(0, Math.round(rect.top - (vh - 130))); } catch (e) { }
+    }
+  }
+
+  function readingElNearLine() {
+    var host = pageHost();
+    if (!host) return null;
+    var els = Array.prototype.slice.call(document.querySelectorAll('#mp-body .mp-aya'));
+    if (!els.length) return null;
+    var line = document.getElementById('ab-line');
+    var y = line ? line.getBoundingClientRect().top + 4 : window.innerHeight * 0.42;
+    var best = null, bestD = Infinity;
+    for (var i = 0; i < els.length; i++) {
+      var b = els[i].getBoundingClientRect();
+      var mid = b.top + Math.min(b.height, 120) / 2;
+      var d = Math.abs(mid - y);
+      if (b.top <= y && b.bottom >= y) { best = els[i]; bestD = -1; break; }
+      if (d < bestD) { bestD = d; best = els[i]; }
+    }
+    return best;
+  }
+
+  function readerElNearLine() {
+    var els = Array.prototype.slice.call(document.querySelectorAll('#app .ayah[data-a]'));
+    if (!els.length) return null;
+    var line = window.innerHeight * 0.42, best = null, bestD = Infinity;
+    for (var i = 0; i < els.length; i++) {
+      var b = els[i].getBoundingClientRect();
+      if (b.bottom < 0 || b.top > window.innerHeight) continue;
+      var d = Math.abs((b.top + Math.min(b.height, 120) / 2) - line);
+      if (d < bestD) { bestD = d; best = els[i]; }
+    }
+    return best;
+  }
+
+  function markHighlight() {
+    var r = route();
+    var el = isPage(r) ? readingElNearLine() : readerElNearLine();
+    if (el === curEl) return;
+    if (curEl) curEl.classList.remove('ab-cur');
+    curEl = el;
+    if (curEl) curEl.classList.add('ab-cur');
+  }
+
+  function clearHighlight() {
+    Array.prototype.slice.call(document.querySelectorAll('.ab-cur')).forEach(function (e) { e.classList.remove('ab-cur'); });
+    var line = document.getElementById('ab-line');
+    if (line && line.parentNode) line.parentNode.removeChild(line);
+    curEl = null;
   }
 
   /* ---------- the control bar ---------- */
   MIH.abBar = function () {
-    var on = MIH.abRunning();
-    return '<div class="ab-bar' + (on ? ' on' : '') + '" id="ab-bar" data-on="' + (on ? '1' : '0') + '" data-speed="' + LABELS[speedIdx()] + '">' +
+    var on = MIH.abRunning(), mins = MIH.abMinutes();
+    return '<div class="ab-bar' + (on ? ' on' : '') + '" id="ab-bar" data-on="' + (on ? '1' : '0') + '" data-min="' + mins + '">' +
       '<button class="ab-play" data-action="ab-toggle" aria-label="' + esc(on ? t('abPause') : t('abStart')) + '">' + (on ? '❚❚' : '▶') + '</button>' +
       '<div class="ab-mid">' +
         '<div class="ab-track"><span class="ab-fill" id="ab-fill"></span></div>' +
-        '<div class="ab-label" id="ab-label">' + esc(on ? t('abRunning') : t('abHint')) + '</div>' +
+        '<div class="ab-label" id="ab-label">' + esc(on ? (MIH._abPaused ? t('abPaused') : t('abRunning')) : t('abHint')) + '</div>' +
       '</div>' +
       '<div class="ab-speed" role="group" aria-label="' + esc(t('abSpeed')) + '">' +
-        '<button class="ab-sbtn" data-action="ab-dec" aria-label="' + esc(t('abSlower')) + '">−</button>' +
-        '<span class="ab-x" id="ab-x">' + LABELS[speedIdx()] + '</span>' +
-        '<button class="ab-sbtn" data-action="ab-inc" aria-label="' + esc(t('abFaster')) + '">+</button>' +
+        '<button class="ab-sbtn" data-action="ab-dec" aria-label="' + esc(t('abFaster')) + '">−</button>' +
+        '<span class="ab-x" id="ab-x">' + esc(t('abJuzIn')) + ' ' + esc(arNum(mins)) + ' ' + esc(t('abMinUnit')) + '</span>' +
+        '<button class="ab-sbtn" data-action="ab-inc" aria-label="' + esc(t('abSlower')) + '">+</button>' +
       '</div>' +
       '</div>';
   };
 
   MIH.abRefreshBar = function () {
     var bar = document.getElementById('ab-bar');
-    if (!bar) return;
-    var tmp = document.createElement('div');
-    tmp.innerHTML = MIH.abBar();
-    bar.parentNode.replaceChild(tmp.firstChild, bar);
-    var fill = document.getElementById('ab-fill');
-    if (fill && MIH._abOn) {
-      var p = dur > 0 ? Math.min(1, (Date.now() - t0) / dur) : 0;
-      fill.style.transform = 'scaleX(' + p + ')';
+    if (bar) {
+      var tmp = document.createElement('div');
+      tmp.innerHTML = MIH.abBar();
+      bar.parentNode.replaceChild(tmp.firstChild, bar);
+      paintFill();
     }
+    paintResume();
   };
 
-  function clearHighlight() {
-    Array.prototype.slice.call(document.querySelectorAll('.ayah.ab-cur')).forEach(function (e) {
-      e.classList.remove('ab-cur');
-    });
+  function paintFill() {
+    var fill = document.getElementById('ab-fill');
+    if (!fill) return;
+    var p;
+    if (isReader(route())) p = Math.min(1, pos / Math.max(1, endY - baseY));
+    else p = pageDur > 0 ? Math.min(1, elapsed / pageDur) : 0;
+    fill.style.transform = 'scaleX(' + p + ')';
   }
 
-  function highlight() {
-    var r = route();
-    if (isReader(r)) {
-      var els = ayahEls(), i = MIH._abIdx || 0;
-      els.forEach(function (e, k) { e.classList.toggle('ab-cur', k === i); });
-      var cur = els[i];
-      if (cur && cur.scrollIntoView) {
-        try { cur.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-        catch (e) { cur.scrollIntoView(); }
-      }
-    } else if (isPage(r)) {
-      var st = document.getElementById('mp-stage');
-      if (st) { st.classList.remove('ab-fade'); void st.offsetWidth; st.classList.add('ab-fade'); }
+  function paintResume() {
+    var el = document.getElementById('ab-resume');
+    if (!el) {
+      el = document.createElement('button');
+      el.id = 'ab-resume';
+      el.className = 'ab-resume';
+      el.setAttribute('data-action', 'ab-resume');
+      el.innerHTML = '<span class="ab-resume-ico" aria-hidden="true">▶</span><span class="ab-resume-tx" id="ab-resume-tx"></span>';
+      document.body.appendChild(el);
     }
+    var tx = document.getElementById('ab-resume-tx');
+    if (tx) tx.textContent = t('abResume');
+    el.setAttribute('aria-label', t('abResume'));
+    el.classList.toggle('on', MIH.abPaused());
+  }
+
+  /* ---------- timing ---------- */
+  function measureReader() {
+    var el = document.querySelector('#app .view');
+    var vh = window.innerHeight;
+    baseY = Math.round(window.scrollY || 0);
+    if (!el) { endY = baseY; return; }
+    var rect = el.getBoundingClientRect();
+    var bottom = rect.bottom + window.scrollY + 14;
+    endY = Math.max(baseY, Math.round(bottom - vh));
+  }
+
+  function resetPage(keepScroll) {
+    var r = route();
+    if (!keepScroll && !isReader(r)) { try { window.scrollTo(0, 0); } catch (e) { } }
+    pos = 0; elapsed = 0; lastTs = 0; curEl = null;
+    pageDur = pageSeconds() * 1000;
+    if (isReader(r)) measureReader();
+    else { baseY = Math.round(window.scrollY || 0); endY = baseY; }
   }
 
   function label() {
-    var r = route();
     var el = document.getElementById('ab-label');
-    if (!el) return;
+    if (!el || !MIH._abOn) return;
+    if (MIH._abPaused) { el.textContent = t('abPaused'); return; }
+    var r = route();
+    var left = Math.max(0, Math.ceil((pageDur - elapsed) / 1000));
     if (isPage(r)) {
-      var left = Math.max(0, Math.ceil((dur - (Date.now() - t0)) / 1000));
-      el.textContent = t('abPageWord') + ' ' + MIH.arNum(curPage()) + ' · ' + t('abNextIn') + ' ' + MIH.arNum(left) + t('abSec');
+      el.textContent = t('abPageWord') + ' ' + arNum(curPage()) + ' · ' + t('abNextIn') + ' ' + arNum(left) + t('abSec');
     } else {
-      var n = ayahEls().length;
-      el.textContent = t('abAyah') + ' ' + MIH.arNum((MIH._abIdx || 0) + 1) + ' ' + t('abOf') + ' ' + MIH.arNum(n);
+      var dist2 = Math.max(1, endY - baseY);
+      var leftMin = Math.max(0, Math.ceil((dist2 - pos) / (window.innerHeight / pageDur) / 60000));
+      el.textContent = t('abLeftMin') + ' ' + arNum(leftMin) + ' ' + t('abMinUnit') + ' · ' + t('abTapHint');
     }
   }
 
-  function loop() {
+  function tick(ts) {
     if (!MIH._abOn) return;
-    var p = dur > 0 ? Math.min(1, (Date.now() - t0) / dur) : 0;
-    var fill = document.getElementById('ab-fill');
-    if (fill) fill.style.transform = 'scaleX(' + p + ')';
-    var now = Date.now();
-    if (now - lastLabel > 300) { lastLabel = now; label(); }
-    raf = requestAnimationFrame(loop);
-  }
-
-  function markProgress(r) {
-    try {
-      if (isReader(r)) {
-        var s = parseInt(r.a, 10) || 1, a = (MIH._abIdx || 0) + 1;
-        MIH.state.lastRead = { s: s, a: a };
-        MIH.save();
+    if (!lastTs) lastTs = ts;
+    var dt = Math.min(120, ts - lastTs);
+    lastTs = ts;
+    if (!MIH._abPaused) {
+      var r = route();
+      elapsed += dt;
+      var frac = pageDur > 0 ? Math.min(1, elapsed / pageDur) : 1;
+      if (isPage(r)) {
+        sweep(frac);
+      } else {
+        /* reader: one screenful per page of time, straight down, into the next surah at the end */
+        var dist = Math.max(0, endY - baseY);
+        var rate = pageDur > 0 ? window.innerHeight / pageDur : 0;
+        if (dist > 0 && rate > 0) {
+          pos += rate * dt;
+          if (pos >= dist) { pos = dist; }
+          try { window.scrollTo(0, Math.round(baseY + pos)); } catch (e) { }
+          if (pos >= dist) { advance(); return; }
+        }
       }
-    } catch (e) { }
+      markHighlight();
+      paintFill();
+      if (ts - lastLabel > 400) { lastLabel = ts; label(); }
+      if (elapsed >= pageDur) { advance(); return; }
+    }
+    raf = requestAnimationFrame(tick);
   }
 
-  function schedule() {
-    stopTimers();
-    if (!MIH._abOn) return;
-    if (!MIH.abSupported()) { MIH.abStop(true); return; }
-    dur = stepDuration();
-    t0 = Date.now();
-    lastLabel = 0;
-    timer = setTimeout(next, dur);
-    highlight();
-    label();
-    raf = requestAnimationFrame(loop);
-  }
+  function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+  function startLoop() { stopLoop(); lastTs = 0; raf = requestAnimationFrame(tick); }
 
-  function finish() {
-    MIH._abOn = false;
-    stopTimers();
-    clearHighlight();
-    MIH.abRefreshBar();
-    MIH.toast(t('abEnd'));
-  }
-
-  function next() {
+  function advance() {
     if (!MIH._abOn) return;
     var r = route();
+    stopLoop();
     if (isPage(r)) {
       var n = curPage();
       if (n >= MIH.mushafPageCount()) { finish(); return; }
-      MIH._abIdx = 0;
+      MIH._abTurn = true;
       window.location.hash = '#/mushaf/' + (n + 1);
       return;
     }
     if (isReader(r)) {
-      var els = ayahEls(), i = (MIH._abIdx || 0) + 1;
-      if (i >= els.length) {
-        var s = parseInt(r.a, 10) || 1;
-        if (s < 114) { MIH._abIdx = 0; window.location.hash = '#/quran/' + (s + 1) + '/1'; return; }
-        finish(); return;
-      }
-      MIH._abIdx = i;
-      markProgress(r);
-      schedule();
+      var s = parseInt(r.a, 10) || 1;
+      if (s < 114) { MIH._abTurn = true; window.location.hash = '#/quran/' + (s + 1) + '/1'; return; }
+      finish();
     }
+  }
+
+  function finish() {
+    MIH._abOn = false; MIH._abPaused = false;
+    stopLoop(); clearHighlight();
+    MIH.abRefreshBar();
+    MIH.toast(t('abEnd'));
   }
 
   /* ---------- public controls ---------- */
   MIH.abStart = function () {
     var r = route();
     if (!(isReader(r) || isPage(r))) { MIH.toast(t('abNoView')); return; }
-    MIH._abOn = true;
-    if (isReader(r)) {
-      var els = ayahEls(), best = 0, bestD = Infinity, mid = window.innerHeight / 2;
-      els.forEach(function (e, i) {
-        var b = e.getBoundingClientRect();
-        var d = Math.abs((b.top + b.height / 2) - mid);
-        if (d < bestD) { bestD = d; best = i; }
-      });
-      MIH._abIdx = best;
-    } else {
-      MIH._abIdx = 0;
-    }
-    schedule();
+    MIH._abOn = true; MIH._abPaused = false;
+    resetPage(false);
+    startLoop();
     MIH.abRefreshBar();
+    label();
+  };
+
+  MIH.abPause = function () {
+    if (!MIH._abOn || MIH._abPaused) return;
+    MIH._abPaused = true;
+    stopLoop();
+    MIH.abRefreshBar();
+    label();
+  };
+
+  MIH.abResume = function () {
+    if (!MIH._abOn) { MIH.abStart(); return; }
+    MIH._abPaused = false;
+    startLoop();
+    MIH.abRefreshBar();
+    label();
   };
 
   MIH.abStop = function (silent) {
-    MIH._abOn = false;
-    stopTimers();
-    clearHighlight();
+    MIH._abOn = false; MIH._abPaused = false;
+    stopLoop(); clearHighlight();
     MIH.abRefreshBar();
     if (!silent) MIH.toast(t('abStopped'));
   };
@@ -3625,24 +3728,63 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.abToggle = function () { if (MIH._abOn) MIH.abStop(); else MIH.abStart(); };
 
   MIH.abSetSpeed = function (delta) {
-    var i = Math.max(0, Math.min(SPEEDS.length - 1, speedIdx() + delta));
-    MIH.state.abSpeedI = i;
+    var v = clampMin(MIH.abMinutes() + delta);
+    MIH.state.abMinPerJuz = v;
     MIH.save();
+    if (MIH._abOn) {
+      var frac = pageDur > 0 ? elapsed / pageDur : 0;
+      pageDur = pageSeconds() * 1000;
+      elapsed = frac * pageDur;
+    }
     MIH.abRefreshBar();
-    if (MIH._abOn) schedule();
+    label();
   };
 
-  /* advance one step now — used by the tests and by a keyboard shortcut */
-  MIH.abStep = function () { if (MIH._abOn) next(); };
+  /* move to the next page/surah now — keyboard shortcut and test hook */
+  MIH.abAdvance = function () { if (MIH._abOn) advance(); };
+
+  /* test/diagnostic view of the engine */
+  MIH.abState = function () {
+    var line = document.getElementById('ab-line');
+    return {
+      on: !!MIH._abOn, paused: !!MIH._abPaused, minutes: MIH.abMinutes(),
+      pageDur: pageDur, elapsed: elapsed,
+      frac: pageDur > 0 ? elapsed / pageDur : 0,
+      lineTop: line ? Math.round(line.getBoundingClientRect().top - (pageHost() ? pageHost().getBoundingClientRect().top : 0)) : null,
+      baseY: baseY, endY: endY, y: Math.round(window.scrollY || 0),
+      cur: curEl ? (curEl.getAttribute('data-s') || '') + ':' + (curEl.getAttribute('data-a') || '') : ''
+    };
+  };
+
+  /* tapping the screen while it runs pauses it; the tap must not also open the
+     ayah sheet or follow a link, so this listens in the capture phase */
+  document.addEventListener('click', function (e) {
+    if (!MIH._abOn) return;
+    var el = e.target && e.target.closest ? e.target.closest('#ab-bar, #ab-resume') : null;
+    if (el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!MIH._abPaused) MIH.abPause();
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[data-action="ab-resume"]') : null;
+    if (!el) return;
+    e.preventDefault();
+    MIH.abResume();
+  });
 
   /* called after every render */
   MIH.abMount = function () {
-    if (!MIH._abOn) { stopTimers(); clearHighlight(); return; }
+    if (!MIH._abOn) { stopLoop(); clearHighlight(); paintResume(); return; }
     if (!MIH.abSupported()) { MIH.abStop(true); return; }
-    schedule();
+    resetPage(!MIH._abTurn);
+    MIH._abTurn = false;
+    if (!MIH._abPaused) startLoop();
+    MIH.abRefreshBar();
+    label();
   };
 
-  /* one page turn / ayah step should be doable by keyboard as well */
   document.addEventListener('keydown', function (e) {
     if (!MIH._abOn) return;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { MIH.abSetSpeed(e.key === 'ArrowRight' ? 1 : -1); }
@@ -4984,6 +5126,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var a = el.getAttribute('data-action');
     if (a === 'mp-ayah') {
       open(parseInt(el.getAttribute('data-s'), 10), parseInt(el.getAttribute('data-a'), 10));
+      return;
+    }
+    /* a tap on the ayah number bookmarks it straight away, no sheet */
+    if (a === 'mp-bmark') {
+      var ms = parseInt(el.getAttribute('data-s'), 10), ma = parseInt(el.getAttribute('data-a'), 10);
+      var list = MIH.state.bookmarks || [];
+      var j = list.findIndex(function (b) { return b.s === ms && b.a === ma; });
+      if (j >= 0) list.splice(j, 1); else list.push({ s: ms, a: ma });
+      MIH.state.bookmarks = list; MIH.save();
+      refreshMark(ms, ma);
+      MIH.toast((j >= 0 ? tx('abBookmarkOff') : tx('abBookmarked')) + ' · ' + MIH.arNum(list.length));
       return;
     }
     if (a === 'mp-sheet-close') { close(); return; }
