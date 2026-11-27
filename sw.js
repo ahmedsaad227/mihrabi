@@ -12,12 +12,32 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== PLAN).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== PLAN && k !== PAGES_CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
+const PAGES_CACHE = 'mihrabi-pages';
+const PAGES_MAX = 150;
+
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  const u = new URL(e.request.url);
+  if (/\/pages\/\d{3}\.webp$/.test(u.pathname)) {
+    e.respondWith(caches.open(PAGES_CACHE).then(c => c.match(e.request).then(hit => {
+      if (hit) return hit;
+      return fetch(e.request).then(res => {
+        if (res && res.ok) {
+          c.put(e.request, res.clone()).then(() => c.keys()).then(keys => {
+            if (keys.length > PAGES_MAX) {
+              return Promise.all(keys.slice(0, keys.length - PAGES_MAX).map(k => c.delete(k)));
+            }
+          }).catch(() => {});
+        }
+        return res;
+      }).catch(() => new Response('', { status: 504, statusText: 'offline' }));
+    })));
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
       const copy = res.clone();

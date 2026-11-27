@@ -1244,6 +1244,12 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .mp-jump { width: 78px; text-align: center; padding: 10px 6px; border-radius: 12px; border: 1px solid var(--line);
   background: var(--surface-2); color: inherit; font: inherit; }
 
+/* printed mushaf page image */
+.mp-pageimg { display: block; width: 100%; height: auto; border-radius: 8px; background: #fff;
+  box-shadow: var(--shadow); }
+[data-theme="dark"] .mp-pageimg { filter: invert(.92) hue-rotate(180deg) contrast(.94); background: #12100b; }
+.mp-mode { margin: 10px auto 0; max-width: 520px; }
+
 </style>
 </head>
 <body>
@@ -1971,7 +1977,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'تصحيح التوقيت (دقائق)', highLat: 'خطوط العرض العالية',
       highLatAngle: 'زاوية', highLatNight: 'نصف الليل', highLatNone: 'بدون تعديل',
       azkarCats: 'أقسام الأذكار', azkarSearch: 'ابحث في الأذكار', allAzkar: 'كل الأذكار',
-      saved: 'تم الحفظ', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
+      saved: 'تم الحفظ', mpModeImage: 'صفحة المصحف', mpModeText: 'نص', mpOffline: 'الصفحة غير محفوظة على جهازك — عرضنا النص بدلًا منها', suraWord: 'سورة', juzWord: 'الجزء', pageWord: 'صفحة', prevPage: 'السابقة', nextPage: 'التالية',
       openInReader: 'افتح في القارئ', back: 'رجوع', mushafPages: 'المصحف (٦٠٤ صفحات)', mushafPagesSub: 'صفحات المصحف المدني كاملة',
       mpNote: 'فواصل الصفحات من بيانات تنزيل (tanzil.net) عبر Mushaf-Learning/quran-text (MIT). النص العثماني من تنزيل (CC BY 3.0). الخط: KFGQPC Uthmanic Hafs. تقسيم الأسطر داخل الصفحة من عندنا، وليس مطابقًا لأسطر مصحف المدينة.', remindMe: 'تذكير يومي', remindNote: 'ينبّهك مرة واحدة في اليوم في هذا الوقت — يعمل والتطبيق مفتوح، ويحتاج إذن الإشعارات.',
       enableNotif: 'تشغيل الإشعارات', remindSaved: 'التذكير محفوظ الساعة', listReminderBody: 'موعد قائمتك من الأذكار', noNotifSupport: 'جهازك لا يدعم الإشعارات',
@@ -2076,7 +2082,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       tune: 'Manual correction (minutes)', highLat: 'High latitudes',
       highLatAngle: 'Angle-based', highLatNight: 'Middle of night', highLatNone: 'None',
       azkarCats: 'Azkar sections', azkarSearch: 'Search azkar', allAzkar: 'All azkar',
-      saved: 'Saved', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
+      saved: 'Saved', mpModeImage: 'Mushaf page', mpModeText: 'Text', mpOffline: 'This page is not saved on your device — showing the text instead', suraWord: 'Surah', juzWord: 'Juz', pageWord: 'Page', prevPage: 'Previous', nextPage: 'Next',
       openInReader: 'Open in reader', back: 'Back', mushafPages: 'Mushaf (604 pages)', mushafPagesSub: 'The complete Madinah mushaf pages',
       mpNote: 'Page breaks from Tanzil metadata via Mushaf-Learning/quran-text (MIT). Uthmani text from Tanzil (CC BY 3.0). Font: KFGQPC Uthmanic Hafs. Line wrapping inside a page is ours, not the Madinah mushaf line positions.', remindMe: 'Daily reminder', remindNote: 'Notifies you once a day at this time — works while the app is open and needs notification permission.',
       enableNotif: 'Enable notifications', remindSaved: 'Reminder saved at', listReminderBody: 'Time for your athkar list', noNotifSupport: 'This device does not support notifications',
@@ -3275,6 +3281,19 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '</div>';
   };
 
+  MIH.pageMode = function () {
+    return MIH.state.pageMode === 'text' ? 'text' : 'image';
+  };
+
+  function pad3(n) { return ('00' + n).slice(-3); }
+
+  function imageStage(n) {
+    return '<div class="mp-stage" id="mp-stage" data-page="' + n + '">' +
+      '<img id="mp-img" class="mp-pageimg" src="pages/' + pad3(n) + '.webp" ' +
+      'alt="' + esc(t('pageWord')) + ' ' + n + '" decoding="async">' +
+      '</div>';
+  }
+
   MIH.views.mushafPage = function (param) {
     var n = parseInt(param, 10);
     if (!n) {
@@ -3286,6 +3305,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var surahs = [];
     MIH.pageAyahs(n).forEach(function (x) { if (surahs.indexOf(x.s) === -1) surahs.push(x.s); });
     var title = surahs.map(function (s) { return t('suraWord') + ' ' + surahName(s); }).join(' · ');
+    var mode = MIH.pageMode();
 
     return '<div class="view mp-view">' +
       '<div class="mp-bar">' +
@@ -3296,7 +3316,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '</div>' +
         '<button class="mp-icon" data-action="nav" data-to="#/quran/' + r.from[0] + '/' + r.from[1] + '" aria-label="' + esc(t('openInReader')) + '">☰</button>' +
       '</div>' +
-      '<div class="mp-stage" id="mp-stage" data-page="' + n + '">' + MIH.mushafFrame(n) + '</div>' +
+      (mode === 'image' ? imageStage(n) : '<div class="mp-stage" id="mp-stage" data-page="' + n + '">' + MIH.mushafFrame(n) + '</div>') +
+      '<div class="mp-mode seg" id="mp-mode">' +
+        '<button data-action="mp-mode" data-v="image" aria-pressed="' + (mode === 'image') + '">' + esc(t('mpModeImage')) + '</button>' +
+        '<button data-action="mp-mode" data-v="text" aria-pressed="' + (mode === 'text') + '">' + esc(t('mpModeText')) + '</button>' +
+      '</div>' +
       '<div class="mp-nav">' +
         '<button class="mp-btn" data-action="mp-prev" ' + (n <= 1 ? 'disabled' : '') + '>‹ ' + esc(t('prevPage')) + '</button>' +
         '<input class="mp-jump" type="number" min="1" max="' + TOTAL + '" value="' + n + '" data-action="mp-jump" aria-label="' + esc(t('pageWord')) + '">' +
@@ -4648,7 +4672,14 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       var el = document.getElementById('a' + parts[2]);
       if (el) setTimeout(function () { el.scrollIntoView({ block: 'center', behavior: 'auto' }); }, 400);
     }
-    if (view === 'mushafPage') bindMushafGestures();
+    if (view === 'mushafPage') {
+      bindMushafGestures();
+      if (MIH.pageMode() === 'image') {
+        var st = document.getElementById('mp-stage');
+        var cur = st ? parseInt(st.getAttribute('data-page'), 10) : 0;
+        if (cur && cur < MIH.mushafPageCount()) { var im = new Image(); im.src = 'pages/' + ('00' + (cur + 1)).slice(-3) + '.webp'; }
+      }
+    }
     if (view === 'qibla') startCompass();
     else stopCompass();
   }
@@ -4707,6 +4738,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (!window.Notification) { MIH.toast(t('noNotifSupport')); return; }
       Notification.requestPermission().then(function () { render(); });
       return;
+    }
+    if (a === 'mp-mode') {
+      MIH.state.pageMode = el.getAttribute('data-v') === 'text' ? 'text' : 'image';
+      MIH.save(); render(); return;
     }
     if (a === 'mp-prev' || a === 'mp-next') {
       var stageEl = document.getElementById('mp-stage');
@@ -4846,6 +4881,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       return;
     }
   });
+
+  document.addEventListener('error', function (e) {
+    var el = e.target;
+    if (!el || el.id !== 'mp-img') return;
+    MIH.state.pageMode = 'text';
+    MIH.save();
+    MIH.toast(t('mpOffline'));
+    render();
+  }, true);
 
   document.addEventListener('change', function (e) {
     var el = e.target.closest('[data-action]');
