@@ -1757,6 +1757,7 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 /* mushaf page font: KFGQPC Uthmanic Hafs (unmodified); U+06DF falls through to Amiri Quran because the Hafs glyph is a black disc */
 .mp-body,.mp-sheet-preview{font-family:'Mihrabi Mushaf','Mihrabi Quran','Amiri Quran',serif}
 .mp-body{line-height:2.35;font-size:clamp(20px,5.6vw,27px)}
+.mp-icon-sp{visibility:hidden;pointer-events:none}
 
 </style>
 </head>
@@ -2847,7 +2848,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v67';
+  MIH.VERSION = 'v68';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -4076,7 +4077,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     return '<div class="view mp-view">' +
       '<div class="mp-bar">' +
-        '<button class="mp-icon" data-action="nav" data-to="#/quran" aria-label="' + esc(t('back')) + '">✕</button>' +
+        '<span class="mp-icon mp-icon-sp" aria-hidden="true"></span>' +
         '<div class="mp-bar-mid">' +
           '<div class="mp-bar-title">' + esc(title) + '</div>' +
           '<div class="mp-bar-sub">' + esc(t('juzWord')) + ' ' + arNum(r.juz) + ' · ' + esc(t('pageWord')) + ' ' + arNum(n) + ' / ' + arNum(TOTAL) +
@@ -4125,14 +4126,14 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var page = MIH.pageForAyah(s, 1);
     return '<div class="view mp-view mp-flowview">' +
       '<div class="mp-bar">' +
-        '<button class="mp-icon" data-action="nav" data-to="#/quran/' + s + '/1" aria-label="' + esc(t('back')) + '">✕</button>' +
+        '<span class="mp-icon mp-icon-sp" aria-hidden="true"></span>' +
         '<div class="mp-bar-mid"><div class="mp-bar-title">' + esc(t('suraWord')) + ' ' + esc(surahName(s)) + '</div>' +
           '<div class="mp-bar-sub">' + arNum(count) + ' ' + (MIH.isAr() ? 'آية' : 'ayahs') + ' · ' + esc(t('pageWord')) + ' ' + arNum(page) + '</div></div>' +
         '<button class="mp-icon" data-action="nav" data-to="#/mushaf/' + page + '" aria-label="' + esc(t('mpModeText')) + '">▤</button>' +
       '</div>' +
       '<div class="mp-stage" id="mp-stage" data-page="' + page + '">' +
         '<div class="mp-sheet mp-sheet-flow" id="mp-sheet" style="background:' + paper.bg + ';color:' + paper.fg + '">' +
-          '<div class="mp-body" id="mp-body">' + body + '</div>' +
+          '<div class="mp-body" id="mp-body" style="font-size:' + sizeFor(18) + '">' + body + '</div>' +
         '</div>' +
       '</div>' +
       '<div class="mp-nav">' +
@@ -4140,6 +4141,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<button class="mp-btn" data-action="nav" data-to="#/mushaf/' + page + '">' + esc(t('mpModeText')) + '</button>' +
         '<button class="mp-btn" data-action="nav" data-to="#/mushaf-flow/' + Math.min(114, s + 1) + '" ' + (s >= 114 ? 'disabled' : '') + '> ' + esc(MIH.isAr() ? 'السورة التالية' : 'Next surah') + ' ›</button>' +
       '</div>' +
+      (MIH.mpSheet ? MIH.mpSheet() : '') +
+      (MIH.abBar ? MIH.abBar() : '') +
       '</div>';
   };
 
