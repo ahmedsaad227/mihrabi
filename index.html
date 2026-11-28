@@ -3635,9 +3635,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '</div>' +
         '<button class="mp-icon" data-action="nav" data-to="#/quran/' + r.from[0] + '/' + r.from[1] + '" aria-label="' + esc(t('openInReader')) + '">☰</button>' +
       '</div>' +
-      (mode === 'image'
-        ? '<div class="mp-imgh">' + esc(t('juzWord')) + ' ' + arNum(r.juz) + ' · ' + esc(t('pageWord')) + ' ' + arNum(n) + '</div>' + imageStage(n)
-        : '<div class="mp-stage" id="mp-stage" data-page="' + n + '">' + MIH.mushafFrame(n) + '</div>') +
+      (mode === 'image' ? imageStage(n) : '<div class="mp-stage" id="mp-stage" data-page="' + n + '">' + MIH.mushafFrame(n) + '</div>') +
       '<div class="mp-mode seg" id="mp-mode">' +
         '<button data-action="mp-mode" data-v="image" aria-pressed="' + (mode === 'image') + '">' + esc(t('mpModeImage')) + '</button>' +
         '<button data-action="mp-mode" data-v="text" aria-pressed="' + (mode === 'text') + '">' + esc(t('mpModeText')) + '</button>' +
