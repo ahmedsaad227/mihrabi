@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /download/
+
+Sitemap: https://ahmedsaad227.github.io/mihrabi/sitemap.xml
