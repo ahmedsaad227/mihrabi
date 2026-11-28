@@ -1779,6 +1779,11 @@ body.ay-on .ab-bar{display:none}
 
 .topbar button.brand{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:start;cursor:pointer;-webkit-tap-highlight-color:transparent}
 
+.mp-view { position: relative; }
+.mp-side { position: fixed; top: 50%; z-index: 20; width: 30px; height: 56px; margin-top: -28px; border: 0; padding: 0; font-size: 26px; line-height: 1; color: var(--muted, #888); background: color-mix(in srgb, var(--surface, #fff) 70%, transparent); cursor: pointer; opacity: .75; -webkit-tap-highlight-color: transparent; }
+.mp-side-next { left: 0; border-radius: 0 14px 14px 0; }
+.mp-side-prev { right: 0; border-radius: 14px 0 0 14px; }
+
 </style>
 </head>
 <body>
@@ -2828,6 +2833,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       : ['Muharram', 'Safar', "Rabi' I", "Rabi' II", 'Jumada I', 'Jumada II', 'Rajab', "Sha'ban", 'Ramadan', 'Shawwal', "Dhul Qa'dah", 'Dhul Hijjah'];
     return h.d + ' ' + months[(h.m - 1) % 12] + ' ' + h.y;
   };
+  MIH.gregLabel = function (dp) {
+    try {
+      return new Intl.DateTimeFormat(MIH.isAr() ? 'ar-EG-u-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(dp.y, dp.m - 1, dp.d, 12)));
+    } catch (e) { return dp.d + '/' + dp.m + '/' + dp.y; }
+  };
   MIH.addDays = function (dateParts, n) {
     var d = new Date(Date.UTC(dateParts.y, dateParts.m - 1, dateParts.d, 12) + n * DAY);
     return { y: d.getUTCFullYear(), m: d.getUTCMonth() + 1, d: d.getUTCDate() };
@@ -2868,7 +2878,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v72';
+  MIH.VERSION = 'v76';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -3070,7 +3080,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div class="hero-at num">' + esc(t('at')) + ' ' + MIH.fmt(np.at) + '</div>' +
         '<div class="hero-meta">' +
           '<span>' + cityName + '</span>' +
-          '<span><b>' + esc(MIH.hijriLabel(now)) + '</b></span>' +
+          '<span><b>' + esc(MIH.hijriLabel(now)) + '</b> · ' + esc(MIH.gregLabel(now)) + '</span>' +
         '</div>' +
       '</div>' +
 
@@ -3213,7 +3223,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     return '<div class="view">' +
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('prayer')) + '</h1>' +
-        '<p class="sub">' + esc(MIH.isAr() ? MIH.state.city.ar : MIH.state.city.en) + ' · ' + esc(MIH.hijriLabel(now)) + '</p></div>' + seg + '</div>' +
+        '<p class="sub">' + esc(MIH.isAr() ? MIH.state.city.ar : MIH.state.city.en) + ' · ' + esc(MIH.hijriLabel(now)) + ' · ' + esc(MIH.gregLabel(now)) + '</p></div>' + seg + '</div>' +
       content +
       '<div class="section-head"><h2 class="h2">' + esc(t('methods')) + '</h2></div>' +
       '<div class="card">' +
@@ -4096,6 +4106,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var mode = MIH.pageMode();
 
     return '<div class="view mp-view">' +
+      (n < TOTAL ? '<button class="mp-side mp-side-next" data-action="mp-next" aria-label="' + esc(t('nextPage')) + '">‹</button>' : '') +
+      (n > 1 ? '<button class="mp-side mp-side-prev" data-action="mp-prev" aria-label="' + esc(t('prevPage')) + '">›</button>' : '') +
       '<div class="mp-bar">' +
         '<span class="mp-icon mp-icon-sp" aria-hidden="true"></span>' +
         '<div class="mp-bar-mid">' +
@@ -8838,8 +8850,43 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     },
     /* city search: Open-Meteo geocoding, free, no key */
     search: function (q, cb) {
-      var url = 'https://geocoding-api.open-meteo.com/v1/search?count=6&format=json&language=' + (MIH.isAr() ? 'ar' : 'en') + '&name=' + encodeURIComponent(q);
-      fetch(url).then(function (r) { return r.json(); }).then(function (j) { cb(null, (j && j.results) || []); }).catch(function () { cb('offline', []); });
+      /* the geocoder is picky about Arabic spelling (it finds "اسكندرية" but not "الاسكندرية"),
+         so try the typed text, then without the leading ال, then with the common hamza forms */
+      var isArabic = /[\u0600-\u06FF]/.test(q);
+      var lang = isArabic ? 'ar' : (MIH.isAr() ? 'ar' : 'en');
+      var base = q.replace(/^ال/, '');
+      var tries = [q];
+      if (base !== q) tries.push(base);
+      if (isArabic) {
+        [base, q].forEach(function (b) {
+          if (/^ا/.test(b)) { tries.push('إ' + b.slice(1)); tries.push('أ' + b.slice(1)); }
+          if (/ة$/.test(b)) tries.push(b.slice(0, -1) + 'ه');
+        });
+      }
+      if (isArabic) {
+        var b2 = base.replace(/^ا/, 'إ');
+        tries.push('ال' + b2); tries.push('ال' + base.replace(/^ا/, 'أ'));
+      }
+      var seen = {}; tries = tries.filter(function (x) { return x && !seen[x] && (seen[x] = 1); });
+      var offline = false, found = [], ids = {};
+      /* the app's own city list first: it matches however the name is spelled */
+      var norm = function (x) { return String(x).toLowerCase().replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/^ال/, '').trim(); };
+      var nq = norm(q), local = [];
+      if (nq.length >= 2) (MIH.cities || []).forEach(function (c) {
+        if (norm(c.ar).indexOf(nq) === 0 || norm(c.en).indexOf(nq) === 0) local.push({ id: 'L' + c.en, name: MIH.isAr() ? c.ar : c.en, country: '', latitude: c.lat, longitude: c.lon, population: 1e9 });
+      });
+      (function next(i) {
+        if (i >= tries.length) {
+          found.sort(function (a, b) { return (b.population || 0) - (a.population || 0); });
+          found = local.concat(found);
+          cb(!found.length && offline ? 'offline' : null, found.slice(0, 8)); return;
+        }
+        var url = 'https://geocoding-api.open-meteo.com/v1/search?count=6&format=json&language=' + lang + '&name=' + encodeURIComponent(tries[i]);
+        fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+          ((j && j.results) || []).forEach(function (r) { if (!ids[r.id]) { ids[r.id] = 1; found.push(r); } });
+          next(i + 1);
+        }).catch(function () { offline = true; next(i + 1); });
+      })(0);
     },
     choose: function (r) {
       var w = load();
@@ -8949,6 +8996,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         else if (err) MIH.toast(MIH.isAr() ? 'مقدرناش نجيب الموقع' : 'Could not get a location');
         else MIH.toast(MIH.isAr() ? 'تم تحديث الموقع والطقس' : 'Location and weather updated');
       });
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 'wx-q') {
+      var sb = document.querySelector('[data-action="wx-search"]'); if (sb) sb.click();
     }
   });
 
@@ -10472,6 +10525,24 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     pre.textContent = 'MIHRABI SELF TEST\n' + results.join('\n') + '\n\n' + (results.filter(function (r) { return r.indexOf('PASS') === 0; }).length + '/' + results.length + ' passed');
     document.body.appendChild(pre);
   }
+})();
+
+/* page swipe: RTL mushaf, a swipe to the right turns to the NEXT page, left goes back */
+(function () {
+  var x0 = null, y0 = 0, t0 = 0;
+  document.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1 || !document.getElementById('mp-stage')) { x0 = null; return; }
+    if (e.target.closest && e.target.closest('input,.mp-card,.sheet,[role="dialog"]')) { x0 = null; return; }
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now();
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (x0 === null || !document.getElementById('mp-stage')) return;
+    var c = e.changedTouches[0], dx = c.clientX - x0, dy = c.clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || Date.now() - t0 > 700) return;
+    var btn = document.querySelector(dx > 0 ? '.mp-side-next' : '.mp-side-prev');
+    if (btn) btn.click();
+  }, { passive: true });
 })();
 
 </script>
