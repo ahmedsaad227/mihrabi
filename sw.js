@@ -1,5 +1,5 @@
 /* MIHRABI service worker — offline app shell + prayer plan for background sync */
-const CACHE = 'mihrabi-v30';
+const CACHE = 'mihrabi-v31';
 const PLAN = 'mihrabi-plan';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
@@ -36,6 +36,17 @@ self.addEventListener('fetch', e => {
         return res;
       }).catch(() => new Response('', { status: 504, statusText: 'offline' }));
     })));
+    return;
+  }
+  /* the page itself is network-first: a new deploy must be picked up on the next open,
+     even for someone who has the app installed. Offline still falls back to the cache. */
+  const isPage = e.request.mode === 'navigate' || /\/(index\.html)?$/.test(u.pathname);
+  if (isPage) {
+    e.respondWith(fetch(e.request).then(res => {
+      const copy = res.clone();
+      caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+      return res;
+    }).catch(() => caches.match(e.request).then(hit => hit || caches.match('./index.html'))));
     return;
   }
   e.respondWith(
