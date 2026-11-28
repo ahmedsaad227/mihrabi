@@ -2699,7 +2699,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v47';
+  MIH.VERSION = 'v48';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -7778,6 +7778,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   if (!MIH) return;
   var esc = MIH.esc;
   var KEY = 'mihrabi.ai.v1';
+  /* the deployed worker (Cloudflare free plan, Workers AI). A user can change it
+     on the setup card; this is only the default so the screen works out of the box. */
+  MIH.AI_DEFAULT_WORKER = 'https://mihrabi-ai.medosaad22111.workers.dev';
   var MAX_TURNS = 12;
 
   var T = {
@@ -7873,7 +7876,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var s = null;
     try { s = JSON.parse(window.localStorage.getItem(KEY) || 'null'); } catch (e) { s = null; }
     if (!s || typeof s !== 'object') s = {};
-    if (!s.worker) s.worker = '';
+    if (!s.worker) s.worker = MIH.AI_DEFAULT_WORKER || '';
     if (!Array.isArray(s.convs)) s.convs = [];
     return s;
   }

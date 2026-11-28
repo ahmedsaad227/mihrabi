@@ -9,7 +9,7 @@
  * one AI binding. No card, no paid plan, no secret.
  */
 
-const DEFAULT_MODEL = '@cf/meta/llama-3.1-8b-instruct';
+const DEFAULT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
 const SYSTEM = `أنت "مِحرابي"، مساعد داخل تطبيق إسلامي عربي اسمه مِحرابي. مهمتك مساعدة المستخدم على فهم القرآن والعبادات الأساسية بلغة عربية بسيطة وواضحة.
 
