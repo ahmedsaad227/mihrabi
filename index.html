@@ -1690,6 +1690,25 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .wx-actions{gap:8px;flex-wrap:wrap}
 .az-card{max-height:calc(100vh - 470px);min-height:150px;overflow-y:auto}
 
+.ts-list{display:flex;flex-direction:column;gap:8px}
+.ts-item{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:start;width:100%;border:1px solid rgba(15,61,46,.14);background:var(--surface,#fff);color:inherit;border-radius:14px;padding:12px 14px;font:inherit;cursor:pointer}
+.ts-item.on{border-color:var(--gold-600,#B8912F);background:rgba(184,145,47,.08)}
+.ts-t{flex:1;font-family:'Mihrabi Quran','Amiri Quran',serif;font-size:17px;line-height:1.8}.ts-n{font-size:12.5px;color:var(--muted,#5b6b62);white-space:nowrap}
+.ts-open{margin:-2px 0 4px;padding:14px;border:1px solid var(--gold-600,#B8912F);border-top:0;border-radius:0 0 14px 14px;background:var(--surface,#fff);text-align:center}
+.ts-open .tasbih-circle{margin:0 auto}
+.ts-bar{height:6px;border-radius:99px;background:rgba(15,61,46,.10);margin-top:12px;overflow:hidden}.ts-bar span{display:block;height:100%;background:var(--gold-600,#B8912F)}
+.ts-h-day{padding:8px 0;border-bottom:1px solid rgba(15,61,46,.08)}.ts-h-day:last-child{border:0}
+.ts-h-row{display:flex;align-items:center;gap:8px;justify-content:space-between;font-size:13px;margin-top:6px}.ts-h-t{flex:1;font-size:13px}
+[data-theme="dark"] .ts-item,[data-theme="dark"] .ts-open{background:#18211d}
+
+.wx-compact{margin:10px 0}
+.wx-chip{display:flex;align-items:center;gap:8px;width:100%;border:1px solid rgba(15,61,46,.14);background:var(--surface,#fff);color:inherit;border-radius:14px;padding:7px 12px;font:inherit;cursor:pointer;min-height:44px}
+.wx-chip .wx-ico{font-size:20px}.wx-chip .wx-t{font-size:17px}
+.wx-chip-c{font-weight:600;font-size:13px}.wx-chip-s{flex:1;text-align:start;font-size:12px;color:var(--muted,#5b6b62)}
+.wx-caret{color:var(--muted,#5b6b62)}
+[data-theme="dark"] .wx-chip{background:#18211d}
+#home-weather-full{margin-top:-4px}
+
 </style>
 </head>
 <body>
@@ -2773,7 +2792,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v59';
+  MIH.VERSION = 'v61';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -2987,6 +3006,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           '<button class="btn btn-sm" data-action="nav" data-to="#/ai">' + esc(MIH.isAr() ? 'اسأل' : 'Ask') + '</button>' +
         '</div>' +
       '</div>' +
+      (MIH.weatherCard ? MIH.weatherCard() : '') +
 
       '<div class="section-head"><h2 class="h2">' + esc(t('todayTimes')) + '</h2>' +
         '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/prayer">' + esc(t('month')) + '</button></div>' +
@@ -3043,7 +3063,6 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
       /* رحلتي sits at the bottom of the home page (his 6:33 request), just above the
          footer, instead of pushing everything down at the top */
-      (MIH.weatherCard ? MIH.weatherCard() : '') +
       MIH.journeyCard() +
       '<div class="footer-note">' + esc(t('footer')) + '</div>' +
       '<div class="made-by">' + esc(t('madeBy')) + '</div>' +
@@ -4647,33 +4666,83 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 
   /* ---------- tasbih ---------- */
+  /* the choices come from the app's own Hisn al-Muslim data (data/azkar.js), by position,
+     so no dhikr text is typed by hand; the counts are the ones the source states. Anyone
+     can add their own dhikr with their own target. */
+  var TS_PICKS = [[0, 16], [0, 21], [0, 23], [0, 17], [0, 18], [0, 19], [26, 3], [18, 0], [20, 0]];
+  MIH.tasbihChoices = function () {
+    var out = [];
+    TS_PICKS.forEach(function (p) {
+      var z = MIH.azkar[p[0]] && MIH.azkar[p[0]].i[p[1]];
+      if (!z) return;
+      /* the source wraps the wording in (( )) and appends how many times in brackets: show only the wording */
+      var txt = z.t.replace(/^\s*\(+\s*/, '').replace(/\s*\)+[^)]*$/, '').replace(/\)\)/g, '').trim();
+      out.push({ k: p[0] + ':' + p[1], t: txt, n: z.c });
+    });
+    ((MIH.state.tasbih.own) || []).forEach(function (o) { out.push({ k: o.k, t: o.t, n: o.n, own: true }); });
+    return out;
+  };
+  MIH.tasbihToday = function (k) {
+    var L = MIH.state.tasbih.log || {}; var d = L[MIH.dayKey()] || {}; return d[k] || 0;
+  };
+  MIH.tasbihAdd = function (k, delta) {
+    var tb = MIH.state.tasbih; tb.log = tb.log || {};
+    var dk = MIH.dayKey(); tb.log[dk] = tb.log[dk] || {};
+    tb.log[dk][k] = Math.max(0, (tb.log[dk][k] || 0) + delta);
+    if (tb.log[dk][k] === 0) delete tb.log[dk][k];
+    tb.total = (tb.total || 0) + (delta > 0 ? delta : 0);
+    MIH.save();
+  };
   MIH.views.tasbih = function () {
-    var tb = MIH.state.tasbih;
+    var tb = MIH.state.tasbih, ar = MIH.isAr();
     if (tb.day !== MIH.dayKey()) { tb.day = MIH.dayKey(); tb.count = 0; MIH.save(); }
-    var pct = Math.min(100, Math.round((tb.count / Math.max(1, tb.target)) * 100));
+    var ch = MIH.tasbihChoices();
+    var cur = null;
+    ch.forEach(function (c) { if (c.k === tb.sel) cur = c; });
+    if (!cur && ch.length) { cur = ch[0]; tb.sel = cur.k; }
+    var list = ch.map(function (c) {
+      var n = MIH.tasbihToday(c.k), on = cur && cur.k === c.k;
+      var item = '<button class="ts-item' + (on ? ' on' : '') + '" data-action="tasbih-pick" data-k="' + esc(c.k) + '" aria-pressed="' + (!!on) + '">' +
+        '<span class="ts-t">' + esc(c.t) + '</span><span class="ts-n num">' + MIH.arNum(n) + ' / ' + MIH.arNum(c.n) + (n >= c.n ? ' ✓' : '') + '</span></button>';
+      /* the counter opens right under the chosen dhikr */
+      if (on) {
+        var pct = Math.min(100, Math.round(n / Math.max(1, c.n) * 100));
+        item += '<div class="ts-open" id="ts-open">' +
+          '<button class="tasbih-circle" data-action="tasbih-tap" aria-label="' + esc(ar ? 'سبّح' : 'Count') + '">' +
+            '<span class="tasbih-num num" id="tasbih-num">' + MIH.arNum(n) + '</span>' +
+            '<span class="tasbih-label">' + esc(t('target')) + ' ' + MIH.arNum(c.n) + '</span></button>' +
+          '<div class="ts-bar"><span id="ts-bar" style="width:' + pct + '%"></span></div>' +
+          '<div class="rowflex" style="justify-content:space-between;margin-top:10px">' +
+            '<button class="chip" data-action="tasbih-sound" aria-pressed="' + (tb.sound !== false) + '">' + (ar ? 'الصوت' : 'Sound') + '</button>' +
+            '<button class="btn btn-sm btn-ghost" data-action="tasbih-undo">' + esc(ar ? 'تراجع' : 'Undo') + '</button>' +
+            '<button class="btn btn-sm btn-ghost" data-action="tasbih-reset">' + esc(t('reset')) + '</button></div></div>';
+      }
+      return item;
+    }).join('');
+    var L = tb.log || {}, days = Object.keys(L).sort().reverse().slice(0, 14);
+    var names = {}; ch.forEach(function (c) { names[c.k] = c; });
+    var hist = days.map(function (dk) {
+      var rows = Object.keys(L[dk]).map(function (k) {
+        var c = names[k]; if (!c) return '';
+        var n = L[dk][k], full = n >= c.n;
+        return '<div class="ts-h-row"><span class="ts-h-t">' + esc(c.t) + '</span><span class="num">' + MIH.arNum(n) + ' / ' + MIH.arNum(c.n) +
+          '</span>' + (full ? '<span class="badge badge-green">' + esc(ar ? 'تسبيح كامل' : 'Full') + '</span>' : '') + '</div>';
+      }).join('');
+      var p = dk.split('-');
+      return '<div class="ts-h-day"><b class="num">' + MIH.arNum(p[2]) + '/' + MIH.arNum(p[1]) + '/' + MIH.arNum(p[0]) + '</b>' + rows + '</div>';
+    }).join('');
     return '<div class="view">' +
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('tasbihTitle')) + '</h1>' +
-      '<p class="sub">' + esc(t('tasbihSub')) + '</p></div>' +
-      '<span class="badge badge-gold num">' + tb.count + ' / ' + tb.target + '</span></div>' +
-      '<div class="card">' +
-        '<button class="tasbih-circle" data-action="tasbih-tap">' +
-          '<span class="tasbih-num num" id="tasbih-num">' + tb.count + '</span>' +
-          '<span class="tasbih-label">' + esc(t('target')) + ' ' + tb.target + '</span>' +
-        '</button>' +
-        '<div class="rowflex mt-16" style="justify-content:center">' +
-          [33, 100, 1000].map(function (n) {
-            return '<button class="chip" data-action="tasbih-target" data-v="' + n + '" aria-pressed="' + (tb.target === n) + '">' + n + '</button>';
-          }).join('') +
-          '<button class="chip" data-action="tasbih-sound" aria-pressed="' + (tb.sound !== false) + '">' + (MIH.isAr() ? 'الصوت' : 'Sound') + '</button>' +
-        '</div>' +
-        '<div class="rowflex mt-16" style="justify-content:space-between">' +
-          '<span class="small muted">' + esc(t('totalToday')) + ': <b class="num">' + tb.total + '</b></span>' +
-          '<button class="btn btn-sm btn-ghost" data-action="tasbih-reset">' + esc(t('reset')) + '</button>' +
-        '</div>' +
-        '<div style="height:6px;border-radius:99px;background:var(--line-2);margin-top:14px;overflow:hidden">' +
-          '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,var(--green-700),var(--gold-500))"></div></div>' +
-      '</div>' +
-      '<div class="footer-note">' + (MIH.isAr() ? 'اهتزاز خفيف عند العد إذا كان جهازك يدعمه.' : 'Light vibration on each count when your device supports it.') + '</div>' +
+      '<p class="sub">' + esc(ar ? 'اختر ذكرًا وسبّح تحته' : 'Pick a dhikr, the counter opens under it') + '</p></div>' +
+      '<span class="badge badge-gold num">' + MIH.arNum(tb.total || 0) + '</span></div>' +
+      '<div class="ts-list">' + list + '</div>' +
+      '<div class="card" style="margin-top:12px"><div class="h3">' + esc(ar ? 'أضف ذكرك' : 'Add your own') + '</div>' +
+        '<div class="wx-search"><input id="ts-own-t" aria-label="' + esc(ar ? 'نص الذكر' : 'Dhikr text') + '" placeholder="' + esc(ar ? 'نص الذكر' : 'Dhikr text') + '">' +
+        '<input id="ts-own-n" type="number" min="1" max="100000" value="33" style="max-width:76px" aria-label="' + esc(ar ? 'العدد' : 'Target') + '">' +
+        '<button class="chip" data-action="tasbih-add">' + esc(ar ? 'إضافة' : 'Add') + '</button></div></div>' +
+      '<div class="section-head"><h2 class="h2">' + esc(ar ? 'سجل التسبيح' : 'Tasbih log') + '</h2></div>' +
+      '<div class="card" id="ts-hist">' + (hist || '<div class="sub">' + esc(ar ? 'لسه مفيش تسبيح مسجّل. كل تسبيحة بتتسجل هنا باليوم.' : 'Nothing logged yet. Every count is recorded here by day.') + '</div>') + '</div>' +
+      '<div class="footer-note">' + esc(ar ? 'السجل محفوظ على جهازك هذا فقط، بدون حساب، ولن يظهر على جهاز آخر. أصوات العد مولَّدة على الجهاز ومعها اهتزاز خفيف إن دعمه جهازك.' : 'The log is stored on this device only, with no account, and will not appear on another device. Count sounds are generated on the device, with a light vibration if supported.') + '</div>' +
       '</div>';
   };
 
@@ -8556,7 +8625,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '</div>' + (days ? '<div class="wx-days" id="wx-days">' + days + '</div>' : '')
       : '<div class="wx-empty">' + esc(ar ? 'الطقس لسه ما اتحدّثش' : 'Weather not loaded yet') + '</div>';
 
-    return '<div class="card wx-card" id="home-weather">' +
+    var open = !!MIH.state._wxOpen;
+    var chip = '<button class="wx-chip" id="wx-chip" data-action="wx-toggle" aria-expanded="' + open + '" aria-label="' + esc(ar ? 'الطقس، اضغط للتفاصيل' : 'Weather, tap for details') + '">' +
+      '<span class="wx-ico">' + (d ? icon(d.code) : '🌡️') + '</span>' +
+      '<span class="wx-t num">' + (d ? MIH.arNum(Math.round(d.t)) + '°' : '--') + '</span>' +
+      '<span class="wx-chip-c">' + esc(place.label || (ar ? 'مدينتك' : 'Your city')) + '</span>' +
+      '<span class="wx-chip-s">' + (d ? esc(label(d.code, ar)) : '') + '</span>' +
+      '<span class="wx-caret">' + (open ? '⌃' : '⌄') + '</span></button>';
+    if (!open) return '<div class="wx-compact" id="home-weather">' + chip + '</div>';
+    return '<div class="wx-compact" id="home-weather">' + chip + '</div><div class="card wx-card" id="home-weather-full">' +
       '<div class="wx-head">' +
         '<div><div class="h3">' + esc(ar ? 'الطقس' : 'Weather') + '</div>' +
         '<div class="sub">' + esc(place.label || (ar ? 'مدينتك' : 'Your city')) + (ago ? ' · ' + esc(ago) : '') + '</div></div>' +
@@ -8580,6 +8657,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var b = e.target.closest && e.target.closest('[data-action]');
     if (!b) return;
     var a = b.getAttribute('data-action');
+    if (a === 'wx-toggle') { MIH.state._wxOpen = !MIH.state._wxOpen; MIH.render(); return; }
     if (a === 'wx-refresh') {
       MIH.toast(MIH.isAr() ? 'بيحدّث…' : 'Refreshing…');
       MIH.weather.refresh(function (err) {
@@ -9036,18 +9114,27 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       MIH.state.azkarCounts[ci] = MIH.azkar[ci].i.map(function (x) { return x.c; });
       saveAndRender(); return;
     }
+    if (a === 'tasbih-pick') { var T0 = MIH.state.tasbih; T0.sel = el.getAttribute('data-k'); saveAndRender(); return; }
     if (a === 'tasbih-tap') {
-      var tb = MIH.state.tasbih;
-      tb.count++; tb.total = (tb.total || 0) + 1;
-      MIH.save();
-      MIH.tick(tb.count % tb.target === 0);
-      var num = document.getElementById('tasbih-num');
-      if (num) num.textContent = tb.count; else render();
+      var tb = MIH.state.tasbih, cc = MIH.tasbihChoices().filter(function (c) { return c.k === tb.sel; })[0];
+      if (!cc) return;
+      MIH.tasbihAdd(cc.k, 1);
+      var nn = MIH.tasbihToday(cc.k); tb.count = nn;
+      MIH.tick(nn === cc.n || (nn > cc.n && nn % cc.n === 0)); MIH.save();
+      var num = document.getElementById('tasbih-num'); if (num) num.textContent = MIH.arNum(nn);
+      var br = document.getElementById('ts-bar'); if (br) br.style.width = Math.min(100, Math.round(nn / cc.n * 100)) + '%';
+      render();
       return;
     }
+    if (a === 'tasbih-undo') { var T1 = MIH.state.tasbih; if (T1.sel) { MIH.tasbihAdd(T1.sel, -1); } render(); return; }
+    if (a === 'tasbih-reset') { var T2 = MIH.state.tasbih; if (T2.sel) { MIH.tasbihAdd(T2.sel, -MIH.tasbihToday(T2.sel)); } render(); return; }
+    if (a === 'tasbih-add') {
+      var tx = (document.getElementById('ts-own-t') || {}).value || '', nv = parseInt((document.getElementById('ts-own-n') || {}).value, 10) || 33;
+      tx = tx.trim(); if (!tx) return;
+      var T3 = MIH.state.tasbih; T3.own = T3.own || []; var k = 'own:' + Date.now();
+      T3.own.push({ k: k, t: tx.slice(0, 200), n: Math.max(1, Math.min(100000, nv)) }); T3.sel = k; saveAndRender(); return;
+    }
     if (a === 'tasbih-sound') { var T = MIH.state.tasbih; T.sound = T.sound === false; saveAndRender(); if (T.sound) MIH.tick(false); return; }
-    if (a === 'tasbih-target') { MIH.state.tasbih.target = parseInt(el.getAttribute('data-v'), 10); saveAndRender(); return; }
-    if (a === 'tasbih-reset') { MIH.state.tasbih.count = 0; saveAndRender(); return; }
     if (a === 'geo') {
       if (!navigator.geolocation) { MIH.toast(t('geoDenied')); return; }
       MIH.toast('…');
