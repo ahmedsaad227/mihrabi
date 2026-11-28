@@ -2737,7 +2737,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v54';
+  MIH.VERSION = 'v55';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -8253,6 +8253,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     if (input) { input.value = ''; input.style.height = 'auto'; }
     push('u', text);
     paintThread();
+    /* point the Dar al-Ifta chip at this exact question */
+    var dl = document.getElementById('ai-dar-link');
+    if (dl) dl.href = 'https://www.dar-alifta.org/ar/fatwa?search=' + encodeURIComponent(text.slice(0, 140));
     ask(s.worker, false);
   }
 
