@@ -2388,7 +2388,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     fontStep: 0,
     showTranslation: true,
     translation: 'pickthall',
-    adhan: { sound: 'aqib', on: true, per: {} },
+    adhan: { sound: 'makkah', on: true, per: {} },
     onboarded: false,
     notes: {},
     qada: { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 },
@@ -2414,7 +2414,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var raw = null;
     try { raw = window.localStorage.getItem(KEY); } catch (e) { raw = null; }
     if (!raw) return clone(DEFAULTS);
-    try { return merge(DEFAULTS, JSON.parse(raw)); } catch (e) { return clone(DEFAULTS); }
+    try {
+      var st = merge(DEFAULTS, JSON.parse(raw));
+      /* the default adhan is now the Masjid al-Haram recording; a device still on the old
+         default (and that never picked one) moves over, a deliberate choice is kept */
+      if (st.adhan && st.adhan.sound === 'aqib' && !st.adhan.chosen) st.adhan.sound = 'makkah';
+      return st;
+    } catch (e) { return clone(DEFAULTS); }
   };
   MIH.save = function () {
     try { window.localStorage.setItem(KEY, JSON.stringify(MIH.state)); } catch (e) { /* private mode */ }
@@ -2811,7 +2817,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v63';
+  MIH.VERSION = 'v64';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -9661,7 +9667,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     if (a === 'khatma-next') { MIH.khatmaToggle(el.getAttribute('data-j')); render(); return; }
     if (a === 'khatma-reset') { MIH.khatmaReset(); render(); MIH.toast(t('khatmaResetDone')); return; }
     if (a === 'adhan-per') { MIH.adhanSetPer(el.getAttribute('data-p'), el.getAttribute('data-v')); render(); return; }
-    if (a === 'adhan-sound') { MIH.state.adhan.sound = el.getAttribute('data-v'); MIH.save(); MIH.syncAdhanNative(); render(); return; }
+    if (a === 'adhan-sound') { MIH.state.adhan.sound = el.getAttribute('data-v'); MIH.state.adhan.chosen = true; MIH.save(); MIH.syncAdhanNative(); render(); return; }
     if (a === 'exact-alarm-fix') { MIH.openExactAlarmSettings(); return; }
     if (a === 'bg-enable') {
       MIH.enableBgSync(function (ok) { MIH.toast(ok ? t('bgOn') : t('bgDenied')); render(); });
@@ -10108,7 +10114,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.syncAdhanNative = function () {
     if (!MIH.isNative) return;
     var trk = MIH.audioById(MIH.state.adhan.sound);
-    var file = trk ? trk.file.split('/').pop() : 'adhan-aqib.mp3';
+    var file = trk ? trk.file.split('/').pop() : 'adhan-makkah.mp3';
     try { window.MihrabiNative.setAdhan(MIH.state.adhan.on ? 1 : 0, file); } catch (e) {}
   };
 
