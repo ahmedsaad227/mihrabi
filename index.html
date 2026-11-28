@@ -1793,6 +1793,8 @@ body.ay-on .ab-bar{display:none}
 
 .wx-status{margin:10px 2px 0;padding:8px 10px;border-radius:10px;background:rgba(180,120,0,.12);font-size:13px;line-height:1.6}
 
+.mp-aya.flash{background:rgba(201,162,39,.28);border-radius:6px;transition:background .6s}
+
 </style>
 </head>
 <body>
@@ -2887,7 +2889,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v80';
+  MIH.VERSION = 'v82';
   /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
      own source line. No explanation is written here: the data has none, so none is shown. */
   MIH.zikrFacts = function (cIdx, iIdx) {
@@ -3616,7 +3618,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
       (bm.length ? '<div class="section-head"><h2 class="h2">' + esc(t('bookmarks')) + '</h2></div><div class="card" style="padding:6px 16px">' +
         bm.slice(-8).reverse().map(function (b) {
-          return '<button class="row" data-action="nav" data-to="#/quran/' + b.s + '/' + b.a + '">' +
+          return '<button class="row" data-action="nav" data-to="#/mushaf-flow/' + b.s + '/' + b.a + '">' +
             '<span class="row-main"><span class="row-title">' + esc(MIH.surahName(b.s)) + ' · ' + t('ayah') + ' ' + b.a + '</span></span>' +
             '<svg class="chev"><use href="#i-chev"/></svg></button>';
         }).join('') + '</div>' : '') +
@@ -3899,7 +3901,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var marks = MIH.state.bookmarks || [];
     if (!marks.length) { box.innerHTML = '<p class="sub">' + esc(t('msNoMarks')) + '</p>'; return; }
     box.innerHTML = marks.map(function (b) {
-      return '<button class="row" data-action="nav" data-to="#/quran/' + b.s + '/' + b.a + '">' +
+      return '<button class="row" data-action="nav" data-to="#/mushaf-flow/' + b.s + '/' + b.a + '">' +
         '<span class="row-main"><span class="row-title">' + esc(MIH.quran.s[b.s - 1][0]) + '</span>' +
         '<span class="row-sub">' + b.s + ':' + b.a + '</span></span></button>';
     }).join('');
@@ -4180,7 +4182,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
             ((MIH.abRunning && MIH.abRunning()) ? ' · <span class="mp-pace" id="mp-pace">' + esc(t('abJuzIn')) + ' ' + arNum(MIH.abMinutes()) + ' ' + esc(t('abMinUnit')) + '</span>' : '') +
           '</div>' +
         '</div>' +
-        '<button class="mp-icon" data-action="nav" data-to="#/quran/' + r.from[0] + '/' + r.from[1] + '" aria-label="' + esc(t('openInReader')) + '">☰</button>' +
+        '<button class="mp-icon" data-action="nav" data-to="#/quran/index" aria-label="' + esc(MIH.isAr() ? 'فهرس السور' : 'Surah index') + '">☰</button>' +
       '</div>' +
       (mode === 'image'
         ? '<button class="mp-imgbar" data-action="mp-mode" data-v="text">' + esc(t('mpImgBar')) + '</button>' + imageStage(n)
@@ -4222,7 +4224,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var page = MIH.pageForAyah(s, 1);
     return '<div class="view mp-view mp-flowview">' +
       '<div class="mp-bar">' +
-        '<span class="mp-icon mp-icon-sp" aria-hidden="true"></span>' +
+        '<button class="mp-icon" data-action="nav" data-to="#/quran/index" aria-label="' + esc(MIH.isAr() ? 'فهرس السور' : 'Surah index') + '">☰</button>' +
         '<div class="mp-bar-mid"><div class="mp-bar-title">' + esc(t('suraWord')) + ' ' + esc(surahName(s)) + '</div>' +
           '<div class="mp-bar-sub">' + arNum(count) + ' ' + (MIH.isAr() ? 'آية' : 'ayahs') + ' · ' + esc(t('pageWord')) + ' ' + arNum(page) + '</div></div>' +
         '<button class="mp-icon" data-action="nav" data-to="#/mushaf/' + page + '" aria-label="' + esc(t('mpModeText')) + '">▤</button>' +
@@ -8923,9 +8925,37 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         w.ts = 0;
         save(w);
         MIH.weather.refresh(function () { if (cb) cb(null); });
+        MIH.weather.nameFor(w.lat, w.lon, function (name) {
+          var w2 = load();
+          if (w2.lat !== w.lat || w2.lon !== w.lon || !name) return;
+          w2.label = name; save(w2);
+          if (MIH.render && MIH.weather.mounted()) MIH.render();
+        });
       }, function (err) {
         if (cb) cb(err && err.code === 1 ? 'denied' : 'no-fix');
       }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 10 * 60 * 1000 });
+    },
+    /* the real place name for a GPS fix: OpenStreetMap Nominatim reverse lookup (free, 8 s limit),
+       then the nearest city in the app's own list if it is within 60 km, else no name (the card keeps "GPS") */
+    nameFor: function (lat, lon, cb) {
+      var ar = MIH.isAr();
+      function nearest() {
+        var best = null, bd = 1e9;
+        (MIH.cities || []).forEach(function (c) {
+          var dx = (c.lon - lon) * Math.cos(lat * Math.PI / 180) * 111.32, dy = (c.lat - lat) * 110.57;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < bd) { bd = d; best = c; }
+        });
+        return best && bd <= 60 ? (ar ? best.ar : best.en) : '';
+      }
+      tfetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=12&accept-language=' + (ar ? 'ar' : 'en') + '&lat=' + lat + '&lon=' + lon, 8000)
+        .then(function (r) { return r.json(); }).then(function (j) {
+          var a = (j && j.address) || {};
+          var place = a.city || a.town || a.village || a.suburb || a.county || a.state_district || '';
+          var parent = a.state || a.governorate || '';
+          var name = place ? place + (parent && parent !== place ? '، ' + parent : '') : '';
+          cb(name || nearest());
+        }).catch(function () { cb(nearest()); });
     },
     /* city search: Open-Meteo geocoding, free, no key */
     search: function (q, cb) {
@@ -9114,6 +9144,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   var timer = null;
   function kick() {
     if (!MIH.weather.mounted()) return;
+    var w0 = load();
+    if (w0.lat != null && /GPS/.test(w0.label || '') && !MIH._wxNaming) {
+      MIH._wxNaming = true;
+      MIH.weather.nameFor(w0.lat, w0.lon, function (name) {
+        MIH._wxNaming = false;
+        var w1 = load();
+        if (name && w1.lat === w0.lat && w1.lon === w0.lon) { w1.label = name; save(w1); if (MIH.render && MIH.weather.mounted()) MIH.render(); }
+      });
+    }
     if (MIH.weather.needsRefresh()) MIH.weather.refresh();
   }
   window.addEventListener('hashchange', function () { setTimeout(kick, 400); });
@@ -9598,9 +9637,35 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     requestAnimationFrame(function () { window.scrollTo(0, y); if (m) m.scrollTop = my; });
   }
 
+  /* remember the ayah at the top of the screen while he reads in continuous mode */
+  var flowTimer = null;
+  function trackFlow() {
+    if (window.__flowTrack) return;
+    window.__flowTrack = true;
+    window.addEventListener('scroll', function () {
+      if (currentRoute !== 'mushafFlow') return;
+      clearTimeout(flowTimer);
+      flowTimer = setTimeout(function () {
+        var els = document.querySelectorAll('.mp-aya[data-a]');
+        for (var i = 0; i < els.length; i++) {
+          var r = els[i].getBoundingClientRect();
+          if (r.bottom > 90) {
+            var lv = MIH.state.lastView;
+            if (lv && lv.mode === 'flow') {
+              lv.a = parseInt(els[i].getAttribute('data-a'), 10) || lv.a;
+              lv.s = parseInt(els[i].getAttribute('data-s'), 10) || lv.s;
+              MIH.save();
+            }
+            break;
+          }
+        }
+      }, 300);
+    }, { passive: true });
+  }
+
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || ((active === 'hifz' || active === 'mawarith' || active === 'khushu' || active === 'review' || active === 'nawafil') && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage' || active === 'mushafFlow') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || ((active === 'hifz' || active === 'mawarith' || active === 'khushu' || active === 'review' || active === 'nawafil') && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -9634,15 +9699,29 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     else if (parts[0] === 'home') { view = 'home'; html = MIH.views.home(); }
     else if (parts[0] === 'prayer') { view = 'prayer'; html = MIH.views.prayer(); }
     else if (parts[0] === 'quran') {
-      if (parts.length >= 3 && parts[2]) { view = 'reader'; html = MIH.views.reader(parts[1], parts[2]); }
-      else if (parts.length >= 2) {
-        /* opening a surah lands on its mushaf page, not on a list of ayahs; the
-           per-ayah reader stays reachable from the page header and from search */
-        var pg = MIH.pageForAyah ? MIH.pageForAyah(parseInt(parts[1], 10) || 1, 1) : 1;
-        window.location.replace('#/mushaf/' + pg);
+      /* the verse-list reader and the surah index are not where reading happens any more.
+         Any link to an ayah or surah opens the mushaf in the mode he used last; the bare
+         Quran tab resumes where he stopped. The index is only at #/quran/index. */
+      var lv = MIH.state.lastView || null;
+      var wantFlow = (MIH.state.readMode === 'flow');
+      if (parts[1] === 'index') { view = 'quran'; html = MIH.views.quran(); }
+      else if (parts.length >= 3 && parts[2]) {
+        var qs = parseInt(parts[1], 10) || 1, qa = parseInt(parts[2], 10) || 1;
+        window.location.replace(wantFlow ? '#/mushaf-flow/' + qs + '/' + qa : '#/mushaf/' + MIH.pageForAyah(qs, qa));
         return '';
       }
-      else { view = 'quran'; html = MIH.views.quran(); }
+      else if (parts.length >= 2) {
+        var pg = MIH.pageForAyah ? MIH.pageForAyah(parseInt(parts[1], 10) || 1, 1) : 1;
+        window.location.replace(wantFlow ? '#/mushaf-flow/' + (parseInt(parts[1], 10) || 1) : '#/mushaf/' + pg);
+        return '';
+      }
+      else {
+        var back = lv && lv.mode === 'flow' ? '#/mushaf-flow/' + lv.s + '/' + lv.a
+          : lv && lv.mode === 'page' ? '#/mushaf/' + lv.page
+          : '#/mushaf/' + (MIH.state.lastRead && MIH.state.lastRead.at ? MIH.pageForAyah(MIH.state.lastRead.s, MIH.state.lastRead.a) : 1);
+        window.location.replace(back);
+        return '';
+      }
     }
     else if (parts[0] === 'azkar') {
       if (parts.length >= 3 && parts[2] === 'one') { view = 'azkarOne'; html = MIH.views.azkarOne(parts[1]); }
@@ -9650,9 +9729,20 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       else if (parts.length >= 2) { view = 'azkarOne'; html = MIH.views.azkarOne(parts[1]); }
       else { view = 'azkar'; html = MIH.views.azkar(); }
     }
-    else if (parts[0] === 'mushaf-flow') { view = 'mushafFlow'; html = MIH.views.mushafFlow(parts[1]); }
+    else if (parts[0] === 'mushaf-flow') {
+      MIH._flowAyah = parts[2] ? parseInt(parts[2], 10) : 0;
+      view = 'mushafFlow'; html = MIH.views.mushafFlow(parts[1]);
+      MIH.state.readMode = 'flow';
+      MIH.state.lastView = { mode: 'flow', s: Math.max(1, Math.min(114, parseInt(parts[1], 10) || 1)), a: MIH._flowAyah || 1 };
+      MIH.save();
+    }
     else if (parts[0] === 'mushaf') {
       view = 'mushafPage'; html = MIH.views.mushafPage(parts[1]);
+      var pn0 = parseInt(parts[1], 10);
+      if (!pn0) { var lr0 = MIH.state.lastRead || { s: 1, a: 1 }; pn0 = MIH.pageForAyah(lr0.s || 1, lr0.a || 1); }
+      MIH.state.readMode = 'page';
+      MIH.state.lastView = { mode: 'page', page: Math.max(1, Math.min(MIH.mushafPageCount(), pn0)) };
+      MIH.save();
     }
     else if (parts[0] === 'list') {
       if (parts[2] === 'add') { view = 'listAdd'; html = MIH.views.listAdd(parts[1]); }
@@ -9717,6 +9807,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     if (view === 'reader' && parts[2]) {
       var el = document.getElementById('a' + parts[2]);
       if (el) setTimeout(function () { el.scrollIntoView({ block: 'center', behavior: 'auto' }); }, 400);
+    }
+    if (view === 'mushafFlow') {
+      var fa = MIH._flowAyah || 0;
+      if (fa) {
+        var fs = (MIH.state.lastView || {}).s;
+        setTimeout(function () {
+          var fe = document.querySelector('.mp-aya[data-s="' + fs + '"][data-a="' + fa + '"]');
+          if (fe) { fe.scrollIntoView({ block: 'center', behavior: 'auto' }); fe.classList.add('flash'); setTimeout(function () { fe.classList.remove('flash'); }, 2200); }
+        }, 250);
+      }
+      trackFlow();
     }
     if (view === 'mushafPage') {
       bindMushafGestures();
