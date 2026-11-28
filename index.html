@@ -2733,7 +2733,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v52';
+  MIH.VERSION = 'v53';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -2869,12 +2869,6 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   }
 
   MIH.views.home = function () {
-    var beta = '<div class="card" style="padding:12px 14px;margin-top:10px;border-color:rgba(180,140,60,.45);background:rgba(180,140,60,.08)">' +
-      '<div class="row-sub" style="color:var(--ink)"><strong>' + esc(MIH.isAr() ? 'نسخة تجريبية (بيتا)' : 'Beta build') + '</strong> — ' +
-      esc(MIH.isAr()
-        ? 'الترجمات الآلية (الفرنسية والتركية والأوردو والإندونيسية والماليزية) والنصوص الشرعية لم تُراجَع بعد من متخصص.'
-        : 'Machine translations (French, Turkish, Urdu, Indonesian, Malay) and the religious texts have not yet been reviewed by a specialist.') +
-      '</div></div>';
     var now = MIH.cityNow();
     var times = MIH.times(now);
     var np = MIH.nextPrayer();
@@ -2928,7 +2922,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var ev = MIH.nextEvent();
 
     return '<div class="view">' +
-      '<h1 class="sr-only">' + esc(t('app')) + ' — ' + esc(t('todayTimes')) + '</h1>' + beta + MIH.journeyCard() +
+      '<h1 class="sr-only">' + esc(t('app')) + ' — ' + esc(t('todayTimes')) + '</h1>' +
       '<div class="hero">' +
         '<div class="hero-top">' +
           '<div>' +
@@ -2942,6 +2936,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div class="hero-meta">' +
           '<span>' + cityName + '</span>' +
           '<span><b>' + esc(MIH.hijriLabel(now)) + '</b></span>' +
+        '</div>' +
+      '</div>' +
+
+      /* the assistant is reachable straight from home, not only from المزيد */
+      '<div class="card ai-home" id="home-ai">' +
+        '<div class="rowflex" style="justify-content:space-between;align-items:center;gap:10px">' +
+          '<div><div class="h3">' + esc(MIH.isAr() ? 'مِحراب AI' : 'MIHRABI AI') + '</div>' +
+          '<div class="sub">' + esc(MIH.isAr() ? 'اسأل عن الصلاة أو القرآن أو الأذكار — مجاني' : 'Ask about prayer, Quran or adhkar - free') + '</div></div>' +
+          '<button class="btn btn-sm" data-action="nav" data-to="#/ai">' + esc(MIH.isAr() ? 'اسأل' : 'Ask') + '</button>' +
         '</div>' +
       '</div>' +
 
@@ -2965,6 +2968,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div class="quick" id="home-quick">' +
         '<button class="quick-btn" data-action="nav" data-to="#/quran"><svg><use href="#i-quran"/></svg><span>' + esc(t('quickQuran')) + '</span></button>' +
         '<button class="quick-btn" data-action="nav" data-to="#/azkar"><svg><use href="#i-azkar"/></svg><span>' + esc(t('quickAzkar')) + '</span></button>' +
+        '<button class="quick-btn" data-action="nav" data-to="#/ai"><svg><use href="#i-star"/></svg><span>' + esc(MIH.isAr() ? 'المساعد' : 'Assistant') + '</span></button>' +
         '<button class="quick-btn" data-action="nav" data-to="#/qibla"><svg><use href="#i-compass"/></svg><span>' + esc(t('quickQibla')) + '</span></button>' +
         '<button class="quick-btn" data-action="nav" data-to="#/tasbih"><svg><use href="#i-beads"/></svg><span>' + esc(t('quickTasbih')) + '</span></button>' +
         '<button class="quick-btn" data-action="nav" data-to="#/tracker"><svg><use href="#i-check"/></svg><span>' + esc(t('trkTitle')) + '</span></button>' +
@@ -2997,6 +3001,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           '<span class="badge badge-green num">' + esc(ev.inDays === 0 ? t('today') : '+' + ev.inDays) + '</span>' +
         '</div>' : '') +
 
+      /* رحلتي sits at the bottom of the home page (his 6:33 request), just above the
+         footer, instead of pushing everything down at the top */
+      MIH.journeyCard() +
       '<div class="footer-note">' + esc(t('footer')) + '</div>' +
       '<div class="made-by">' + esc(t('madeBy')) + '</div>' +
       '</div>';
