@@ -1784,6 +1784,13 @@ body.ay-on .ab-bar{display:none}
 .mp-side-next { left: 0; border-radius: 0 14px 14px 0; }
 .mp-side-prev { right: 0; border-radius: 14px 0 0 14px; }
 
+.zikr-show { border-bottom: 1px solid var(--border, rgba(0,0,0,.08)); padding-bottom: 12px; margin-bottom: 12px; }
+.zikr-show-text { font-family: var(--font-quran, 'Amiri Quran', serif); font-size: 21px; line-height: 2; text-align: center; }
+.zikr-show-meta, .zikr-show-src, .zikr-show-by { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 4px; }
+.zikr-show-src { direction: rtl; }
+.zikr-show .btn { display: block; margin: 8px auto 0; }
+.zikr-banner-meta { font-size: 12px; opacity: .75; margin-top: 6px; }
+
 </style>
 </head>
 <body>
@@ -2878,8 +2885,30 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v76';
-  MIH.zikrBanner = function (title, text) {
+  MIH.VERSION = 'v77';
+  /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
+     own source line. No explanation is written here: the data has none, so none is shown. */
+  MIH.zikrFacts = function (cIdx, iIdx) {
+    var cat = (MIH.azkar || [])[cIdx], it = cat && cat.i && cat.i[iIdx];
+    if (!it) return null;
+    return { t: it.t, n: it.c || 0, chapter: cat.n, src: (MIH.azkarSrc || {})[cIdx + ':' + iIdx] || '' };
+  };
+  /* the dhikr shown on home: short ones only so it fits a card; changes each day, and with the Next button */
+  MIH.zikrPreview = function () {
+    var short = MIH._zkShort;
+    if (!short) {
+      short = [];
+      (MIH.azkar || []).forEach(function (cat, ci) {
+        (cat.i || []).forEach(function (it, ii) { if (it.t && it.t.length <= 190 && it.t.indexOf('﴿') < 0) short.push([ci, ii]); });
+      });
+      MIH._zkShort = short;
+    }
+    if (!short.length) return null;
+    var day = Math.floor(Date.now() / 86400000);
+    var p = short[(day * 7 + (MIH._zkStep || 0)) % short.length];
+    return MIH.zikrFacts(p[0], p[1]);
+  };
+  MIH.zikrBanner = function (title, text, meta) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
     var el = document.createElement('div');
@@ -2887,7 +2916,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     el.className = 'zikr-banner';
     el.innerHTML = '<div class="zikr-banner-head"><b>' + MIH.esc(title) + '</b>' +
       '<button class="zikr-banner-x" data-action="zikr-close" aria-label="' + MIH.esc(MIH.t('close') || 'إغلاق') + '">✕</button></div>' +
-      '<div class="zikr-banner-text">' + MIH.esc(text) + '</div>';
+      '<div class="zikr-banner-text">' + MIH.esc(text) + '</div>' +
+      (meta ? '<div class="zikr-banner-meta">' + MIH.esc(meta) + '</div>' : '');
     document.body.appendChild(el);
     return el;
   };
@@ -3046,8 +3076,16 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       return '<button class="prayer-pill' + (zkEvery === v ? ' on ontime' : '') + '" data-action="zikr-every" data-v="' + v + '"' +
         ' aria-pressed="' + (zkEvery === v ? 'true' : 'false') + '">' + esc(label) + '</button>';
     };
+    var zp = MIH.zikrPreview ? MIH.zikrPreview() : null;
+    var zikrShow = zp ? '<div class="zikr-show" id="zikr-show">' +
+        '<div class="zikr-show-text">' + esc(zp.t) + '</div>' +
+        '<div class="zikr-show-meta">' + esc(zp.chapter) + (zp.n > 1 ? ' · ' + esc(MIH.isAr() ? 'يُقال ' + MIH.arNum(zp.n) + ' مرات' : 'said ' + zp.n + ' times') : '') + '</div>' +
+        (zp.src ? '<div class="zikr-show-src">' + esc(MIH.isAr() ? 'المصدر: ' : 'Source: ') + esc(zp.src) + '</div>' : '') +
+        '<div class="zikr-show-by">' + esc(MIH.isAr() ? 'من حصن المسلم' : 'From Hisn al-Muslim') + '</div>' +
+        '<button class="btn btn-sm btn-ghost" data-action="zikr-next">' + esc(MIH.isAr() ? 'ذكر آخر' : 'Another dhikr') + '</button>' +
+      '</div>' : '';
     var zikrHome = '<div class="section-head"><h2 class="h2">' + esc(t('zikrHomeTitle')) + '</h2></div>' +
-      '<div class="card zikr-home" id="zikr-home-card">' +
+      '<div class="card zikr-home" id="zikr-home-card">' + zikrShow +
         '<div class="rowflex" style="justify-content:space-between;align-items:center;gap:10px">' +
           '<span class="rowflex" style="gap:10px;align-items:center">' +
             '<span class="icon-btn" style="pointer-events:none;' + (zkEvery ? 'background:rgba(20,81,60,.12);border-color:transparent;color:var(--green-700)' : 'color:var(--muted)') + '">' +
@@ -9762,6 +9800,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       MIH.state.pageMode = el.getAttribute('data-v') === 'text' ? 'text' : 'image';
       MIH.save(); render(); return;
     }
+    if (a === 'zikr-next') { MIH._zkStep = (MIH._zkStep || 0) + 1; render(); return; }
     if (a === 'mp-prev' || a === 'mp-next') {
       var stageEl = document.getElementById('mp-stage');
       var cur = stageEl ? (parseInt(stageEl.getAttribute('data-page'), 10) || 1) : 1;
@@ -10327,7 +10366,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (window.Notification && Notification.permission === 'granted') {
         try { new Notification(t('app') + ' — ' + l.name, { body: text.slice(0, 160), icon: 'icons/icon-192.png', tag: 'list-every-' + l.id }); } catch (e) { }
       }
-      MIH.zikrBanner(l.name, text);
+      var zf = row && row.c !== 'own' ? MIH.zikrFacts(row.c, row.i) : null;
+      MIH.zikrBanner(l.name, text, zf ? zf.chapter + (zf.src ? ' · ' + zf.src : '') : '');
     });
     // custom-list reminders (fire once a day at the chosen time, while the app is open)
     var hhmm = (now.h < 10 ? '0' : '') + now.h + ':' + (now.mi < 10 ? '0' : '') + now.mi;
