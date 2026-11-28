@@ -2699,7 +2699,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v48';
+  MIH.VERSION = 'v49';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -3878,9 +3878,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var head = surahs.map(function (s) { return esc(t('suraWord')) + ' ' + esc(surahName(s)); }).join(' · ');
     var paper = MIH.mushafPaper();
     return '<div class="mp-sheet" id="mp-sheet" style="background:' + paper.bg + ';color:' + paper.fg + '">' +
-      '<div class="mp-rule"></div>' +
-      '<div class="mp-head"><span class="mp-head-juz">' + esc(t('juzWord')) + ' ' + arNum(r.juz) + ' · ' + esc(t('pageWord')) + ' ' + arNum(n) + '</span>' +
-        '<span class="mp-head-sura">' + head + '</span></div>' +
+      /* the page header lives in the bar above the sheet (title, juz and page number),
+         so the sheet itself starts with the text, the way a printed page does */
       '<div class="mp-rule"></div>' +
       '<div class="mp-body" id="mp-body" style="font-size:' + sizeFor(MIH.pageAyahs(n).length) + '">' + pageBody(n) + '</div>' +
       '<div class="mp-foot"><span class="mp-pagenum">' + arNum(n) + '</span></div>' +
@@ -8356,7 +8355,14 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     else if (parts[0] === 'home') { view = 'home'; html = MIH.views.home(); }
     else if (parts[0] === 'prayer') { view = 'prayer'; html = MIH.views.prayer(); }
     else if (parts[0] === 'quran') {
-      if (parts.length >= 2) { view = 'reader'; html = MIH.views.reader(parts[1], parts[2]); }
+      if (parts.length >= 3 && parts[2]) { view = 'reader'; html = MIH.views.reader(parts[1], parts[2]); }
+      else if (parts.length >= 2) {
+        /* opening a surah lands on its mushaf page, not on a list of ayahs; the
+           per-ayah reader stays reachable from the page header and from search */
+        var pg = MIH.pageForAyah ? MIH.pageForAyah(parseInt(parts[1], 10) || 1, 1) : 1;
+        window.location.replace('#/mushaf/' + pg);
+        return '';
+      }
       else { view = 'quran'; html = MIH.views.quran(); }
     }
     else if (parts[0] === 'azkar') {
