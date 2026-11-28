@@ -1667,6 +1667,10 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 [data-theme="dark"] .az-ev-b{color:#cfe0d6}
 .az-ev-none{margin-top:10px;font-size:11.5px;color:var(--muted,#5b6b62);opacity:.85}
 
+/* the official fatwa body, one tap from the assistant */
+.ai-dar{display:flex;justify-content:center;margin:8px 0 2px}
+.ai-dar-link{text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
+
 </style>
 </head>
 <body>
@@ -2733,7 +2737,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v53';
+  MIH.VERSION = 'v54';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -8029,6 +8033,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var c = conv(s);
     var msgs = (c && c.msgs) || [];
     var thread = msgs.length ? msgs.map(msgHtml).join('') : emptyHtml();
+    /* a ruling question belongs with the official body that issues rulings. The
+       assistant does not ingest Dar al-Ifta's archive (no API, no reuse licence,
+       and their robots.txt disallows crawling the search endpoint), so this links
+       the person to their own search for the question instead of pretending. */
+    var lastQ = '';
+    for (var mi = msgs.length - 1; mi >= 0; mi--) { if (msgs[mi].r === 'u') { lastQ = msgs[mi].t || ''; break; } }
+    var darHref = 'https://www.dar-alifta.org/ar/fatwa' + (lastQ ? '?search=' + encodeURIComponent(lastQ.slice(0, 140)) : '');
     return '<div id="ai-root">' + head +
       '<div class="ai-bar">' +
       '<button class="chip" data-ai="new">＋ ' + esc(t('aiNew')) + '</button>' +
@@ -8039,6 +8050,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div id="ai-thread" class="ai-thread">' + thread + '</div>' +
       '<div class="ai-compose"><textarea id="ai-in" rows="1" placeholder="' + esc(t('aiPh')) + '"></textarea>' +
       '<button id="ai-send" class="ai-send" data-ai="send">' + esc(t('aiSend')) + '</button></div>' +
+      '<div class="ai-dar"><a class="chip ai-dar-link" id="ai-dar-link" href="' + esc(darHref) + '" target="_blank" rel="noopener noreferrer">' +
+        '⚖ ' + esc(MIH.isAr() ? 'فتاوى دار الإفتاء المصرية' : 'Egypt Dar al-Ifta fatwas') + '</a></div>' +
       '<div class="ai-foot">' + esc(t('aiLocal')) + ' · <button class="linky" data-ai="cfg">' + esc(t('aiSettings')) + '</button></div>' +
       '</div>';
   };
