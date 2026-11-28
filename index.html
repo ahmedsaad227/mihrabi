@@ -1642,6 +1642,19 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .ayah-audio-note a { color: var(--gold-600); text-decoration: none; border-bottom: 1px dotted currentColor; }
 @media (prefers-reduced-motion: reduce) { .skip-link { transition: none; } }
 
+/* ---------- adhkar reader: full / short tabs (his 4:11 reference) ---------- */
+.az-tabs{display:flex;gap:6px;background:rgba(15,61,46,.06);border-radius:14px;padding:4px;margin:0 0 12px}
+[data-theme="dark"] .az-tabs{background:rgba(255,255,255,.07)}
+.az-tab{flex:1;border:0;background:transparent;color:inherit;font:inherit;font-size:13px;padding:9px 6px;
+  border-radius:11px;cursor:pointer;opacity:.72;min-height:36px}
+.az-tab.on{background:var(--surface,#fff);opacity:1;font-weight:700;box-shadow:0 2px 8px rgba(15,61,46,.10)}
+[data-theme="dark"] .az-tab.on{background:#1d2a24}
+.az-short-note{min-height:0;text-align:center;padding:24px 18px}
+.az-short-t{font-weight:700;font-size:15px;margin-bottom:8px}
+.az-short-b{font-size:13px;line-height:1.95;color:var(--muted,#5b6b62)}
+.az-short-back{margin-top:16px;border:1px solid rgba(15,61,46,.16);background:transparent;color:inherit;
+  font:inherit;font-size:13px;padding:10px 18px;border-radius:12px;cursor:pointer;min-height:38px}
+
 </style>
 </head>
 <body>
@@ -2700,7 +2713,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v50';
+  MIH.VERSION = 'v51';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -7174,6 +7187,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var left = counts[p];
     var done = doneCount(idx, counts);
     var isAr = MIH.isAr();
+    /* his 4:11 reference has two tabs: the full adhkar and a short set. The app's
+       data (Hisn al-Muslim via rn0x/Adhkar-json) carries no short wording, and no
+       religious text is written here by hand, so the short tab states that plainly
+       instead of showing invented or truncated text. */
+    var view = MIH.state.azkarView === 'short' ? 'short' : 'full';
 
     return '<div class="view az-reader" data-cat="' + idx + '" data-pos="' + p + '">' +
       '<div class="az-top">' +
@@ -7183,20 +7201,39 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<button class="az-icon" data-action="nav" data-to="#/azkar/' + idx + '" aria-label="' + esc(isAr ? 'كل الأذكار' : 'All') + '">☰</button>' +
       '</div>' +
 
+      '<div class="az-tabs" role="tablist">' +
+        '<button role="tab" class="az-tab' + (view === 'full' ? ' on' : '') + '" aria-selected="' + (view === 'full') + '" data-az="tab" data-v="full">' +
+          esc(isAr ? 'الأذكار الكاملة' : 'Full adhkar') + '</button>' +
+        '<button role="tab" class="az-tab' + (view === 'short' ? ' on' : '') + '" aria-selected="' + (view === 'short') + '" data-az="tab" data-v="short">' +
+          esc(isAr ? 'الأذكار المختصرة' : 'Short adhkar') + '</button>' +
+      '</div>' +
+
+      (view === 'short'
+        ? '<div class="az-card az-short-note"><div class="az-short-t">' + esc(isAr ? 'النسخة المختصرة مش متوفرة في البيانات' : 'No short version in the data') + '</div>' +
+          '<div class="az-short-b">' + esc(isAr
+            ? 'الأذكار هنا كاملة من حصن المسلم. مفيش نص مختصر متحقَّق في المصدر، ومش هألف نص من عندي. لو عندك قائمة مختصرة موثوقة أو مصدر معيّن تحب أستخدمه، ابعتّهولي وأضيفه.'
+            : 'The adhkar here are the full wording from Hisn al-Muslim. The source carries no vetted short wording, and I will not write one myself. Send me a trusted short list or a source you want used and I will add it.') + '</div>' +
+          '<button class="az-short-back" data-az="tab" data-v="full">' + esc(isAr ? 'ارجع للكاملة' : 'Back to full') + '</button></div>'
+        : '') +
+
+      (view === 'short' ? '' :
       '<div class="az-card">' +
         '<div class="az-text">' + esc(z.t) + '</div>' +
         (z.s ? '<div class="az-src">' + esc(z.s) + '</div>' : '') +
         '<div class="az-progress"><span class="az-bar" style="width:' + Math.round(((p + 1) / cat.i.length) * 100) + '%"></span></div>' +
-      '</div>' +
+      '</div>') +
 
+      (view === 'short' ? '' :
+      /* repeats first, list total last: in an RTL row that puts the repeats on the
+         right and the running total on the left, the way his reference lays it out */
       '<div class="az-count-row">' +
-        '<div class="az-side"><div class="az-side-l">' + esc(isAr ? 'إجمالي الأذكار' : 'All adhkar') + '</div>' +
-          '<div class="az-side-v num">' + ar(done) + '/' + ar(cat.i.length) + '</div></div>' +
+        '<div class="az-side"><div class="az-side-l">' + esc(isAr ? 'عدد مرات الذكر' : 'Repeats left') + '</div>' +
+          '<div class="az-side-v num">' + ar(left > 0 ? left : 0) + '/' + ar(z.c) + '</div></div>' +
         '<button class="az-tap' + (left <= 0 ? ' is-done' : '') + '" data-az="tap" aria-label="' + esc(isAr ? 'اضغط للعد' : 'Tap to count') + '">' +
           '<span class="az-tap-n num">' + (left <= 0 ? '✓' : ar(left)) + '</span>' +
         '</button>' +
-        '<div class="az-side az-side-r"><div class="az-side-l">' + esc(isAr ? 'عدد مرات الذكر' : 'Repeats left') + '</div>' +
-          '<div class="az-side-v num">' + ar(left > 0 ? left : 0) + '/' + ar(z.c) + '</div></div>' +
+        '<div class="az-side az-side-r"><div class="az-side-l">' + esc(isAr ? 'إجمالي الأذكار' : 'All adhkar') + '</div>' +
+          '<div class="az-side-v num">' + ar(done) + '/' + ar(cat.i.length) + '</div></div>' +
       '</div>' +
 
       '<div class="az-actions">' +
@@ -7210,7 +7247,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<button class="az-nav-b" data-az="prev" ' + (p <= 0 ? 'disabled' : '') + '>‹ ' + esc(isAr ? 'السابق' : 'Previous') + '</button>' +
         '<span class="az-nav-p num">' + ar(p + 1) + ' / ' + ar(cat.i.length) + '</span>' +
         '<button class="az-nav-b" data-az="next" ' + (p >= cat.i.length - 1 ? 'disabled' : '') + '> ' + esc(isAr ? 'التالي' : 'Next') + ' ›</button>' +
-      '</div>' +
+      '</div>') +
       '</div>';
   };
 
@@ -7233,6 +7270,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (counts[p] > 0) counts[p] -= 1;
       MIH.save();
       if (counts[p] <= 0 && p < cat.i.length - 1) { setPos(idx, p + 1); }
+      rerender();
+      return;
+    }
+    if (what === 'tab') {
+      MIH.state.azkarView = b.getAttribute('data-v') === 'short' ? 'short' : 'full';
+      MIH.save();
       rerender();
       return;
     }
