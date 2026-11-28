@@ -1777,6 +1777,8 @@ body.ay-on .ab-bar{display:none}
 .lang-code{position:absolute;bottom:1px;inset-inline-end:1px;font-size:8.5px;line-height:1;background:var(--green-900,#0f3a2b);color:#fff;border-radius:6px;padding:2px 3px;letter-spacing:.2px}
 .lang-list{display:flex;flex-wrap:wrap;gap:8px}
 
+.topbar button.brand{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:start;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
 </style>
 </head>
 <body>
@@ -2866,7 +2868,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v71';
+  MIH.VERSION = 'v72';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -9439,11 +9441,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var c = MIH.state.city;
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     return '<div class="topbar">' +
-      '<div class="brand">' +
+      '<button class="brand" data-action="nav" data-to="#/home" aria-label="' + MIH.esc(t('home')) + '">' +
         '<svg class="brand-mark"><use href="#i-logo"/></svg>' +
         '<div><div class="brand-name">' + MIH.esc(t('app')) + '</div>' +
         '<div class="brand-sub">' + (MIH.isAr() ? 'MIHRABI' : 'مِحرابي') + '</div></div>' +
-      '</div>' +
+      '</button>' +
       '<div class="topbar-spacer"></div>' +
       (isHome ? '<button class="icon-btn lang-btn" data-action="lang-open" aria-label="' + MIH.esc(t('lang')) + '"><svg><use href="#i-globe"/></svg><b class="lang-code">' + MIH.esc(MIH.lang().toUpperCase()) + '</b></button>' : '<button class="icon-btn" data-action="nav" data-to="#/settings" aria-label="' + MIH.esc(t('city')) + '"><svg><use href="#i-pin"/></svg></button>') +
       '<button class="icon-btn" data-action="nav" data-to="#/search" aria-label="' + MIH.esc(MIH.tx('mxSearch')) + '"><svg><use href="#i-search"/></svg></button>' +
