@@ -1445,6 +1445,14 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .mp-aya.is-last.is-sel { box-shadow: inset 3px 0 0 var(--gold-500, #C8A24A), 0 0 0 2px rgba(184,145,47,.35); }
 .mp-imgbar { display: block; width: 100%; margin: 6px 0; padding: 9px 12px; border-radius: 12px; border: 1px dashed var(--gold-300, #D9C48A); background: var(--gold-50, #FBF6E9); color: var(--gold-700, #7A5C18); font: inherit; font-size: 12.5px; cursor: pointer; }
 
+/* offline surahs */
+.rec-row { display: flex; align-items: center; gap: 10px; }
+.rec-dl { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 999px; border: 1px solid var(--line, #E6DFCF); background: var(--card, #fff); color: var(--green-700, #14513C); font-size: 15px; line-height: 1; cursor: pointer; }
+.rec-dl.on { background: rgba(20,81,60,.10); border-color: rgba(20,81,60,.35); font-weight: 700; }
+.rec-dl.busy { color: var(--gold-700, #7A5C18); border-color: var(--gold-300, #D9C48A); font-size: 11px; }
+.dl-badge { color: var(--green-700, #14513C); font-weight: 600; }
+.dl-sum { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 10px 2px; padding: 9px 12px; border-radius: 12px; background: var(--gold-50, #FBF6E9); border: 1px solid var(--line, #E6DFCF); font-size: 13px; }
+
 </style>
 </head>
 <body>
@@ -2152,10 +2160,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       msNoSource: 'غير متاح: لا مصدر مرخّص يمكن التحقق منه', msTafsirWhere: 'يُفتح من زر التفسير تحت كل آية', msMeanings: 'المعاني', msAudio: 'الصوتيات',
       msAudioSub: 'تلاوة هذه السورة', msTr: 'الترجمة', msNight: 'الوضع الليلي', msPaper: 'لون المصحف',
       msFav: 'المفضلة', msNoMarks: 'لا علامات بعد. اضغط أيقونة العلامة تحت الآية.',
-      recTitle: 'القُرّاء', recSub: 'المصحف كاملًا سورة بسورة، لأكثر من مئة قارئ',
+      dlKb: 'كيلوبايت', dlMb: 'ميجا', dlNone: 'مفيش سور محفوظة على جهازك — دوس ↓ على أي سورة تنزّلها وتشتغل بدون نت', dlOnDevice: 'على جهازك', dlClear: 'امسح الكل', dlSave: 'نزّل السورة على جهازك', dlDelete: 'امسح السورة من جهازك', dlSaved: 'اتنزّلت على جهازك — تشتغل بدون نت', dlSavedShort: 'على جهازك', dlDeleted: 'اتمسحت من جهازك', dlFail: 'التنزيل ما كمّلش — جرّب تاني', recTitle: 'القُرّاء', recSub: 'المصحف كاملًا سورة بسورة، لأكثر من مئة قارئ',
       recSearch: 'ابحث عن قارئ', recCount: 'قارئًا', recSurahs: 'سورة', recAyahs: 'آية', recPlay: 'تشغيل',
       recPick: 'اختر سورة للاستماع', recBack: 'رجوع', recNotFound: 'القارئ غير موجود',
-      recNote: 'التلاوات تُبَثّ من موقع quranicaudio.com ولا تُضمَّن داخل التطبيق، وتحتاج إنترنت. شروط الموقع تسمح بالاستخدام الشخصي غير التجاري. أسماء القراء والسور من فهرس الموقع ومن نص المصحف المستخدم في التطبيق، ولم يُراجَع الأداء من متخصص.',
+      recNote: 'التلاوات من موقع quranicaudio.com بشروط الاستخدام الشخصي غير التجاري. دوس ↓ على أي سورة تنزّلها على جهازك وتشتغل بدون نت — الباقي بيتّبث ويحتاج إنترنت.',
       hadithTitle: 'الحديث النبوي', hadithSub: 'الأربعون النووية والأحاديث القدسية، كاملة بنصها وترجمتها',
       hadithNawawi: 'الأربعون النووية', hadithQudsi: 'الأحاديث القدسية الأربعون', hadithNum: 'الحديث',
       hadithSource: 'المصدر: مشروع hadith-json (AhmedBaset) بترخيص The Unlicense، مجموعتا nawawi40 وqudsi40 كاملتين بدون تعديل. النص والترجمة لم يُراجَعا بعد من متخصص.',
@@ -2257,10 +2265,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       msNoSource: 'Not available: no licensed source that can be verified', msTafsirWhere: 'Opens from the tafsir button under each verse', msMeanings: 'Meanings', msAudio: 'Audio',
       msAudioSub: 'Recitation of this surah', msTr: 'Translation', msNight: 'Night mode', msPaper: 'Mushaf colour',
       msFav: 'Favourites', msNoMarks: 'No bookmarks yet. Tap the bookmark icon under a verse.',
-      recTitle: 'Reciters', recSub: 'The whole mushaf, surah by surah, from more than a hundred reciters',
+      dlKb: 'KB', dlMb: 'MB', dlNone: 'No surahs saved on this device yet - tap ↓ on any surah to keep it and play it offline', dlOnDevice: 'On your device', dlClear: 'Clear all', dlSave: 'Download this surah to your device', dlDelete: 'Remove this surah from your device', dlSaved: 'Saved on your device - works without internet', dlSavedShort: 'on device', dlDeleted: 'Removed from your device', dlFail: 'The download did not finish - try again', recTitle: 'Reciters', recSub: 'The whole mushaf, surah by surah, from more than a hundred reciters',
       recSearch: 'Search a reciter', recCount: 'reciters', recSurahs: 'surahs', recAyahs: 'ayahs', recPlay: 'Play',
       recPick: 'Pick a surah to listen', recBack: 'Back', recNotFound: 'That reciter is not in the list',
-      recNote: 'The recitations stream from quranicaudio.com and are not bundled in the app, so they need internet. That site allows personal, non-commercial use. Reciter and surah names come from its index and from the Quran text this app already holds; the recitation itself has not been reviewed by a specialist.',
+      recNote: 'Recitations stream from quranicaudio.com under their personal, non-commercial terms. Tap ↓ on any surah to keep it on your device and play it without internet; the rest streams and needs a connection.',
       hadithTitle: 'Hadith', hadithSub: 'The forty of al-Nawawi and the forty sacred hadith, complete with translation',
       hadithNawawi: 'Al-Nawawi forty', hadithQudsi: 'Forty sacred hadith', hadithNum: 'Hadith',
       hadithSource: 'Source: the hadith-json project (AhmedBaset), The Unlicense, collections nawawi40 and qudsi40 complete and unedited. Neither the text nor the translation has been reviewed by a specialist yet.',
@@ -2487,7 +2495,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v37';
+  MIH.VERSION = 'v38';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -6011,11 +6019,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var rows = '';
     for (var n = 1; n <= 114; n++) {
       var m = surahMeta(n);
-      rows += '<div class="rec-row" data-n="' + n + '">' +
+      var on = MIH.dlHas ? MIH.dlHas(r.id, n) : false;
+      rows += '<div class="rec-row' + (on ? ' is-dl' : '') + '" data-n="' + n + '">' +
         '<button class="rec-play" data-action="rec-play" data-n="' + n + '" aria-label="' + esc(t('recPlay')) + '">' +
         '<svg><use href="#i-play"/></svg></button>' +
         '<span class="rec-meta"><span class="rec-name">' + esc(MIH.isAr() ? m.ar : m.en) + '</span>' +
-        '<span class="rec-sub num">' + n + ' · ' + m.ayahs + ' ' + esc(t('recAyahs')) + '</span></span>' +
+        '<span class="rec-sub num">' + n + ' · ' + m.ayahs + ' ' + esc(t('recAyahs')) +
+          (on ? ' · <b class="dl-badge">' + esc(t('dlSavedShort')) + '</b>' : '') + '</span></span>' +
+        '<button class="rec-dl' + (on ? ' on' : '') + '" data-action="rec-dl" data-n="' + n + '" aria-label="' + esc(on ? t('dlDelete') : t('dlSave')) + '">' +
+        (on ? '✓' : '↓') + '</button>' +
         '</div>';
     }
     var name = MIH.isAr() ? r.ar : r.en;
@@ -6026,6 +6038,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div class="rec-now" id="rec-now">' + esc(t('recPick')) + '</div>' +
       '<audio id="rec-audio" controls preload="none" style="width:100%;margin-top:8px"></audio>' +
       '</div>' +
+      (MIH.dlSummary ? MIH.dlSummary() : '') +
       '<div class="card" style="padding:6px 10px" id="rec-surahs">' + rows + '</div>' +
       note(t('recNote')) +
       '</div>';
@@ -6038,7 +6051,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var a = document.getElementById('rec-audio');
     if (!r || !a) return false;
     var src = url(r, n);
-    if (a.getAttribute('src') !== src) a.setAttribute('src', src);
+    if (MIH.dlPlayUrl) {
+      MIH.dlPlayUrl(r.id, n).then(function (playUrl) {
+        if (a.getAttribute('src') !== playUrl) a.setAttribute('src', playUrl);
+        try { var p = a.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {}
+      });
+    } else if (a.getAttribute('src') !== src) a.setAttribute('src', src);
     var rows = view.querySelectorAll('.rec-row');
     for (var i = 0; i < rows.length; i++) {
       var on = rows[i].getAttribute('data-n') === String(n);
@@ -6077,6 +6095,49 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var el = e.target.closest ? e.target.closest('[data-action="rec-play"]') : null;
     if (!el) return;
     MIH.recPlay(parseInt(el.getAttribute('data-n'), 10), el);
+  });
+
+  /* one tap on ↓ keeps that surah on the device; a tap on ✓ removes it */
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-action="rec-dl"]') : null;
+    if (!el || el.dataset.busy === '1') return;
+    var view = document.querySelector('[data-reciter]');
+    if (!view || !MIH.dlSurah) return;
+    var rid = view.getAttribute('data-reciter');
+    var n = parseInt(el.getAttribute('data-n'), 10);
+    var t = MIH.t;
+    if (MIH.dlHas(rid, n)) {
+      MIH.dlDelete(rid, n).then(function () {
+        el.classList.remove('on'); el.textContent = '↓';
+        var row = el.closest('.rec-row'); if (row) row.classList.remove('is-dl');
+        var badge = row ? row.querySelector('.dl-badge') : null; if (badge) badge.remove();
+        var sum = document.getElementById('dl-sum'); if (sum) sum.outerHTML = MIH.dlSummary();
+        MIH.toast(t('dlDeleted'));
+      });
+      return;
+    }
+    el.dataset.busy = '1';
+    el.classList.add('busy');
+    el.textContent = '0%';
+    MIH.dlSurah(rid, n, function (pct) { el.textContent = pct + '%'; }).then(function () {
+      el.dataset.busy = '0';
+      el.classList.remove('busy'); el.classList.add('on'); el.textContent = '✓';
+      var row = el.closest('.rec-row');
+      if (row) {
+        row.classList.add('is-dl');
+        var sub = row.querySelector('.rec-sub');
+        if (sub && !sub.querySelector('.dl-badge')) {
+          var b = document.createElement('b'); b.className = 'dl-badge'; b.textContent = t('dlSavedShort');
+          sub.appendChild(document.createTextNode(' · ')); sub.appendChild(b);
+        }
+      }
+      var sum = document.getElementById('dl-sum'); if (sum) sum.outerHTML = MIH.dlSummary();
+      MIH.toast(t('dlSaved'));
+    }).catch(function () {
+      el.dataset.busy = '0';
+      el.classList.remove('busy'); el.textContent = '↓';
+      MIH.toast(t('dlFail'));
+    });
   });
 })();
 
@@ -6450,6 +6511,132 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<button class="btn btn-sm" data-action="my-adhan-add">' + esc(tx('myAdhanAdd')) + '</button></div>' +
       (rows ? '<div class="my-adhan-list" style="margin-top:10px">' + rows + '</div>' : '<p class="sub" style="margin:10px 0 0">' + esc(tx('myAdhanEmpty')) + '</p>') +
       '</div>';
+  };
+})();
+
+/* offline-audio.js */
+/* MIHRABI — offline Quran audio.
+   A surah the reader downloads is kept in this browser's Cache Storage on the device,
+   under one cache of our own. Nothing is uploaded, there is no account, and the file
+   is the reciter's own stream: we only store a copy for offline play. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var CACHE = 'mihrabi-audio';
+
+  function tx(k) { return MIH.tx ? MIH.tx(k) : MIH.t(k); }
+  /* reciterUrl takes the reciter record itself, not its id */
+  function reciter(rid) {
+    var list = window.MIH_RECITERS || [];
+    for (var i = 0; i < list.length; i++) if (String(list[i].id) === String(rid)) return list[i];
+    return null;
+  }
+  function audioUrl(rid, n) {
+    var r = reciter(rid);
+    return r ? MIH.reciterUrl(r, n) : '';
+  }
+  function key(rid, n) { return String(rid) + ':' + String(n); }
+  function store() {
+    if (!MIH.state.downloads || typeof MIH.state.downloads !== 'object') MIH.state.downloads = {};
+    return MIH.state.downloads;
+  }
+  MIH.dlHas = function (rid, n) { return !!store()[key(rid, n)]; };
+  MIH.dlInfo = function (rid, n) { return store()[key(rid, n)] || null; };
+  MIH.dlCount = function () { return Object.keys(store()).length; };
+  MIH.dlBytes = function () {
+    var s = store(), total = 0;
+    Object.keys(s).forEach(function (k) { total += (s[k] && s[k].bytes) || 0; });
+    return total;
+  };
+  MIH.dlSize = function (bytes) {
+    if (!bytes) return '0';
+    if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + ' ' + tx('dlKb');
+    return (bytes / (1024 * 1024)).toFixed(1) + ' ' + tx('dlMb');
+  };
+
+  function openCache() {
+    if (!window.caches) return Promise.reject(new Error('no-cache'));
+    return caches.open(CACHE);
+  }
+
+  /* one surah, with a real progress figure from the bytes that arrived */
+  MIH.dlSurah = function (rid, n, onProgress) {
+    var url = audioUrl(rid, n);
+    if (!url) return Promise.reject(new Error('no-reciter'));
+    return openCache().then(function (cache) {
+      return fetch(url, { mode: 'cors' }).then(function (res) {
+        if (!res.ok) throw new Error('http-' + res.status);
+        var total = parseInt(res.headers.get('content-length') || '0', 10) || 0;
+        if (!res.body || !res.body.getReader) {
+          return res.blob().then(function (b) {
+            return cache.put(url, new Response(b, { headers: { 'Content-Type': 'audio/mpeg' } })).then(function () { return b.size; });
+          });
+        }
+        var reader = res.body.getReader();
+        var chunks = [], got = 0;
+        function pump() {
+          return reader.read().then(function (r) {
+            if (r.done) return;
+            chunks.push(r.value);
+            got += r.value.length;
+            if (onProgress) onProgress(total ? Math.min(99, Math.round(got / total * 100)) : 0, got);
+            return pump();
+          });
+        }
+        return pump().then(function () {
+          var blob = new Blob(chunks, { type: 'audio/mpeg' });
+          return cache.put(url, new Response(blob, { headers: { 'Content-Type': 'audio/mpeg', 'Content-Length': String(blob.size) } }))
+            .then(function () { return blob.size; });
+        });
+      }).then(function (bytes) {
+        store()[key(rid, n)] = { bytes: bytes, at: new Date().toISOString() };
+        MIH.save();
+        return bytes;
+      });
+    });
+  };
+
+  MIH.dlDelete = function (rid, n) {
+    var url = audioUrl(rid, n);
+    if (!url) return Promise.reject(new Error('no-reciter'));
+    return openCache().then(function (cache) {
+      return cache.delete(url);
+    }).catch(function () { return false; }).then(function () {
+      delete store()[key(rid, n)];
+      MIH.save();
+      return true;
+    });
+  };
+
+  MIH.dlClearAll = function () {
+    return caches.delete(CACHE).catch(function () { return false; }).then(function () {
+      MIH.state.downloads = {};
+      MIH.save();
+      return true;
+    });
+  };
+
+  /* a downloaded surah plays from the device copy; anything else streams */
+  MIH.dlPlayUrl = function (rid, n) {
+    var url = audioUrl(rid, n);
+    if (!url) return Promise.resolve('');
+    if (!MIH.dlHas(rid, n)) return Promise.resolve(url);
+    return openCache().then(function (cache) {
+      return cache.match(url).then(function (hit) {
+        if (!hit) return url;
+        return hit.blob().then(function (b) { return URL.createObjectURL(b); });
+      });
+    }).catch(function () { return url; });
+  };
+
+  /* the small summary that sits above the surah list */
+  MIH.dlSummary = function () {
+    var c = MIH.dlCount(), b = MIH.dlBytes();
+    if (!c) return '<div class="dl-sum" id="dl-sum"><span>' + MIH.esc(tx('dlNone')) + '</span></div>';
+    return '<div class="dl-sum" id="dl-sum"><span>' + MIH.esc(tx('dlOnDevice')) + ': <b class="num">' + c + '</b> · ' +
+      '<b class="num">' + MIH.dlSize(b) + '</b></span>' +
+      '<button class="btn btn-sm btn-ghost" data-action="dl-clear">' + MIH.esc(tx('dlClear')) + '</button></div>';
   };
 })();
 
