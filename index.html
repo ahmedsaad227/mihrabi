@@ -1462,6 +1462,27 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 [data-theme="dark"] .dl-bar { background: rgba(217,196,138,.18); }
 [data-theme="dark"] .dl-bar i { background: var(--gold-500, #D9C48A); }
 
+/* reminder screen */
+.rm-power-card { text-align: center; padding: 22px 16px; }
+.rm-power { width: 88px; height: 88px; border-radius: 999px; border: 2px solid var(--line, #E6DFCF); background: var(--card, #fff); color: var(--muted, #7a7a7a); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s var(--ease), background .2s, color .2s, border-color .2s; }
+.rm-power svg { width: 38px; height: 38px; }
+.rm-power:active { transform: scale(.96); }
+.rm-power.on { background: var(--green-700, #14513C); border-color: transparent; color: #F6F1E2; box-shadow: 0 8px 20px rgba(20,81,60,.28); }
+.rm-state { font-weight: 700; font-size: 18px; margin-top: 12px; }
+.rm-seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.rm-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 8px; background: none; border: 0; border-bottom: 1px solid var(--line, #E6DFCF); font: inherit; color: inherit; text-align: start; cursor: pointer; }
+.rm-row:last-child { border-bottom: 0; }
+.rm-dot { flex: 0 0 auto; width: 20px; height: 20px; border-radius: 999px; border: 2px solid var(--line, #CFC6B2); }
+.rm-row.on .rm-dot { border-color: var(--green-700, #14513C); background: radial-gradient(circle at center, var(--green-700, #14513C) 0 6px, transparent 7px); }
+.rm-row.on .rm-lbl { font-weight: 700; }
+.rm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rm-table th { font-weight: 600; color: var(--muted, #6b6b6b); padding: 6px 4px; font-size: 12px; }
+.rm-table td { padding: 9px 4px; border-top: 1px solid var(--line, #E6DFCF); }
+.rm-table td:first-child { text-align: start; }
+.rm-table td:not(:first-child), .rm-table th:not(:first-child) { text-align: center; width: 64px; }
+.rm-yes { color: var(--green-700, #14513C); font-weight: 700; }
+.rm-no { color: #B4544A; font-weight: 700; }
+
 </style>
 </head>
 <body>
@@ -1483,6 +1504,7 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
   <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v8"/><path d="M7.2 6.3a7.5 7.5 0 1 0 9.6 0"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.6 5.9 6.4.6-4.8 4.3 1.4 6.2L12 16.7 6.4 20l1.4-6.2L3 9.5l6.4-.6z"/></symbol>
   <symbol id="i-bookmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v17l-6-4.2L6 21z"/></symbol>
@@ -2169,7 +2191,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       msNoSource: 'غير متاح: لا مصدر مرخّص يمكن التحقق منه', msTafsirWhere: 'يُفتح من زر التفسير تحت كل آية', msMeanings: 'المعاني', msAudio: 'الصوتيات',
       msAudioSub: 'تلاوة هذه السورة', msTr: 'الترجمة', msNight: 'الوضع الليلي', msPaper: 'لون المصحف',
       msFav: 'المفضلة', msNoMarks: 'لا علامات بعد. اضغط أيقونة العلامة تحت الآية.',
-      dlKb: 'كيلوبايت', dlMb: 'ميجا', dlNone: 'مفيش سور محفوظة على جهازك — دوس ↓ على أي سورة تنزّلها وتشتغل بدون نت', dlOnDevice: 'على جهازك', dlClear: 'امسح الكل', dlSave: 'نزّل السورة على جهازك', dlDelete: 'امسح السورة من جهازك', dlSaved: 'اتنزّلت على جهازك — تشتغل بدون نت', dlSavedShort: 'على جهازك', dlDeleted: 'اتمسحت من جهازك', dlFail: 'التنزيل ما كمّلش — جرّب تاني', dlAllBtn: 'نزّل المصحف كامل (١١٤ سورة)', dlStop: 'وقّف', dlProg: 'بننزّل', dlAllDone: 'المصحف كامل بقى على جهازك', dlStopped: 'وقّفنا التنزيل — اللي اتنزّل محفوظ', dlClearedAll: 'اتمسح كل اللي كان على جهازك', libTitle: 'تلاوات المصحف', libNone: 'المصحف كامل بصوت ١٧٢ قارئ، نزّل أي سورة وتشتغل بدون نت', libOnDevice: 'سورة على جهازك', libOpen: 'المكتبة', recTitle: 'القُرّاء', recSub: 'المصحف كاملًا سورة بسورة، لأكثر من مئة قارئ',
+      dlKb: 'كيلوبايت', dlMb: 'ميجا', dlNone: 'مفيش سور محفوظة على جهازك — دوس ↓ على أي سورة تنزّلها وتشتغل بدون نت', dlOnDevice: 'على جهازك', dlClear: 'امسح الكل', dlSave: 'نزّل السورة على جهازك', dlDelete: 'امسح السورة من جهازك', dlSaved: 'اتنزّلت على جهازك — تشتغل بدون نت', dlSavedShort: 'على جهازك', dlDeleted: 'اتمسحت من جهازك', dlFail: 'التنزيل ما كمّلش — جرّب تاني', dlAllBtn: 'نزّل المصحف كامل (١١٤ سورة)', dlStop: 'وقّف', dlProg: 'بننزّل', dlAllDone: 'المصحف كامل بقى على جهازك', dlStopped: 'وقّفنا التنزيل — اللي اتنزّل محفوظ', dlClearedAll: 'اتمسح كل اللي كان على جهازك', libTitle: 'تلاوات المصحف', libNone: 'المصحف كامل بصوت ١٧٢ قارئ، نزّل أي سورة وتشتغل بدون نت', libOnDevice: 'سورة على جهازك', libOpen: 'المكتبة', rmTitle: 'تذكير الأذكار', rmSub: 'كل إعدادات التذكير في شاشة واحدة.', rmOn: 'شغال', rmOff: 'متوقف', rmPowerHint: 'دوس تشغيل أو إيقاف', rmOnToast: 'التذكير اشتغل', rmOffToast: 'التذكير وقف', rmMode: 'نوع التذكير', rmModeRandom: 'عشوائي', rmModeOne: 'ذكر واحد', rmModeOrder: 'قائمة مرتبة', rmModeRandomNote: 'بينوّع بين أذكار القائمة عشوائي، مش بالترتيب.', rmModeOneNote: 'بيفضل ينبّهك بأول ذكر في القائمة كل مرة.', rmModeOrderNote: 'بيمشي على أذكار القائمة بالترتيب، واحد ورا التاني.', rmEvery: 'كل قد إيه', rmMinutes: 'دقايق', rmOneHour: 'ساعة', rmHours: 'ساعات', rmOneDay: 'يوم', rmQuiet: 'وقت النوم', rmQuietOn: 'إيقاف التذكير في وقت النوم', rmFrom: 'من', rmTo: 'لحد', rmQuietNote: 'مش هينبّهك بين الوقتين دول، ولو التذكير شغال.', rmQuietOnToast: 'وقت النوم اشتغل', rmQuietOffToast: 'وقت النوم اتوقف', rmQuietSaved: 'اتحفظ الوقت', rmReset: 'إرجاع الإعدادات لأصلها', rmResetConfirm: 'دوس تاني للتأكيد', rmResetDone: 'رجعنا الإعدادات لأصلها', rmNoLists: 'لسه مفيش قوائم أذكار — ضيف قائمة عشان التذكير يبقى له حاجة ينبّهك بيها.', rmTable: 'إيه اللي بيشتغل فين', rmWeb: 'المتصفح', rmApk: 'نسخة APK', rmR1: 'تنبيه والتطبيق مفتوح', rmR2: 'إشعار بره التطبيق (بإذن الإشعارات)', rmR3: 'وقت النوم', rmR4: 'صوت أثناء قفل الشاشة', rmR5: 'إيقاف أثناء المكالمات أو الوسائط', rmR6: 'وضع الصامت ودرجة صوت ثابتة', rmR7: 'تنبيه والتطبيق مقفول خالص', rmTableNote: 'ال✓ متعمل ومتجرّب. ال✕ مش متعمل في الاتنين، ومكتوبة هنا بدل ما أوعدك بحاجة مش موجودة.', recTitle: 'القُرّاء', recSub: 'المصحف كاملًا سورة بسورة، لأكثر من مئة قارئ',
       recSearch: 'ابحث عن قارئ', recCount: 'قارئًا', recSurahs: 'سورة', recAyahs: 'آية', recPlay: 'تشغيل',
       recPick: 'اختر سورة للاستماع', recBack: 'رجوع', recNotFound: 'القارئ غير موجود',
       recNote: 'التلاوات من موقع quranicaudio.com بشروط الاستخدام الشخصي غير التجاري. دوس ↓ على أي سورة تنزّلها على جهازك وتشتغل بدون نت — الباقي بيتّبث ويحتاج إنترنت.',
@@ -2274,7 +2296,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       msNoSource: 'Not available: no licensed source that can be verified', msTafsirWhere: 'Opens from the tafsir button under each verse', msMeanings: 'Meanings', msAudio: 'Audio',
       msAudioSub: 'Recitation of this surah', msTr: 'Translation', msNight: 'Night mode', msPaper: 'Mushaf colour',
       msFav: 'Favourites', msNoMarks: 'No bookmarks yet. Tap the bookmark icon under a verse.',
-      dlKb: 'KB', dlMb: 'MB', dlNone: 'No surahs saved on this device yet - tap ↓ on any surah to keep it and play it offline', dlOnDevice: 'On your device', dlClear: 'Clear all', dlSave: 'Download this surah to your device', dlDelete: 'Remove this surah from your device', dlSaved: 'Saved on your device - works without internet', dlSavedShort: 'on device', dlDeleted: 'Removed from your device', dlFail: 'The download did not finish - try again', dlAllBtn: 'Download the whole mushaf (114 surahs)', dlStop: 'Stop', dlProg: 'Downloading', dlAllDone: 'The whole mushaf is now on your device', dlStopped: 'Download stopped - what finished is saved', dlClearedAll: 'Everything saved on your device was removed', libTitle: 'Quran recitations', libNone: 'The whole mushaf in 172 reciters. Download any surah and play it without internet', libOnDevice: 'surahs on your device', libOpen: 'Open', recTitle: 'Reciters', recSub: 'The whole mushaf, surah by surah, from more than a hundred reciters',
+      dlKb: 'KB', dlMb: 'MB', dlNone: 'No surahs saved on this device yet - tap ↓ on any surah to keep it and play it offline', dlOnDevice: 'On your device', dlClear: 'Clear all', dlSave: 'Download this surah to your device', dlDelete: 'Remove this surah from your device', dlSaved: 'Saved on your device - works without internet', dlSavedShort: 'on device', dlDeleted: 'Removed from your device', dlFail: 'The download did not finish - try again', dlAllBtn: 'Download the whole mushaf (114 surahs)', dlStop: 'Stop', dlProg: 'Downloading', dlAllDone: 'The whole mushaf is now on your device', dlStopped: 'Download stopped - what finished is saved', dlClearedAll: 'Everything saved on your device was removed', libTitle: 'Quran recitations', libNone: 'The whole mushaf in 172 reciters. Download any surah and play it without internet', libOnDevice: 'surahs on your device', libOpen: 'Open', rmTitle: 'Athkar reminder', rmSub: 'Every reminder setting on one screen.', rmOn: 'On', rmOff: 'Off', rmPowerHint: 'Tap to turn it on or off', rmOnToast: 'Reminder is on', rmOffToast: 'Reminder is off', rmMode: 'Kind of reminder', rmModeRandom: 'Random', rmModeOne: 'One dhikr', rmModeOrder: 'Ordered list', rmModeRandomNote: 'Picks a random dhikr from the list each time, not in order.', rmModeOneNote: 'Always the first dhikr in the list.', rmModeOrderNote: 'Goes through the list in order, one after another.', rmEvery: 'How often', rmMinutes: 'min', rmOneHour: '1 hour', rmHours: 'hours', rmOneDay: '1 day', rmQuiet: 'Quiet hours', rmQuietOn: 'Stay quiet during these hours', rmFrom: 'From', rmTo: 'To', rmQuietNote: 'No alert at all between these two times, even while the reminder is on.', rmQuietOnToast: 'Quiet hours on', rmQuietOffToast: 'Quiet hours off', rmQuietSaved: 'Time saved', rmReset: 'Reset these settings', rmResetConfirm: 'Tap again to confirm', rmResetDone: 'Settings are back to default', rmNoLists: 'No azkar lists yet - add one so the reminder has something to show.', rmTable: 'What works where', rmWeb: 'Browser', rmApk: 'APK', rmR1: 'Alert while the app is open', rmR2: 'Notification outside the app (with permission)', rmR3: 'Quiet hours', rmR4: 'Sound while the screen is locked', rmR5: 'Pause during calls or media', rmR6: 'Silent mode and fixed volume', rmR7: 'Alert with the app fully closed', rmTableNote: 'A check is built and tested. A cross is not built in either one, written here instead of promising something that is not there.', recTitle: 'Reciters', recSub: 'The whole mushaf, surah by surah, from more than a hundred reciters',
       recSearch: 'Search a reciter', recCount: 'reciters', recSurahs: 'surahs', recAyahs: 'ayahs', recPlay: 'Play',
       recPick: 'Pick a surah to listen', recBack: 'Back', recNotFound: 'That reciter is not in the list',
       recNote: 'Recitations stream from quranicaudio.com under their personal, non-commercial terms. Tap ↓ on any surah to keep it on your device and play it without internet; the rest streams and needs a connection.',
@@ -2504,7 +2526,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v39';
+  MIH.VERSION = 'v40';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -2691,6 +2713,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           zkPill(0, t('everyOff')) + zkPill(5, '٥') + zkPill(10, '١٠') + zkPill(15, '١٥') + zkPill(30, '٣٠') + zkPill(60, '٦٠') +
         '</div>' +
         '<p class="sub" style="margin:10px 2px 0">' + esc(zkLists ? t('zikrHomeNote') : t('zikrHomeNoLists')) + '</p>' +
+        '<div class="rowflex" style="justify-content:flex-end;margin-top:10px">' +
+          '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/reminder">' + esc(t('rmTitle')) + ' ‹</button>' +
+        '</div>' +
       '</div>';
 
     var ev = MIH.nextEvent();
@@ -6478,6 +6503,212 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
 })();
 
+/* views-reminder.js */
+/* MIHRABI — view: تذكير الأذكار (the athkar reminder, all its settings in one place)
+   One screen for what he asked for: a big on/off, the kind of reminder (random / one
+   dhikr / ordered list), the interval, quiet hours, a reset, and a plain table of what
+   actually works in the browser and in the APK. Nothing religious is written here: the
+   dhikr text always comes from the app's own azkar data or his own list. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+
+  /* the intervals he asked for, in minutes: 5,10,15,20,30,45,1h,3h,6h,12h,24h */
+  var EVERY = [5, 10, 15, 20, 30, 45, 60, 180, 360, 720, 1440];
+
+  function t(k) { return MIH.t(k); }
+  function mode() { return MIH.state.zikrMode || 'order'; }
+  MIH.zikrMode = mode;
+
+  function label(v) {
+    if (v === 60) return t('rmOneHour');
+    if (v === 180) return '3 ' + t('rmHours');
+    if (v === 360) return '6 ' + t('rmHours');
+    if (v === 720) return '12 ' + t('rmHours');
+    if (v === 1440) return t('rmOneDay');
+    return MIH.arNum(v) + ' ' + t('rmMinutes');
+  }
+  MIH.zikrEveryLabel = label;
+
+  function quiet() {
+    var q = MIH.state.zikrQuiet || {};
+    return { on: !!q.on, from: q.from || '23:00', to: q.to || '06:00' };
+  }
+  MIH.zikrQuiet = quiet;
+
+  /* is "now" inside the quiet window? handles a window that crosses midnight */
+  MIH.zikrInQuiet = function (now) {
+    var q = quiet();
+    if (!q.on) return false;
+    function mins(s) {
+      var p = String(s || '0:0').split(':');
+      return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0);
+    }
+    var f = mins(q.from), to = mins(q.to);
+    if (f === to) return false;
+    var cur = now.h * 60 + now.mi;
+    return f < to ? (cur >= f && cur < to) : (cur >= f || cur < to);
+  };
+
+  /* which dhikr comes next: ordered list / one dhikr / random. The tick uses this,
+     and the test drives it directly so the three modes are not a claim. */
+  MIH.zikrPick = function (l, rand) {
+    var n = (l.items || []).length;
+    if (!n) return 0;
+    var m = mode();
+    if (m === 'random') {
+      var r = typeof rand === 'number' ? rand : Math.random();
+      return Math.min(n - 1, Math.max(0, Math.floor(r * n)));
+    }
+    if (m === 'one') return 0;
+    return ((parseInt(l.idx, 10) || 0) + 1) % n;
+  };
+
+  MIH.views.reminder = function () {
+    var every = parseInt(MIH.state.zikrEvery, 10) || 0;
+    var m = mode();
+    var q = quiet();
+    var lists = (MIH.state.lists || []).length;
+
+    var modes = [['random', 'rmModeRandom'], ['one', 'rmModeOne'], ['order', 'rmModeOrder']];
+    var modeNote = m === 'random' ? t('rmModeRandomNote') : (m === 'one' ? t('rmModeOneNote') : t('rmModeOrderNote'));
+
+    var everyRows = EVERY.map(function (v) {
+      var on = every === v;
+      return '<button class="rm-row' + (on ? ' on' : '') + '" data-action="rm-every" data-v="' + v + '" aria-pressed="' + on + '">' +
+        '<span class="rm-dot"></span><span class="rm-lbl">' + esc(label(v)) + '</span></button>';
+    }).join('');
+
+    /* what works where. A ✕ is a thing we have not built, said plainly. */
+    var rows = [
+      ['rmR1', 1, 1], ['rmR2', 1, 1], ['rmR3', 1, 1],
+      ['rmR4', 0, 0], ['rmR5', 0, 0], ['rmR6', 0, 0], ['rmR7', 0, 0]
+    ].map(function (r) {
+      function cell(v) { return v ? '<span class="rm-yes">✓</span>' : '<span class="rm-no">✕</span>'; }
+      return '<tr><td>' + esc(t(r[0])) + '</td><td>' + cell(r[1]) + '</td><td>' + cell(r[2]) + '</td></tr>';
+    }).join('');
+
+    return '<div class="view">' +
+      '<div class="section-head" style="margin-top:12px"><div><h1 class="h1">' + esc(t('rmTitle')) + '</h1>' +
+        '<p class="sub">' + esc(t('rmSub')) + '</p></div></div>' +
+
+      '<div class="card rm-power-card">' +
+        '<button class="rm-power' + (every ? ' on' : '') + '" data-action="rm-power" aria-pressed="' + !!every + '" aria-label="' + esc(every ? t('rmOff') : t('rmOn')) + '">' +
+          '<svg><use href="#i-power"/></svg></button>' +
+        '<div class="rm-state" id="rm-state">' + esc(every ? t('rmOn') : t('rmOff')) + '</div>' +
+        '<div class="sub" id="rm-state-sub">' + esc(every ? label(every) + ' · ' + t(m === 'random' ? 'rmModeRandom' : (m === 'one' ? 'rmModeOne' : 'rmModeOrder')) : t('rmPowerHint')) + '</div>' +
+      '</div>' +
+
+      (lists ? '' : '<div class="note" style="margin-top:12px"><svg><use href="#i-info"/></svg><div>' + esc(t('rmNoLists')) + '</div></div>') +
+
+      '<div class="section-head"><h2 class="h2">' + esc(t('rmMode')) + '</h2></div>' +
+      '<div class="card">' +
+        '<div class="seg rm-seg">' + modes.map(function (x) {
+          return '<button data-action="rm-mode" data-v="' + x[0] + '" aria-pressed="' + (m === x[0]) + '">' + esc(t(x[1])) + '</button>';
+        }).join('') + '</div>' +
+        '<p class="sub" id="rm-mode-note" style="margin:10px 2px 0">' + esc(modeNote) + '</p>' +
+      '</div>' +
+
+      '<div class="section-head"><h2 class="h2">' + esc(t('rmEvery')) + '</h2></div>' +
+      '<div class="card" style="padding:6px 10px" id="rm-every-list">' + everyRows + '</div>' +
+
+      '<div class="section-head"><h2 class="h2">' + esc(t('rmQuiet')) + '</h2></div>' +
+      '<div class="card">' +
+        '<div class="field"><span class="field-label">' + esc(t('rmQuietOn')) + '</span>' +
+          '<label class="switch"><input type="checkbox" data-action="rm-quiet-on"' + (q.on ? ' checked' : '') + '><span></span></label></div>' +
+        '<div class="rowflex" style="gap:10px;align-items:center;margin-top:6px">' +
+          '<label class="field" style="flex:1;display:block"><span class="field-label">' + esc(t('rmFrom')) + '</span>' +
+            '<input class="rec-q" type="time" data-quiet="from" value="' + esc(q.from) + '"></label>' +
+          '<label class="field" style="flex:1;display:block"><span class="field-label">' + esc(t('rmTo')) + '</span>' +
+            '<input class="rec-q" type="time" data-quiet="to" value="' + esc(q.to) + '"></label>' +
+        '</div>' +
+        '<p class="sub" style="margin:10px 2px 0">' + esc(t('rmQuietNote')) + '</p>' +
+      '</div>' +
+
+      '<div class="section-head"><h2 class="h2">' + esc(t('rmTable')) + '</h2></div>' +
+      '<div class="card" style="padding:8px 14px">' +
+        '<table class="rm-table"><thead><tr><th></th><th>' + esc(t('rmWeb')) + '</th><th>' + esc(t('rmApk')) + '</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>' +
+        '<p class="sub" style="margin:10px 2px 0">' + esc(t('rmTableNote')) + '</p>' +
+      '</div>' +
+
+      '<div class="rowflex" style="justify-content:center;margin:18px 0 26px">' +
+        '<button class="btn btn-ghost" data-action="rm-reset">' + esc(t('rmReset')) + '</button>' +
+      '</div>' +
+      '</div>';
+  };
+
+  /* ---------- the controls ---------- */
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest ? e.target.closest('[data-action]') : null;
+    if (!el) return;
+    var a = el.getAttribute('data-action');
+
+    if (a === 'rm-power') {
+      var every = parseInt(MIH.state.zikrEvery, 10) || 0;
+      if (every) { MIH.setZikrEvery(0, true); MIH.toast(t('rmOffToast')); }
+      else {
+        var back = parseInt(MIH.state.zikrLastEvery, 10) || 30;
+        MIH.setZikrEvery(back, true); MIH.toast(t('rmOnToast') + ' · ' + label(back));
+      }
+      MIH.render(); return;
+    }
+    if (a === 'rm-every') {
+      var v = parseInt(el.getAttribute('data-v'), 10) || 0;
+      MIH.state.zikrLastEvery = v;
+      MIH.setZikrEvery(v, true);
+      MIH.toast(t('zikrEverySet') + ' · ' + label(v));
+      MIH.render(); return;
+    }
+    if (a === 'rm-mode') {
+      var mm = el.getAttribute('data-v');
+      MIH.state.zikrMode = (mm === 'random' || mm === 'one') ? mm : 'order';
+      MIH.save();
+      MIH.toast(t(MIH.state.zikrMode === 'random' ? 'rmModeRandom' : (MIH.state.zikrMode === 'one' ? 'rmModeOne' : 'rmModeOrder')));
+      MIH.render(); return;
+    }
+    if (a === 'rm-reset') {
+      if (el.dataset.confirm !== '1') {
+        el.dataset.confirm = '1';
+        el.textContent = t('rmResetConfirm');
+        setTimeout(function () { el.dataset.confirm = '0'; if (el.isConnected) el.textContent = t('rmReset'); }, 4000);
+        return;
+      }
+      MIH.state.zikrEvery = 0;
+      MIH.state.zikrMode = 'order';
+      MIH.state.zikrQuiet = { on: false, from: '23:00', to: '06:00' };
+      MIH.state.zikrLastEvery = 30;
+      (MIH.state.lists || []).forEach(function (l) { l.every = 0; l.idx = 0; l.lastAt = 0; });
+      MIH.save();
+      MIH.toast(t('rmResetDone'));
+      MIH.render(); return;
+    }
+  });
+
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (!el) return;
+    if (el.getAttribute && el.getAttribute('data-action') === 'rm-quiet-on') {
+      var q = quiet();
+      MIH.state.zikrQuiet = { on: !!el.checked, from: q.from, to: q.to };
+      MIH.save();
+      MIH.toast(el.checked ? t('rmQuietOnToast') : t('rmQuietOffToast'));
+      return;
+    }
+    var which = el.getAttribute ? el.getAttribute('data-quiet') : null;
+    if (which) {
+      var cur = quiet();
+      var next = { on: cur.on, from: cur.from, to: cur.to };
+      next[which] = el.value || next[which];
+      MIH.state.zikrQuiet = next;
+      MIH.save();
+      MIH.toast(t('rmQuietSaved'));
+    }
+  });
+})();
+
 /* audio-mine.js */
 /* MIHRABI — a muezzin the reader brings from their own device.
    The file is stored in IndexedDB on this device only: it never leaves the phone,
@@ -6910,6 +7141,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (parts[2] === 'add') { view = 'listAdd'; html = MIH.views.listAdd(parts[1]); }
       else { view = 'list'; html = MIH.views.list(parts[1]); }
     }
+    else if (parts[0] === 'reminder') { view = 'reminder'; html = MIH.views.reminder(); }
     else if (parts[0] === 'qibla') { view = 'qibla'; html = MIH.views.qibla(); }
     else if (parts[0] === 'tasbih') { view = 'tasbih'; html = MIH.views.tasbih(); }
     else if (parts[0] === 'calendar') { view = 'calendar'; html = MIH.views.calendar(); }
@@ -7662,8 +7894,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       var nowMs = Date.now();
       if (!l.lastAt) { l.lastAt = nowMs; return; }
       if (nowMs - l.lastAt < every * 60000) return;
+      /* quiet hours: no alert at all inside the window he set */
+      if (MIH.zikrInQuiet && MIH.zikrInQuiet(now)) { l.lastAt = nowMs; return; }
       l.lastAt = nowMs;
-      l.idx = ((parseInt(l.idx, 10) || 0) + 1) % l.items.length;
+      l.idx = MIH.zikrPick ? MIH.zikrPick(l) : ((parseInt(l.idx, 10) || 0) + 1) % l.items.length;
       MIH.save();
       var row = l.items[l.idx];
       var it = row ? (row.c === 'own' ? { t: MIH.listItemText(row) } : MIH.azkarItem(row.c, row.i)) : null;
