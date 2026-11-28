@@ -2468,7 +2468,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v33';
+  MIH.VERSION = 'v34';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -6250,6 +6250,142 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<div style="position:relative"><input type="search" aria-label="' + esc(t('azkarSearch')) + '" placeholder="' + esc(t('azkarSearch')) + '" value="' + esc(q) + '" data-action="list-search"></div>' +
       '<div class="mt-16">' + (rows.join('') || '<div class="footer-note">' + esc(t('noResults')) + '</div>') + '</div>' +
       '<div class="footer-note">' + esc(t('listSourceNote')) + '</div>' +
+      '</div>';
+  };
+})();
+
+/* audio-mine.js */
+/* MIHRABI — a muezzin the reader brings from their own device.
+   The file is stored in IndexedDB on this device only: it never leaves the phone,
+   there is no upload, no account and no server. A name is kept in the app state so
+   the list can be drawn without opening the database. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+  var tx = function (k) { return MIH.tx ? MIH.tx(k) : MIH.t(k); };
+  var DB = 'mihrabi-media', STORE = 'adhan', VERSION = 1;
+  var _db = null;
+
+  function open() {
+    if (_db) return Promise.resolve(_db);
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) { rej(new Error('no-idb')); return; }
+      var r = indexedDB.open(DB, VERSION);
+      r.onupgradeneeded = function () {
+        var db = r.result;
+        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id' });
+      };
+      r.onsuccess = function () { _db = r.result; res(_db); };
+      r.onerror = function () { rej(r.error || new Error('idb')); };
+    });
+  }
+  function put(rec) {
+    return open().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction(STORE, 'readwrite');
+        t.objectStore(STORE).put(rec);
+        t.oncomplete = function () { res(rec); };
+        t.onerror = function () { rej(t.error); };
+      });
+    });
+  }
+  function get(id) {
+    return open().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction(STORE, 'readonly');
+        var q = t.objectStore(STORE).get(id);
+        q.onsuccess = function () { res(q.result || null); };
+        q.onerror = function () { rej(q.error); };
+      });
+    });
+  }
+  function del(id) {
+    return open().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction(STORE, 'readwrite');
+        t.objectStore(STORE).delete(id);
+        t.oncomplete = function () { res(true); };
+        t.onerror = function () { rej(t.error); };
+      });
+    });
+  }
+
+  MIH.myAdhan = function () {
+    if (!Array.isArray(MIH.state.myAdhan)) MIH.state.myAdhan = [];
+    return MIH.state.myAdhan;
+  };
+  MIH.myAdhanById = function (id) {
+    var all = MIH.myAdhan();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    return null;
+  };
+  MIH.myAdhanSave = function (file, name) {
+    var id = 'my' + Date.now().toString(36);
+    var rec = { id: id, name: (name || file.name || tx('myAdhanUntitled')).slice(0, 60), size: file.size, type: file.type, blob: file };
+    return put(rec).then(function () {
+      MIH.myAdhan().push({ id: id, name: rec.name, size: rec.size, type: rec.type, at: new Date().toISOString() });
+      MIH.save();
+      return id;
+    });
+  };
+  MIH.myAdhanDelete = function (id) {
+    return del(id).then(function () {
+      MIH.state.myAdhan = MIH.myAdhan().filter(function (x) { return x.id !== id; });
+      if (MIH.state.adhan && MIH.state.adhan.sound === 'my:' + id) {
+        MIH.state.adhan.sound = (MIH.audio[0] || {}).id || '';
+      }
+      MIH.save();
+      return true;
+    }).catch(function () {
+      /* even if the blob is already gone, drop it from the list */
+      MIH.state.myAdhan = MIH.myAdhan().filter(function (x) { return x.id !== id; });
+      MIH.save();
+      return true;
+    });
+  };
+  MIH.myAdhanUrl = function (id) {
+    return get(id).then(function (rec) {
+      if (!rec || !rec.blob) return '';
+      return URL.createObjectURL(rec.blob);
+    });
+  };
+  MIH.myAdhanPlay = function (id) {
+    return MIH.myAdhanUrl(id).then(function (url) {
+      if (!url) { MIH.toast(tx('myAdhanMissing')); return false; }
+      MIH.play({ id: 'my:' + id, file: url });
+      return true;
+    }).catch(function () { MIH.toast(tx('myAdhanMissing')); return false; });
+  };
+  MIH.isMyAdhan = function (sound) { return typeof sound === 'string' && sound.indexOf('my:') === 0; };
+
+  /* the card on the audio screen */
+  MIH.myAdhanCard = function () {
+    var all = MIH.myAdhan();
+    var rows = all.map(function (a) {
+      var active = !!(MIH.state.adhan && MIH.state.adhan.on && MIH.state.adhan.sound === 'my:' + a.id);
+      return '<div class="row" data-my="' + esc(a.id) + '" style="cursor:default">' +
+        '<span class="row-main"><span class="row-title">' + esc(a.name) + '</span>' +
+        '<span class="row-sub">' + esc(Math.max(1, Math.round((a.size || 0) / 1024)) + ' ' + tx('myAdhanKb') + ' · ' + tx('myAdhanLocal')) + '</span></span>' +
+        '<span class="my-adhan-actions">' +
+        (active
+          ? '<span class="badge badge-green my-adhan-badge">' + esc(tx('myAdhanInUse')) + '</span>'
+          : '<button class="btn btn-sm btn-ghost" data-action="my-adhan-use" data-id="' + esc(a.id) + '">' + esc(tx('myAdhanUse')) + '</button>') +
+        '<button class="btn btn-sm btn-ghost" data-action="my-adhan-play" data-id="' + esc(a.id) + '">' + esc(tx('play')) + '</button>' +
+        '<button class="btn btn-sm btn-ghost" data-action="my-adhan-del" data-id="' + esc(a.id) + '">' + esc(tx('delete')) + '</button>' +
+        '</span>' +
+        '</div>';
+    }).join('');
+    return '<div class="card my-adhan" id="my-adhan-card">' +
+      '<b>' + esc(tx('myAdhanTitle')) + '</b>' +
+      '<p class="sub" style="margin:6px 0 0">' + esc(tx('myAdhanNote')) + '</p>' +
+      '<label class="my-adhan-pick"><input type="file" id="my-adhan-file" accept="audio/*" data-action="my-adhan-file">' +
+      '<span>' + esc(tx('myAdhanChoose')) + '</span></label>' +
+      '<div class="rowflex" style="gap:8px;margin-top:8px">' +
+      '<input id="my-adhan-name" type="text" maxlength="60" placeholder="' + esc(tx('myAdhanName')) + '" style="flex:1">' +
+      '<button class="btn btn-sm" data-action="my-adhan-add">' + esc(tx('myAdhanAdd')) + '</button></div>' +
+      (rows ? '<div class="my-adhan-list" style="margin-top:10px">' + rows + '</div>' : '<p class="sub" style="margin:10px 0 0">' + esc(tx('myAdhanEmpty')) + '</p>') +
       '</div>';
   };
 })();
