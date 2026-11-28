@@ -1728,6 +1728,29 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .md-f{font-weight:700}.md-p,.md-a{color:var(--muted,#5b6b62);font-size:12.5px}.md-each{margin:-4px 0 6px}
 .md-refuse{border-color:#b4543a}.md-in input{border:1px solid rgba(15,61,46,.18);border-radius:10px;padding:6px 10px;font:inherit;background:var(--surface,#fff);color:inherit}
 
+/* ---- mushaf text page, restyled after his 12:55 reference: flat page, slim bar, banner, small medallions ---- */
+.mp-view .mp-sheet{background:transparent!important;border:0;border-radius:0;box-shadow:none;padding:4px 2px 6px;height:auto;overflow:visible}
+.mp-view .mp-rule{display:none}
+.mp-bar{margin:0 0 4px;padding:6px 0 4px;border-bottom:1px solid rgba(138,106,47,.18)}
+.mp-icon{border:0;background:transparent;box-shadow:none;width:36px;height:36px;flex-basis:36px;font-size:18px}
+.mp-bar-title{font-size:14px;font-weight:600}.mp-bar-sub{font-size:11px}
+.mp-body{line-height:2.2;text-align:justify;text-align-last:center;word-spacing:.04em;padding:4px 4px 2px}
+.mp-suraframe{margin:18px 0 12px;gap:0;padding-top:14px;border-top:1px solid rgba(138,106,47,.28);color:#8a6a2f}
+.mp-body>.mp-suraframe:first-child{border-top:0;padding-top:0;margin-top:6px}
+.mp-suraframe-in{border:1.6px solid #9a7b3c;border-radius:3px;background:rgba(201,162,75,.10);padding:8px 12px}
+.mp-suraframe-in:before{border-color:#b89352;inset:3px;opacity:.7}
+.mp-sura-name{font-size:1.22em;color:#3a2a10;line-height:1.7}
+.mp-fl{width:30px;height:46px;opacity:.9;color:#9a7b3c}
+.mp-mark{width:1.15em;height:1.15em;color:#8a6a2f;margin:0 .12em;vertical-align:middle}
+.mp-mark b{font-size:.4em;color:#6b4f1d}
+.mp-mark .mp-ros{opacity:.95}
+.mp-bism{font-size:1em;margin:4px 0 6px;text-align:center}
+.mp-juzmark{margin:16px 0 8px;opacity:1;color:#8a6a2f}
+.mp-juzline{opacity:.35}
+.mp-juzbox{border:1px solid rgba(138,106,47,.45);border-radius:10px;padding:3px 10px;background:rgba(201,162,75,.10)}
+.mp-foot{opacity:.6}
+.mp-view .mp-nav{max-width:520px}
+
 </style>
 </head>
 <body>
@@ -2817,7 +2840,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v64';
+  MIH.VERSION = 'v65';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
