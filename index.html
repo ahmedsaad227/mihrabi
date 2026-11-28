@@ -2885,7 +2885,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v78';
+  MIH.VERSION = 'v79';
   /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
      own source line. No explanation is written here: the data has none, so none is shown. */
   MIH.zikrFacts = function (cIdx, iIdx) {
@@ -9544,6 +9544,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     ['#/more', 'i-more', 'more']
   ];
 
+  /* re-render without losing where he was scrolled to (window and any scrolling main) */
+  function keepScroll(fn) {
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    var sc = document.scrollingElement;
+    var m = document.querySelector('main'), my = m ? m.scrollTop : 0;
+    fn();
+    window.scrollTo(0, y);
+    if (m) m.scrollTop = my;
+    requestAnimationFrame(function () { window.scrollTo(0, y); if (m) m.scrollTop = my; });
+  }
+
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
       var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || ((active === 'hifz' || active === 'mawarith' || active === 'khushu' || active === 'review' || active === 'nawafil') && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
@@ -9831,9 +9842,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         if (!vs.filter(function (x) { return /^ar/i.test(x.lang); })[0]) { MIH.toast(MIH.isAr() ? 'جهازك مفيهوش صوت عربي، النص بس هيظهر' : 'No Arabic voice on this device'); }
         else MIH.speakAr(MIH.zikrPreview().t);
       }
-      render(); return;
+      keepScroll(render); return;
     }
-    if (a === 'zikr-next') { MIH._zkStep = (MIH._zkStep || 0) + 1; render(); return; }
+    if (a === 'zikr-next') { MIH._zkStep = (MIH._zkStep || 0) + 1; keepScroll(render); return; }
     if (a === 'mp-prev' || a === 'mp-next') {
       var stageEl = document.getElementById('mp-stage');
       var cur = stageEl ? (parseInt(stageEl.getAttribute('data-page'), 10) || 1) : 1;
