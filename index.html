@@ -1680,6 +1680,16 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .wx-credit,.wx-note{font-size:11px;color:var(--muted,#5b6b62)}.wx-note{margin-top:6px}
 .wx-empty{margin:10px 0;font-size:13px;color:var(--muted,#5b6b62)}
 
+.wx-days{display:flex;gap:8px;margin-top:12px}
+.wx-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:12px;background:rgba(15,61,46,.06);font-size:12.5px}
+.wx-day .wx-ico{font-size:22px}.wx-day small{font-size:10.5px;color:var(--muted,#5b6b62)}
+[data-theme="dark"] .wx-day{background:rgba(255,255,255,.07)}
+.wx-search{display:flex;gap:8px;margin-top:12px}
+.wx-search input{flex:1;min-width:0;border:1px solid rgba(15,61,46,.18);border-radius:12px;padding:8px 12px;font:inherit;font-size:14px;background:var(--surface,#fff);color:inherit}
+.wx-results{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-size:12px}
+.wx-actions{gap:8px;flex-wrap:wrap}
+.az-card{max-height:calc(100vh - 470px);min-height:150px;overflow-y:auto}
+
 </style>
 </head>
 <body>
@@ -2763,7 +2773,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v57';
+  MIH.VERSION = 'v59';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -3571,7 +3581,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     return '<div class="view">' +
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1" style="font-size:22px">' + esc(cat.n) + '</h1>' +
       '<p class="sub">' + cat.i.length + ' ' + (MIH.isAr() ? 'ذكر' : 'items') + '</p></div>' +
-      '<button class="btn btn-sm" data-action="nav" data-to="#/azkar/' + idx + '/one">' + (MIH.isAr() ? 'قراءة' : 'Read') + '</button>' +
+      '<button class="btn btn-sm" data-action="nav" data-to="#/azkar/' + idx + '">' + (MIH.isAr() ? 'قراءة' : 'Read') + '</button>' +
       '<button class="btn btn-sm btn-ghost" data-action="reset-azkar" data-cat="' + idx + '">' + esc(t('resetDay')) + '</button></div>' +
       body +
       '<div class="footer-note">' + (MIH.isAr() ? 'العداد محفوظ على جهازك ويعود للبداية كل يوم.' : 'Counts are saved on your device and reset daily.') + '</div>' +
@@ -7273,7 +7283,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<button class="az-icon" data-action="nav" data-to="#/azkar" aria-label="' + esc(t('back')) + '">‹</button>' +
         '<div class="az-top-mid"><div class="az-title">' + esc(cat.n) + '</div>' +
           '<div class="az-sub">' + ar(done) + ' / ' + ar(cat.i.length) + '</div></div>' +
-        '<button class="az-icon" data-action="nav" data-to="#/azkar/' + idx + '" aria-label="' + esc(isAr ? 'كل الأذكار' : 'All') + '">☰</button>' +
+        '<button class="az-icon" data-action="nav" data-to="#/azkar/' + idx + '/all" aria-label="' + esc(isAr ? 'كل الأذكار' : 'All') + '">☰</button>' +
       '</div>' +
 
       '<div class="az-tabs" role="tablist">' +
@@ -8462,7 +8472,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (p.lat == null || p.lon == null) { if (cb) cb('no-place'); return; }
       var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + p.lat + '&longitude=' + p.lon +
         '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m' +
-        '&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
+        '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=3';
       fetch(url, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
         var cur = j && j.current, day = j && j.daily;
         if (!cur) { if (cb) cb('bad-data'); return; }
@@ -8473,6 +8483,10 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           max: day && day.temperature_2m_max ? day.temperature_2m_max[0] : null,
           min: day && day.temperature_2m_min ? day.temperature_2m_min[0] : null
         };
+        w.days = day && day.time ? day.time.map(function (d, i) {
+          return { d: d, code: day.weather_code[i], max: day.temperature_2m_max[i], min: day.temperature_2m_min[i],
+                   rain: day.precipitation_probability_max ? day.precipitation_probability_max[i] : null };
+        }) : [];
         w.ts = Date.now();
         save(w);
         if (cb) cb(null);
@@ -8486,13 +8500,29 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         var w = load();
         w.lat = Math.round(pos.coords.latitude * 1000) / 1000;
         w.lon = Math.round(pos.coords.longitude * 1000) / 1000;
-        w.label = MIH.isAr() ? 'موقعك' : 'Your location';
+        w.label = MIH.isAr() ? 'موقعك (GPS)' : 'Your location (GPS)';
         w.ts = 0;
         save(w);
         MIH.weather.refresh(function () { if (cb) cb(null); });
       }, function (err) {
         if (cb) cb(err && err.code === 1 ? 'denied' : 'no-fix');
       }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 10 * 60 * 1000 });
+    },
+    /* city search: Open-Meteo geocoding, free, no key */
+    search: function (q, cb) {
+      var url = 'https://geocoding-api.open-meteo.com/v1/search?count=6&format=json&language=' + (MIH.isAr() ? 'ar' : 'en') + '&name=' + encodeURIComponent(q);
+      fetch(url).then(function (r) { return r.json(); }).then(function (j) { cb(null, (j && j.results) || []); }).catch(function () { cb('offline', []); });
+    },
+    choose: function (r) {
+      var w = load();
+      w.lat = r.latitude; w.lon = r.longitude;
+      w.label = r.name + (r.country ? '، ' + r.country : '');
+      w.ts = 0; w.data = null; w.days = null;
+      save(w); MIH.weather.refresh();
+    },
+    useMyCity: function () {
+      var w = load(); delete w.lat; delete w.lon; delete w.label; w.ts = 0; w.data = null; w.days = null;
+      save(w); MIH.weather.refresh();
     },
     mounted: function () { return !!document.getElementById('home-weather'); }
   };
@@ -8508,6 +8538,13 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       var mins = Math.max(0, Math.round((Date.now() - w.ts) / 60000));
       ago = mins < 1 ? (ar ? 'الآن' : 'just now') : (ar ? 'قبل ' + MIH.arNum(mins) + ' د' : mins + 'm ago');
     }
+    var DN = ar ? ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var days = (w.days || []).map(function (x, i) {
+      var dt = new Date(x.d + 'T12:00:00');
+      return '<div class="wx-day"><b>' + esc(i === 0 ? (ar ? 'اليوم' : 'Today') : i === 1 ? (ar ? 'غدًا' : 'Tomorrow') : DN[dt.getDay()]) + '</b>' +
+        '<span class="wx-ico">' + icon(x.code) + '</span><span class="num">' + MIH.arNum(Math.round(x.max)) + '° / ' + MIH.arNum(Math.round(x.min)) + '°</span>' +
+        (x.rain != null ? '<small>' + esc(ar ? 'مطر' : 'Rain') + ' ' + MIH.arNum(x.rain) + '%</small>' : '') + '</div>';
+    }).join('');
     var body = d
       ? '<div class="wx-now"><span class="wx-ico">' + icon(d.code) + '</span>' +
         '<span class="wx-t num">' + MIH.arNum(Math.round(d.t)) + '°</span>' +
@@ -8516,7 +8553,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           (d.max != null ? '<span>' + esc(ar ? 'العظمى' : 'High') + ' ' + MIH.arNum(Math.round(d.max)) + '° · ' + esc(ar ? 'الصغرى' : 'Low') + ' ' + MIH.arNum(Math.round(d.min)) + '°</span>' : '') +
           (d.hum != null ? '<span>' + esc(ar ? 'رطوبة' : 'Humidity') + ' ' + MIH.arNum(Math.round(d.hum)) + '%</span>' : '') +
           (d.wind != null ? '<span>' + esc(ar ? 'ريح' : 'Wind') + ' ' + MIH.arNum(Math.round(d.wind)) + ' ' + esc(ar ? 'كم/س' : 'km/h') + '</span>' : '') +
-        '</div>'
+        '</div>' + (days ? '<div class="wx-days" id="wx-days">' + days + '</div>' : '')
       : '<div class="wx-empty">' + esc(ar ? 'الطقس لسه ما اتحدّثش' : 'Weather not loaded yet') + '</div>';
 
     return '<div class="card wx-card" id="home-weather">' +
@@ -8525,7 +8562,11 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div class="sub">' + esc(place.label || (ar ? 'مدينتك' : 'Your city')) + (ago ? ' · ' + esc(ago) : '') + '</div></div>' +
         '<button class="chip" data-action="wx-refresh">' + esc(ar ? 'تحديث' : 'Refresh') + '</button>' +
       '</div>' + body +
+      '<div class="wx-search"><input type="search" id="wx-q" aria-label="' + esc(ar ? 'ابحث عن مدينة' : 'Search a city') + '" placeholder="' + esc(ar ? 'ابحث عن مدينة أخرى…' : 'Search another city…') + '">' +
+        '<button class="chip" data-action="wx-search">' + esc(ar ? 'بحث' : 'Search') + '</button></div>' +
+      '<div class="wx-results" id="wx-results"></div>' +
       '<div class="wx-actions">' +
+        '<button class="chip" data-action="wx-mycity">' + esc(ar ? 'مدينتي' : 'My city') + '</button>' +
         '<button class="chip" data-action="wx-locate">' + esc(ar ? 'استخدم موقعي (GPS)' : 'Use my location (GPS)') + '</button>' +
         '<span class="wx-credit">Open-Meteo</span>' +
       '</div>' +
@@ -8543,6 +8584,24 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       MIH.toast(MIH.isAr() ? 'بيحدّث…' : 'Refreshing…');
       MIH.weather.refresh(function (err) {
         if (err) MIH.toast(MIH.isAr() ? 'تعذّر تحديث الطقس' : 'Could not refresh the weather');
+      });
+      return;
+    }
+    if (a === 'wx-mycity') { MIH.weather.useMyCity(); return; }
+    if (a === 'wx-search') {
+      var q = (document.getElementById('wx-q') || {}).value || '';
+      var box = document.getElementById('wx-results');
+      if (q.trim().length < 2 || !box) return;
+      box.textContent = MIH.isAr() ? 'بيدوّر…' : 'Searching…';
+      MIH.weather.search(q.trim(), function (err, list) {
+        box.innerHTML = '';
+        if (!list.length) { box.textContent = err ? (MIH.isAr() ? 'تعذّر البحث، تأكد من الإنترنت' : 'Search failed, check your connection') : (MIH.isAr() ? 'مفيش نتائج' : 'No results'); return; }
+        list.forEach(function (r) {
+          var bt = document.createElement('button'); bt.className = 'chip wx-res';
+          bt.textContent = r.name + (r.admin1 ? '، ' + r.admin1 : '') + (r.country ? '، ' + r.country : '');
+          bt.addEventListener('click', function () { MIH.weather.choose(r); });
+          box.appendChild(bt);
+        });
       });
       return;
     }
@@ -8632,7 +8691,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -8678,7 +8737,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     }
     else if (parts[0] === 'azkar') {
       if (parts.length >= 3 && parts[2] === 'one') { view = 'azkarOne'; html = MIH.views.azkarOne(parts[1]); }
-      else if (parts.length >= 2) { view = 'azkarCat'; html = MIH.views.azkarCat(parts[1]); }
+      else if (parts.length >= 3 && parts[2] === 'all') { view = 'azkarCat'; html = MIH.views.azkarCat(parts[1]); }
+      else if (parts.length >= 2) { view = 'azkarOne'; html = MIH.views.azkarOne(parts[1]); }
       else { view = 'azkar'; html = MIH.views.azkar(); }
     }
     else if (parts[0] === 'mushaf-flow') { view = 'mushafFlow'; html = MIH.views.mushafFlow(parts[1]); }
