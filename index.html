@@ -1722,6 +1722,12 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .wx-search select{flex:1;min-width:0;border:1px solid rgba(15,61,46,.18);border-radius:12px;padding:8px;font:inherit;background:var(--surface,#fff);color:inherit}
 [data-theme="dark"] .hb-bar div{background:rgba(255,255,255,.1)}
 
+.md-in{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(15,61,46,.08)}
+.md-step{display:flex;align-items:center;gap:10px}.md-step b{min-width:26px;text-align:center;font-size:17px}
+.md-row{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(15,61,46,.08)}
+.md-f{font-weight:700}.md-p,.md-a{color:var(--muted,#5b6b62);font-size:12.5px}.md-each{margin:-4px 0 6px}
+.md-refuse{border-color:#b4543a}.md-in input{border:1px solid rgba(15,61,46,.18);border-radius:10px;padding:6px 10px;font:inherit;background:var(--surface,#fff);color:inherit}
+
 </style>
 </head>
 <body>
@@ -2805,7 +2811,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v62';
+  MIH.VERSION = 'v63';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -4564,6 +4570,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       ] },
       { k: 'secTools', items: [
         ['#/ai', 'i-star', (MIH.isAr() ? 'مِحراب AI' : 'MIHRABI AI')],
+        ['#/mawarith', 'i-star', (MIH.isAr() ? 'حاسبة المواريث' : 'Inheritance calculator')],
         ['#/khushu', 'i-star', (MIH.isAr() ? 'خريطة الخشوع' : 'Khushu map')],
         ['#/review', 'i-check', (MIH.isAr() ? 'مراجعة الحفظ' : 'Memorisation review')],
         ['#/nawafil', 'i-check', (MIH.isAr() ? 'النوافل' : 'Nawafil')],
@@ -8875,6 +8882,234 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   });
 })();
 
+/* views-mawarith.js */
+/* MIHRABI - inheritance (fara'id) calculator.
+   Deterministic arithmetic on the fixed shares named in the Quran (4:11, 4:12, 4:176) and
+   the agreed rules built on them. No AI and no text written from memory: the ayat shown
+   come from the app's own Quran data. Only the plain cases are supported. Anything the
+   schools differ on, or that needs heirs this screen does not take, is refused and said
+   so, never guessed. It is a counting aid, not a fatwa. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+
+  function gcd(a, b) { while (b) { var t = a % b; a = b; b = t; } return Math.abs(a); }
+  function F(n, d) { d = d || 1; var g = gcd(n, d) || 1; return { n: n / g, d: d / g }; }
+  function add(a, b) { return F(a.n * b.d + b.n * a.d, a.d * b.d); }
+  function sub(a, b) { return F(a.n * b.d - b.n * a.d, a.d * b.d); }
+  function mul(a, b) { return F(a.n * b.n, a.d * b.d); }
+  function div(a, b) { return F(a.n * b.d, a.d * b.n); }
+  var ZERO = F(0, 1), ONE = F(1, 1);
+  function gt(a, b) { return a.n * b.d > b.n * a.d; }
+  function isZero(a) { return a.n === 0; }
+  function str(f) { return f.d === 1 ? String(f.n) : f.n + '/' + f.d; }
+
+  /* h: counts. male deceased: wives (0-4). female deceased: husband (0-1). */
+  MIH.mawarith = function (h) {
+    var out = { ok: false, shares: [], notes: [], refuse: null };
+    function refuse(ar, en) { out.refuse = { ar: ar, en: en }; return out; }
+    var wives = h.wives || 0, husband = h.husband || 0, father = h.father || 0, mother = h.mother || 0;
+    var sons = h.sons || 0, dau = h.daughters || 0, gs = h.grandsons || 0, gd = h.granddaughters || 0;
+    var fb = h.fullBrothers || 0, fs = h.fullSisters || 0, mb = h.maternalBrothers || 0, ms = h.maternalSisters || 0;
+    var any = wives + husband + father + mother + sons + dau + gs + gd + fb + fs + mb + ms;
+    if (!any) return refuse('اختر وارثًا واحدًا على الأقل.', 'Pick at least one heir.');
+    if (wives && husband) return refuse('لا يجتمع زوج وزوجة.', 'A husband and wives cannot both be entered.');
+    if (wives > 4) return refuse('الزوجات حدّهن أربع.', 'At most four wives.');
+    if (husband > 1) return refuse('زوج واحد فقط.', 'One husband only.');
+    if (father > 1 || mother > 1) return refuse('أب واحد وأم واحدة.', 'One father and one mother.');
+
+    /* blocking */
+    var maleDesc = sons + gs > 0 ? true : false;
+    if (sons > 0) { gs = 0; gd = 0; }
+    var descendants = (sons + dau + gs + gd) > 0;
+    var femaleDescOnly = descendants && !(sons + gs);
+    if (father || maleDesc) { /* father blocks all siblings; male descendants block full siblings */ }
+    if (father) { fb = 0; fs = 0; mb = 0; ms = 0; }
+    if (maleDesc) { fb = 0; fs = 0; }
+    if (descendants) { mb = 0; ms = 0; }
+    var sibTotal = fb + fs + mb + ms;
+
+    /* the case the schools differ on (the "musharraka" case): refuse rather than pick a school */
+    if (!descendants && !father && (husband) && mother && (mb + ms) >= 2 && (fb > 0)) {
+      return refuse('هذه المسألة (زوج + أم + إخوة لأم + إخوة أشقاء) فيها خلاف بين المذاهب ولا يحسمها الحاسب. اسأل عالمًا.', 'This case (husband, mother, 2+ maternal siblings and full brothers) is disputed between the schools and is not settled here. Ask a scholar.');
+    }
+
+    var fixed = {}, asabaGroup = null; /* fixed: key -> {frac, count} */
+    function setFixed(k, frac, count, labelAr, labelEn) { fixed[k] = { f: frac, c: count, ar: labelAr, en: labelEn }; }
+    var q = ZERO;
+
+    if (husband) setFixed('husband', descendants ? F(1, 4) : F(1, 2), 1, 'الزوج', 'Husband');
+    if (wives) setFixed('wives', descendants ? F(1, 8) : F(1, 4), wives, 'الزوجة', wives > 1 ? 'Wives (shared)' : 'Wife');
+
+    /* mother, with the "Umariyyatan" case */
+    if (mother) {
+      var sib2 = (fb + fs + mb + ms) >= 2; /* all siblings count here, including blocked-by-nobody */
+      var sibAll = (h.fullBrothers || 0) + (h.fullSisters || 0) + (h.maternalBrothers || 0) + (h.maternalSisters || 0);
+      if (descendants || sibAll >= 2) setFixed('mother', F(1, 6), 1, 'الأم', 'Mother');
+      else if (father && (husband || wives) && !descendants && sibAll < 2 && (sons + dau + gs + gd + fb + fs + mb + ms) === 0) {
+        out.notes.push({ ar: 'مسألة العُمَريّتين: للأم ثلث الباقي بعد نصيب الزوج/الزوجة.', en: 'Umariyyatan case: the mother takes a third of what remains after the spouse.' });
+        var spouseShare = husband ? F(1, 2) : F(1, 4);
+        setFixed('mother', mul(F(1, 3), sub(ONE, spouseShare)), 1, 'الأم', 'Mother');
+      } else setFixed('mother', F(1, 3), 1, 'الأم', 'Mother');
+    }
+
+    /* descendants */
+    if (sons) {
+      asabaGroup = { type: 'children', males: sons, females: dau, mAr: 'الابن', mEn: 'Son', fAr: 'البنت', fEn: 'Daughter' };
+    } else if (dau) {
+      setFixed('daughters', dau === 1 ? F(1, 2) : F(2, 3), dau, 'البنت', dau > 1 ? 'Daughters (shared)' : 'Daughter');
+    }
+    if (!sons) {
+      if (gs) {
+        asabaGroup = { type: 'grand', males: gs, females: gd, mAr: 'ابن الابن', mEn: "Son's son", fAr: 'بنت الابن', fEn: "Son's daughter" };
+        if (dau >= 2 && !asabaGroup) { /* handled: grandson still inherits as residue */ }
+      } else if (gd) {
+        if (dau === 0) setFixed('granddaughters', gd === 1 ? F(1, 2) : F(2, 3), gd, 'بنت الابن', gd > 1 ? "Son's daughters (shared)" : "Son's daughter");
+        else if (dau === 1) setFixed('granddaughters', F(1, 6), gd, 'بنت الابن', gd > 1 ? "Son's daughters (shared)" : "Son's daughter");
+        /* dau >= 2: granddaughters alone are blocked */
+      }
+    }
+
+    /* father */
+    if (father) {
+      if (maleDesc) setFixed('father', F(1, 6), 1, 'الأب', 'Father');
+      else if (femaleDescOnly) { setFixed('father', F(1, 6), 1, 'الأب', 'Father'); }
+      else { asabaGroup = asabaGroup || { type: 'father' }; }
+    }
+
+    /* maternal siblings */
+    if (mb + ms) {
+      var mc = mb + ms;
+      setFixed('maternal', mc === 1 ? F(1, 6) : F(1, 3), mc, mb && !ms ? 'الأخ لأم' : ms && !mb ? 'الأخت لأم' : 'الإخوة لأم', 'Maternal siblings (shared equally)');
+    }
+
+    /* full siblings */
+    if (fb + fs) {
+      if (fb) asabaGroup = asabaGroup || { type: 'siblings', males: fb, females: fs, mAr: 'الأخ الشقيق', mEn: 'Full brother', fAr: 'الأخت الشقيقة', fEn: 'Full sister' };
+      else if (descendants) asabaGroup = asabaGroup || { type: 'sisterWithDaughters', females: fs, fAr: 'الأخت الشقيقة', fEn: 'Full sister' };
+      else setFixed('fullSisters', fs === 1 ? F(1, 2) : F(2, 3), fs, 'الأخت الشقيقة', fs > 1 ? 'Full sisters (shared)' : 'Full sister');
+    }
+    /* priority: children > grandchildren > father > siblings; a lower asaba only acts when no higher one exists */
+    if (father && !(maleDesc)) {
+      /* father is residuary when there is no male descendant */
+      if (!asabaGroup || asabaGroup.type !== 'father') {
+        if (sons + gs === 0) asabaGroup = { type: 'father' };
+      }
+    }
+
+    var sum = ZERO; Object.keys(fixed).forEach(function (k) { sum = add(sum, fixed[k].f); });
+    var awl = false;
+    if (gt(sum, ONE)) {
+      awl = true;
+      out.notes.push({ ar: 'عَول: مجموع الفروض زاد على الأصل، فنقصت الأنصبة بنسبة واحدة.', en: "'Awl: the fixed shares added up to more than the whole, so every share is reduced in the same proportion." });
+      Object.keys(fixed).forEach(function (k) { fixed[k].f = div(fixed[k].f, sum); });
+      sum = ONE; asabaGroup = null;
+    }
+    var rest = sub(ONE, sum);
+    var entries = [];
+    function pushFixed(k) { var x = fixed[k]; entries.push({ ar: x.ar, en: x.en, count: x.c, total: x.f, each: div(x.f, F(x.c, 1)), kind: 'fard' }); }
+    Object.keys(fixed).forEach(pushFixed);
+
+    var hasResidue = !isZero(rest) && !awl;
+    if (hasResidue && asabaGroup) {
+      var g = asabaGroup;
+      if (g.type === 'father') {
+        /* father gets the residue (he already holds 1/6 when there are female descendants only) */
+        var ex = fixed.father; var f = ex ? add(ex.f, rest) : rest;
+        entries = entries.filter(function (e) { return e.ar !== 'الأب'; });
+        entries.push({ ar: 'الأب', en: 'Father', count: 1, total: f, each: f, kind: ex ? 'fard+asaba' : 'asaba' });
+      } else if (g.type === 'sisterWithDaughters') {
+        entries.push({ ar: g.fAr, en: g.fEn + (g.females > 1 ? 's (shared)' : ''), count: g.females, total: rest, each: div(rest, F(g.females, 1)), kind: 'asaba' });
+        out.notes.push({ ar: 'الأخت الشقيقة مع البنت عصبة مع الغير فتأخذ الباقي.', en: 'A full sister with a daughter takes the remainder (residuary together with the daughters).' });
+      } else {
+        var units = g.males * 2 + (g.females || 0);
+        var unit = div(rest, F(units, 1));
+        entries.push({ ar: g.mAr, en: g.mEn + (g.males > 1 ? 's' : ''), count: g.males, total: mul(unit, F(g.males * 2, 1)), each: mul(unit, F(2, 1)), kind: 'asaba' });
+        if (g.females) entries.push({ ar: g.fAr, en: g.fEn + (g.females > 1 ? 's' : ''), count: g.females, total: mul(unit, F(g.females, 1)), each: unit, kind: 'asaba' });
+        if (g.females && g.males) out.notes.push({ ar: 'للذكر مثل حظ الأنثيين.', en: 'The male takes twice the share of the female.' });
+      }
+    } else if (hasResidue) {
+      /* radd: return the surplus to the fixed-share heirs except the spouse, in proportion */
+      var back = Object.keys(fixed).filter(function (k) { return k !== 'husband' && k !== 'wives'; });
+      if (!back.length) return refuse('لم يبقَ إلا الزوج/الزوجة والباقي: الردّ عليه أو بيت المال يختلف بين المذاهب والقوانين ولا يحسمه الحاسب. اسأل عالمًا.', 'Only a spouse is left and what happens to the remainder (returned to the spouse or to the public treasury) differs between schools and laws, so it is not settled here. Ask a scholar.');
+      var tot = ZERO; back.forEach(function (k) { tot = add(tot, fixed[k].f); });
+      var room = sub(ONE, ['husband', 'wives'].reduce(function (a, k) { return fixed[k] ? add(a, fixed[k].f) : a; }, ZERO));
+      out.notes.push({ ar: 'ردّ: بقي من التركة شيء ولا عاصب، فيُردّ على أصحاب الفروض غير الزوجين بنسبة فروضهم.', en: 'Radd: a remainder is left and there is no residuary heir, so it goes back to the fixed-share heirs other than the spouse, in proportion to their shares.' });
+      entries = entries.map(function (e) {
+        var key = Object.keys(fixed).filter(function (k) { return fixed[k].ar === e.ar; })[0];
+        if (key === 'husband' || key === 'wives') return e;
+        var nf = mul(div(fixed[key].f, tot), room);
+        return { ar: e.ar, en: e.en, count: e.count, total: nf, each: div(nf, F(e.count, 1)), kind: 'fard+radd' };
+      });
+    }
+    out.ok = true; out.shares = entries; out.awl = awl;
+    return out;
+  };
+  MIH.mawarithStr = str;
+
+  var HEIRS = [
+    ['wives', 'الزوجات', 'Wives', 4, 'm'], ['husband', 'الزوج', 'Husband', 1, 'f'],
+    ['father', 'الأب', 'Father', 1], ['mother', 'الأم', 'Mother', 1],
+    ['sons', 'الأبناء', 'Sons', 20], ['daughters', 'البنات', 'Daughters', 20],
+    ['grandsons', 'أبناء الابن', "Son's sons", 20], ['granddaughters', 'بنات الابن', "Son's daughters", 20],
+    ['fullBrothers', 'الإخوة الأشقاء', 'Full brothers', 20], ['fullSisters', 'الأخوات الشقيقات', 'Full sisters', 20],
+    ['maternalBrothers', 'الإخوة لأم', 'Maternal brothers', 20], ['maternalSisters', 'الأخوات لأم', 'Maternal sisters', 20]
+  ];
+  var st = { sex: 'm', h: {}, amount: '' };
+
+  function fmtMoney(f, amt) {
+    var v = f.n / f.d * amt; return MIH.arNum(Math.round(v * 100) / 100);
+  }
+  function resultHtml() {
+    var ar = MIH.isAr(); var r = MIH.mawarith(st.h);
+    if (r.refuse) return '<div class="card md-refuse" id="md-result"><b>' + esc(ar ? 'غير مدعومة' : 'Not supported') + '</b><div class="sub">' + esc(ar ? r.refuse.ar : r.refuse.en) + '</div></div>';
+    var amt = parseFloat(st.amount) || 0;
+    var rows = r.shares.map(function (e) {
+      return '<div class="md-row"><span class="md-n">' + esc(ar ? e.ar : e.en) + (e.count > 1 ? ' <small class="num">×' + MIH.arNum(e.count) + '</small>' : '') + '</span>' +
+        '<span class="num md-f">' + esc(str(e.total)) + '</span><span class="num md-p">' + MIH.arNum(Math.round(e.total.n / e.total.d * 10000) / 100) + '%</span>' +
+        (amt ? '<span class="num md-a">' + fmtMoney(e.total, amt) + '</span>' : '') + '</div>' +
+        (e.count > 1 ? '<div class="sub md-each">' + esc(ar ? 'لكل واحد: ' : 'Each: ') + '<span class="num">' + esc(str(e.each)) + '</span>' + (amt ? ' = <span class="num">' + fmtMoney(e.each, amt) + '</span>' : '') + '</div>' : '');
+    }).join('');
+    var notes = r.notes.map(function (n) { return '<div class="sub">• ' + esc(ar ? n.ar : n.en) + '</div>'; }).join('');
+    return '<div class="card" id="md-result">' + rows + notes + '</div>';
+  }
+  MIH.views.mawarith = function () {
+    var ar = MIH.isAr();
+    var rows = HEIRS.filter(function (x) { return !x[4] || x[4] === st.sex; }).map(function (x) {
+      var v = st.h[x[0]] || 0;
+      return '<div class="md-in"><span>' + esc(ar ? x[1] : x[2]) + '</span><span class="md-step">' +
+        '<button class="chip" data-action="md-dec" data-k="' + x[0] + '" aria-label="-">−</button><b class="num" id="md-' + x[0] + '">' + MIH.arNum(v) + '</b>' +
+        '<button class="chip" data-action="md-inc" data-k="' + x[0] + '" data-max="' + x[3] + '" aria-label="+">+</button></span></div>';
+    }).join('');
+    var refs = [[4, 11], [4, 12], [4, 176]].map(function (p) {
+      return '<button class="chip" data-action="nav" data-to="#/quran/' + p[0] + '/' + p[1] + '">' + esc((ar ? 'النساء ' : 'An-Nisa ') + MIH.arNum(p[1])) + '</button>';
+    }).join('');
+    return '<div class="view"><div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(ar ? 'حاسبة المواريث' : 'Inheritance calculator') + '</h1>' +
+      '<p class="sub">' + esc(ar ? 'الفروض المقدّرة في القرآن، حساب دقيق بدون ذكاء اصطناعي' : 'Fixed shares from the Quran, exact arithmetic, no AI') + '</p></div></div>' +
+      '<div class="card"><div class="rowflex" style="gap:8px"><button class="chip' + (st.sex === 'm' ? ' on' : '') + '" data-action="md-sex" data-v="m" aria-pressed="' + (st.sex === 'm') + '">' + esc(ar ? 'المتوفى ذكر' : 'Deceased is male') + '</button>' +
+      '<button class="chip' + (st.sex === 'f' ? ' on' : '') + '" data-action="md-sex" data-v="f" aria-pressed="' + (st.sex === 'f') + '">' + esc(ar ? 'المتوفاة أنثى' : 'Deceased is female') + '</button></div>' +
+      '<div style="margin-top:10px">' + rows + '</div>' +
+      '<div class="md-in"><span>' + esc(ar ? 'قيمة التركة (اختياري)' : 'Estate value (optional)') + '</span><input id="md-amt" type="number" min="0" inputmode="decimal" value="' + esc(st.amount) + '" style="max-width:130px"></div></div>' +
+      resultHtml() +
+      '<div class="card"><div class="h3">' + esc(ar ? 'الأدلة من القرآن' : 'Quranic basis') + '</div><div class="rowflex" style="gap:8px;margin-top:8px">' + refs + '</div></div>' +
+      '<div class="card md-limits"><div class="h3">' + esc(ar ? 'حدود الحاسبة' : 'What this does not cover') + '</div><div class="sub">' +
+        esc(ar ? 'تدعم: الزوج/الزوجات، الأب، الأم، الأبناء والبنات، أبناء الابن وبناتهم، الإخوة والأخوات الأشقاء، والإخوة والأخوات لأم، مع الحجب والعَول والرد. لا تدعم: الجد والجدات، الإخوة لأب، الأعمام وأبناؤهم، ذوي الأرحام، الحمل، المفقود، الخنثى، الوصية والدَّين وموانع الإرث، ولا المسائل المختلف فيها بين المذاهب (تُرفض ولا تُخمَّن). هي أداة عدّ وليست فتوى، فراجع عالمًا أو المحكمة قبل التقسيم.' :
+          'Supported: husband or wives, father, mother, sons and daughters, son\'s children, full siblings, maternal siblings, with blocking, awl and radd. Not supported: grandfather and grandmothers, paternal half-siblings, uncles and cousins, distant kin, unborn child, missing person, khuntha, wills and debts, bars to inheriting, and cases the schools disagree on (these are refused, not guessed). A counting aid, not a fatwa: check with a scholar or the court before dividing.') + '</div></div></div>';
+  };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-action^="md-"]'); if (!b) return;
+    var a = b.getAttribute('data-action'), k = b.getAttribute('data-k');
+    if (a === 'md-sex') { st.sex = b.getAttribute('data-v'); delete st.h.wives; delete st.h.husband; MIH.render(); return; }
+    if (a === 'md-inc') { st.h[k] = Math.min(parseInt(b.getAttribute('data-max'), 10), (st.h[k] || 0) + 1); MIH.render(); return; }
+    if (a === 'md-dec') { st.h[k] = Math.max(0, (st.h[k] || 0) - 1); MIH.render(); return; }
+  });
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'md-amt') { st.amount = e.target.value; var r = document.getElementById('md-result'); if (r) r.outerHTML = resultHtml(); }
+  });
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -8939,7 +9174,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || ((active === 'hifz' || active === 'khushu' || active === 'review' || active === 'nawafil') && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || ((active === 'hifz' || active === 'mawarith' || active === 'khushu' || active === 'review' || active === 'nawafil') && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -9020,6 +9255,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (parts[1]) { view = 'tasmi'; html = MIH.views.tasmi(parseInt(parts[1], 10)); }
       else { view = 'hifz'; html = MIH.views.hifz(); }
     }
+    else if (parts[0] === 'mawarith') { view = 'mawarith'; html = MIH.views.mawarith(); }
     else if (parts[0] === 'khushu') { view = 'khushu'; html = MIH.views.khushu(); }
     else if (parts[0] === 'review') { view = 'review'; html = MIH.views.review(); }
     else if (parts[0] === 'nawafil') { view = 'nawafil'; html = MIH.views.nawafil(); }
