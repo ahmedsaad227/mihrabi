@@ -1671,6 +1671,15 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .ai-dar{display:flex;justify-content:center;margin:8px 0 2px}
 .ai-dar-link{text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
 
+/* weather card on home */
+.wx-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wx-now{display:flex;align-items:center;gap:10px;margin:10px 0 4px}
+.wx-ico{font-size:30px}.wx-t{font-size:32px;font-weight:700}.wx-state{font-size:14px;color:var(--muted,#5b6b62)}
+.wx-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted,#5b6b62)}
+.wx-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.wx-credit,.wx-note{font-size:11px;color:var(--muted,#5b6b62)}.wx-note{margin-top:6px}
+.wx-empty{margin:10px 0;font-size:13px;color:var(--muted,#5b6b62)}
+
 </style>
 </head>
 <body>
@@ -2675,6 +2684,23 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       return new Intl.DateTimeFormat(MIH.isAr() ? 'ar-EG-u-nu-latn' : 'en-GB', { weekday: style || 'short', timeZone: 'UTC' }).format(d);
     } catch (e) { return ''; }
   };
+  /* counter feedback: a short synthesized tick (no audio file, no licence) and a vibration */
+  MIH.tick = function (done) {
+    try {
+      var tb = MIH.state.tasbih || {};
+      if (tb.vibrate !== false && navigator.vibrate) navigator.vibrate(done ? [30, 40, 30] : 10);
+      if (tb.sound === false) return;
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      MIH._ac = MIH._ac || new AC();
+      var c = MIH._ac; if (c.state === 'suspended') c.resume();
+      var o = c.createOscillator(), g = c.createGain(), n = c.currentTime;
+      o.type = 'sine'; o.frequency.value = done ? 880 : 520;
+      g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(0.18, n + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, n + (done ? 0.28 : 0.07));
+      o.connect(g); g.connect(c.destination); o.start(n); o.stop(n + (done ? 0.3 : 0.09));
+      MIH.tickCount = (MIH.tickCount || 0) + 1;
+    } catch (e) {}
+  };
   MIH.gregLabel = function (dateParts) {
     try {
       var d = new Date(Date.UTC(dateParts.y, dateParts.m - 1, dateParts.d, 12));
@@ -2737,7 +2763,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v55';
+  MIH.VERSION = 'v57';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -3007,6 +3033,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
       /* رحلتي sits at the bottom of the home page (his 6:33 request), just above the
          footer, instead of pushing everything down at the top */
+      (MIH.weatherCard ? MIH.weatherCard() : '') +
       MIH.journeyCard() +
       '<div class="footer-note">' + esc(t('footer')) + '</div>' +
       '<div class="made-by">' + esc(t('madeBy')) + '</div>' +
@@ -3081,7 +3108,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     return '<div class="view">' +
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('prayer')) + '</h1>' +
-        '<p class="sub">' + esc(MIH.isAr() ? MIH.state.city.ar : MIH.state.city.en) + ' · ' + esc(MIH.gregLabel(now)) + '</p></div>' + seg + '</div>' +
+        '<p class="sub">' + esc(MIH.isAr() ? MIH.state.city.ar : MIH.state.city.en) + ' · ' + esc(MIH.hijriLabel(now)) + '</p></div>' + seg + '</div>' +
       content +
       '<div class="section-head"><h2 class="h2">' + esc(t('methods')) + '</h2></div>' +
       '<div class="card">' +
@@ -4454,7 +4481,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (!h) return null;
       for (var j = 0; j < EVENTS.length; j++) {
         if (EVENTS[j].m === h.m && EVENTS[j].d === h.d) {
-          return { name: MIH.isAr() ? EVENTS[j].ar : EVENTS[j].en, date: MIH.gregLabel(dp), inDays: i, hijri: MIH.hijriLabel(dp) };
+          return { name: MIH.isAr() ? EVENTS[j].ar : EVENTS[j].en, date: MIH.hijriLabel(dp), inDays: i, hijri: MIH.hijriLabel(dp) };
         }
       }
     }
@@ -4627,6 +4654,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           [33, 100, 1000].map(function (n) {
             return '<button class="chip" data-action="tasbih-target" data-v="' + n + '" aria-pressed="' + (tb.target === n) + '">' + n + '</button>';
           }).join('') +
+          '<button class="chip" data-action="tasbih-sound" aria-pressed="' + (tb.sound !== false) + '">' + (MIH.isAr() ? 'الصوت' : 'Sound') + '</button>' +
         '</div>' +
         '<div class="rowflex mt-16" style="justify-content:space-between">' +
           '<span class="small muted">' + esc(t('totalToday')) + ': <b class="num">' + tb.total + '</b></span>' +
@@ -4668,7 +4696,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     return '<div class="view">' +
       '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(t('calendarTitle')) + '</h1>' +
-      '<p class="sub">' + esc(MIH.hijriLabel(today)) + ' · ' + esc(MIH.gregLabel(today)) + '</p></div></div>' +
+      '<p class="sub">' + esc(MIH.hijriLabel(today)) + '</p></div></div>' +
       '<div class="card">' +
         '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;color:var(--muted);margin-bottom:6px">' +
           wd.map(function (w) { return '<span>' + esc(w) + '</span>'; }).join('') +
@@ -4680,7 +4708,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         upcoming.map(function (u) {
           return '<div class="row" style="cursor:default">' +
             '<span class="row-main"><span class="row-title">' + esc(MIH.isAr() ? u.e.ar : u.e.en) + '</span>' +
-            '<span class="row-sub">' + esc(MIH.gregLabel(u.dp)) + '</span></span>' +
+            '<span class="row-sub">' + esc(MIH.hijriLabel(u.dp)) + '</span></span>' +
             '<span class="badge ' + (u.k === 0 ? 'badge-gold' : '') + ' num">' + (u.k === 0 ? t('today') : '+' + u.k) + '</span></div>';
         }).join('') +
       '</div>' +
@@ -7315,7 +7343,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var z = cat.i[p];
 
     if (what === 'tap') {
-      if (counts[p] > 0) counts[p] -= 1;
+      if (counts[p] > 0) { counts[p] -= 1; MIH.tick(counts[p] <= 0); }
       MIH.save();
       if (counts[p] <= 0 && p < cat.i.length - 1) { setPos(idx, p + 1); }
       rerender();
@@ -8370,6 +8398,176 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   }
 })();
 
+/* views-weather.js */
+/* MIHRABI — weather on the home screen (his 6:41 request)
+   Free source, no key: Open-Meteo (https://open-meteo.com), non-commercial use,
+   attribution shown in the card. Location comes from the browser's own geolocation
+   only when the person taps the button, and the card falls back to the app's city
+   when permission is denied or the device has no fix. A web app cannot update in
+   the background: the refresh runs while the app is open, every 15 minutes and on
+   each return to the home screen. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+  var KEY = 'mihrabi.weather.v1';
+  var TTL = 15 * 60 * 1000;
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function save(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+
+  var CODES = [
+    [0, 'صافي', 'Clear'], [1, 'صافي تقريبًا', 'Mostly clear'], [2, 'غيوم خفيفة', 'Partly cloudy'], [3, 'غائم', 'Overcast'],
+    [45, 'شبورة', 'Fog'], [48, 'شبورة متجمدة', 'Freezing fog'],
+    [51, 'رذاذ خفيف', 'Light drizzle'], [53, 'رذاذ', 'Drizzle'], [55, 'رذاذ كثيف', 'Dense drizzle'],
+    [61, 'مطر خفيف', 'Light rain'], [63, 'مطر', 'Rain'], [65, 'مطر غزير', 'Heavy rain'],
+    [71, 'ثلج خفيف', 'Light snow'], [73, 'ثلج', 'Snow'], [75, 'ثلج غزير', 'Heavy snow'],
+    [80, 'زخات مطر', 'Rain showers'], [81, 'زخات متوسطة', 'Showers'], [82, 'زخات غزيرة', 'Violent showers'],
+    [95, 'عاصفة رعدية', 'Thunderstorm'], [96, 'عاصفة مع برَد', 'Thunderstorm with hail'], [99, 'عاصفة شديدة', 'Severe thunderstorm']
+  ];
+  function label(code, ar) {
+    for (var i = 0; i < CODES.length; i++) if (CODES[i][0] === code) return ar ? CODES[i][1] : CODES[i][2];
+    return ar ? 'حالة غير معروفة' : 'Unknown';
+  }
+  function icon(code) {
+    if (code === 0 || code === 1) return '☀️';
+    if (code === 2) return '⛅';
+    if (code === 3) return '☁️';
+    if (code === 45 || code === 48) return '🌫️';
+    if (code >= 51 && code <= 65) return '🌧️';
+    if (code >= 71 && code <= 75) return '❄️';
+    if (code >= 80 && code <= 82) return '🌦️';
+    if (code >= 95) return '⛈️';
+    return '🌡️';
+  }
+
+  MIH.weather = {
+    get: load,
+    /* where to ask about: the device fix when we have one, else the app's city */
+    place: function () {
+      var w = load();
+      if (w.lat != null && w.lon != null) return { lat: w.lat, lon: w.lon, label: w.label || '' };
+      var c = MIH.state.city || {};
+      return { lat: c.lat, lon: c.lon, label: MIH.isAr() ? (c.ar || '') : (c.en || '') };
+    },
+    needsRefresh: function () {
+      var w = load();
+      return !w.data || !w.ts || (Date.now() - w.ts) > TTL;
+    },
+    refresh: function (cb) {
+      var p = MIH.weather.place();
+      if (p.lat == null || p.lon == null) { if (cb) cb('no-place'); return; }
+      var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + p.lat + '&longitude=' + p.lon +
+        '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m' +
+        '&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
+      fetch(url, { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+        var cur = j && j.current, day = j && j.daily;
+        if (!cur) { if (cb) cb('bad-data'); return; }
+        var w = load();
+        w.data = {
+          t: cur.temperature_2m, feels: cur.apparent_temperature, code: cur.weather_code,
+          hum: cur.relative_humidity_2m, wind: cur.wind_speed_10m,
+          max: day && day.temperature_2m_max ? day.temperature_2m_max[0] : null,
+          min: day && day.temperature_2m_min ? day.temperature_2m_min[0] : null
+        };
+        w.ts = Date.now();
+        save(w);
+        if (cb) cb(null);
+        if (MIH.render && MIH.weather.mounted()) MIH.render();
+      }).catch(function () { if (cb) cb('offline'); });
+    },
+    /* ask the browser for a fix; only ever called from a tap */
+    locate: function (cb) {
+      if (!navigator.geolocation) { if (cb) cb('unsupported'); return; }
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var w = load();
+        w.lat = Math.round(pos.coords.latitude * 1000) / 1000;
+        w.lon = Math.round(pos.coords.longitude * 1000) / 1000;
+        w.label = MIH.isAr() ? 'موقعك' : 'Your location';
+        w.ts = 0;
+        save(w);
+        MIH.weather.refresh(function () { if (cb) cb(null); });
+      }, function (err) {
+        if (cb) cb(err && err.code === 1 ? 'denied' : 'no-fix');
+      }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 10 * 60 * 1000 });
+    },
+    mounted: function () { return !!document.getElementById('home-weather'); }
+  };
+
+  MIH.weatherCard = function () {
+    var ar = MIH.isAr();
+    var w = load();
+    var d = w.data;
+    var place = MIH.weather.place();
+    var when = w.ts ? new Date(w.ts) : null;
+    var ago = '';
+    if (when) {
+      var mins = Math.max(0, Math.round((Date.now() - w.ts) / 60000));
+      ago = mins < 1 ? (ar ? 'الآن' : 'just now') : (ar ? 'قبل ' + MIH.arNum(mins) + ' د' : mins + 'm ago');
+    }
+    var body = d
+      ? '<div class="wx-now"><span class="wx-ico">' + icon(d.code) + '</span>' +
+        '<span class="wx-t num">' + MIH.arNum(Math.round(d.t)) + '°</span>' +
+        '<span class="wx-state">' + esc(label(d.code, ar)) + '</span></div>' +
+        '<div class="wx-meta">' +
+          (d.max != null ? '<span>' + esc(ar ? 'العظمى' : 'High') + ' ' + MIH.arNum(Math.round(d.max)) + '° · ' + esc(ar ? 'الصغرى' : 'Low') + ' ' + MIH.arNum(Math.round(d.min)) + '°</span>' : '') +
+          (d.hum != null ? '<span>' + esc(ar ? 'رطوبة' : 'Humidity') + ' ' + MIH.arNum(Math.round(d.hum)) + '%</span>' : '') +
+          (d.wind != null ? '<span>' + esc(ar ? 'ريح' : 'Wind') + ' ' + MIH.arNum(Math.round(d.wind)) + ' ' + esc(ar ? 'كم/س' : 'km/h') + '</span>' : '') +
+        '</div>'
+      : '<div class="wx-empty">' + esc(ar ? 'الطقس لسه ما اتحدّثش' : 'Weather not loaded yet') + '</div>';
+
+    return '<div class="card wx-card" id="home-weather">' +
+      '<div class="wx-head">' +
+        '<div><div class="h3">' + esc(ar ? 'الطقس' : 'Weather') + '</div>' +
+        '<div class="sub">' + esc(place.label || (ar ? 'مدينتك' : 'Your city')) + (ago ? ' · ' + esc(ago) : '') + '</div></div>' +
+        '<button class="chip" data-action="wx-refresh">' + esc(ar ? 'تحديث' : 'Refresh') + '</button>' +
+      '</div>' + body +
+      '<div class="wx-actions">' +
+        '<button class="chip" data-action="wx-locate">' + esc(ar ? 'استخدم موقعي (GPS)' : 'Use my location (GPS)') + '</button>' +
+        '<span class="wx-credit">Open-Meteo</span>' +
+      '</div>' +
+      '<div class="sub wx-note">' + esc(ar
+        ? 'التحديث بيشتغل والتطبيق مفتوح كل ١٥ دقيقة؛ مفيش تحديث في الخلفية من المتصفح.'
+        : 'Refreshes every 15 minutes while the app is open; a web app cannot update in the background.') + '</div>' +
+      '</div>';
+  };
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-action]');
+    if (!b) return;
+    var a = b.getAttribute('data-action');
+    if (a === 'wx-refresh') {
+      MIH.toast(MIH.isAr() ? 'بيحدّث…' : 'Refreshing…');
+      MIH.weather.refresh(function (err) {
+        if (err) MIH.toast(MIH.isAr() ? 'تعذّر تحديث الطقس' : 'Could not refresh the weather');
+      });
+      return;
+    }
+    if (a === 'wx-locate') {
+      MIH.toast(MIH.isAr() ? 'بنطلب إذن الموقع…' : 'Asking for location permission…');
+      MIH.weather.locate(function (err) {
+        if (err === 'denied') MIH.toast(MIH.isAr() ? 'الإذن مرفوض — هنستخدم مدينتك' : 'Permission denied - using your city');
+        else if (err) MIH.toast(MIH.isAr() ? 'مقدرناش نجيب الموقع' : 'Could not get a location');
+        else MIH.toast(MIH.isAr() ? 'تم تحديث الموقع والطقس' : 'Location and weather updated');
+      });
+    }
+  });
+
+  /* refresh when home is opened, and every 15 minutes while it stays open */
+  var timer = null;
+  function kick() {
+    if (!MIH.weather.mounted()) return;
+    if (MIH.weather.needsRefresh()) MIH.weather.refresh();
+  }
+  window.addEventListener('hashchange', function () { setTimeout(kick, 400); });
+  setTimeout(kick, 800);
+  setInterval(function () { if (MIH.weather.mounted() && MIH.weather.needsRefresh()) MIH.weather.refresh(); }, 60 * 1000);
+  if (typeof window !== 'undefined') window.addEventListener('focus', kick);
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -8628,7 +8826,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (counts && counts[i] > 0) {
         counts[i]--;
         MIH.save();
-        if (MIH.state.tasbih.vibrate && navigator.vibrate) navigator.vibrate(counts[i] === 0 ? [30, 40, 30] : 12);
+        MIH.tick(counts[i] === 0);
         render();
       }
       return;
@@ -8735,7 +8933,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (carr[ck] > 0) {
         carr[ck]--;
         MIH.save();
-        if (MIH.state.tasbih.vibrate && navigator.vibrate) navigator.vibrate(carr[ck] === 0 ? [30, 40, 30] : 12);
+        MIH.tick(carr[ck] === 0);
         render();
       }
       return;
@@ -8782,11 +8980,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       var tb = MIH.state.tasbih;
       tb.count++; tb.total = (tb.total || 0) + 1;
       MIH.save();
-      if (tb.vibrate && navigator.vibrate) navigator.vibrate(tb.count % tb.target === 0 ? [30, 50, 30] : 10);
+      MIH.tick(tb.count % tb.target === 0);
       var num = document.getElementById('tasbih-num');
       if (num) num.textContent = tb.count; else render();
       return;
     }
+    if (a === 'tasbih-sound') { var T = MIH.state.tasbih; T.sound = T.sound === false; saveAndRender(); if (T.sound) MIH.tick(false); return; }
     if (a === 'tasbih-target') { MIH.state.tasbih.target = parseInt(el.getAttribute('data-v'), 10); saveAndRender(); return; }
     if (a === 'tasbih-reset') { MIH.state.tasbih.count = 0; saveAndRender(); return; }
     if (a === 'geo') {
