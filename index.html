@@ -2883,13 +2883,25 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   MIH.setZikrEvery = function (v, all) {
     v = parseInt(v, 10) || 0;
     MIH.state.zikrEvery = v;
+    /* in the Android app the same switch drives the background service, so it keeps going with the screen off */
+    try {
+      var N = window.MihrabiNative;
+      if (N && N.startZikr) {
+        if (v > 0) {
+          var txt = MIH.zikrDhikrText ? MIH.zikrDhikrText() : '';
+          var vq = MIH.state.zikrQuiet || {};
+          var vv = MIH.state.zikrVoice || {};
+          if (txt) { N.startZikr(v, vv.mode === 'sound' ? 'sound' : 'voice', txt, vv.file || 'surah-qadr.mp3', vq.on ? 1 : 0, vq.from || '23:00', vq.to || '06:00'); MIH.state.zikrVoice = { on: true, every: v, mode: vv.mode === 'sound' ? 'sound' : 'voice', file: vv.file || 'surah-qadr.mp3' }; }
+        } else if (N.stopZikr) { N.stopZikr(); var v0 = MIH.state.zikrVoice || {}; v0.on = false; MIH.state.zikrVoice = v0; }
+      }
+    } catch (e) { }
     if (all) (MIH.state.lists || []).forEach(function (l) { l.every = v; l.lastAt = Date.now(); l.idx = 0; });
     MIH.save();
     return v;
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v82';
+  MIH.VERSION = 'v83';
   /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
      own source line. No explanation is written here: the data has none, so none is shown. */
   MIH.zikrFacts = function (cIdx, iIdx) {
@@ -7259,15 +7271,21 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   /* the dhikr it speaks: the first item of his own first list, taken from the app's own
      azkar data or his own text. Nothing is written from memory here. */
+  function clean(x) { return String(x || '').replace(/[()\[\]]/g, ' ').replace(/\s+/g, ' ').trim(); }
   function dhikrText() {
     var lists = MIH.state.lists || [];
-    for (var i = 0; i < lists.length; i++) {
-      var row = (lists[i].items || [])[0];
-      if (!row) continue;
-      var it = row.c === 'own' ? { t: MIH.listItemText(row) } : MIH.azkarItem(row.c, row.i);
-      if (it && it.t) return it.t;
+    var out = [];
+    for (var i = 0; i < lists.length && !out.length; i++) {
+      (lists[i].items || []).slice(0, 20).forEach(function (row) {
+        var it = row.c === 'own' ? { t: MIH.listItemText(row) } : MIH.azkarItem(row.c, row.i);
+        if (it && it.t) out.push(clean(it.t));
+      });
     }
-    return '';
+    /* no list: the same short-dhikr pool the automatic reminder uses, from the app's own data */
+    if (!out.length && MIH.ZIKR_POOL) {
+      MIH.ZIKR_POOL.forEach(function (p) { var f = MIH.zikrFacts(p[0], p[1]); if (f && f.t) out.push(clean(f.t)); });
+    }
+    return out.join('\n');
   }
   MIH.zikrDhikrText = dhikrText;
 
@@ -10539,7 +10557,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     // automatic short dhikr: runs when the reminder is on and no list has items to cycle
     (function () {
       var every = parseInt(MIH.state.zikrEvery, 10) || 0;
-      if (!every) return;
+      if (!every || window.MihrabiNative) return;   /* in the Android app the background service does this */
       var hasList = (MIH.lists() || []).some(function (l) { return (l.items || []).length; });
       if (hasList) return;
       var a = MIH.state.zikrAuto = MIH.state.zikrAuto || { idx: -1 };
