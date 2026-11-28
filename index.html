@@ -2885,7 +2885,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v77';
+  MIH.VERSION = 'v78';
   /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
      own source line. No explanation is written here: the data has none, so none is shown. */
   MIH.zikrFacts = function (cIdx, iIdx) {
@@ -2907,6 +2907,29 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     var day = Math.floor(Date.now() / 86400000);
     var p = short[(day * 7 + (MIH._zkStep || 0)) % short.length];
     return MIH.zikrFacts(p[0], p[1]);
+  };
+  /* the automatic short-dhikr pool: picked BY POSITION from the app's own Hisn al-Muslim data
+     (subhan Allah wa bihamdihi, salat on the Prophet, istighfar, la ilaha illa Allah, ...).
+     Nothing is typed here, so nothing can be misquoted. */
+  MIH.ZIKR_POOL = [[0, 16], [0, 23], [0, 21], [0, 17], [34, 2], [35, 2], [129, 11]];
+  MIH.zikrAutoNext = function () {
+    var a = MIH.state.zikrAuto = MIH.state.zikrAuto || { idx: -1 };
+    a.idx = ((parseInt(a.idx, 10) || 0) + 1) % MIH.ZIKR_POOL.length;
+    var p = MIH.ZIKR_POOL[a.idx];
+    return MIH.zikrFacts(p[0], p[1]);
+  };
+  /* read aloud with the phone's own speech voice, only if it has an Arabic one */
+  MIH.speakAr = function (text) {
+    try {
+      if (!window.speechSynthesis || !MIH.state.zikrSpeak) return false;
+      var vs = speechSynthesis.getVoices() || [];
+      var v = vs.filter(function (x) { return /^ar/i.test(x.lang); })[0];
+      if (!v) return false;
+      var u = new SpeechSynthesisUtterance(text.replace(/[()\[\]]/g, ' '));
+      u.lang = v.lang; u.voice = v; u.rate = 0.85;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+      return true;
+    } catch (e) { return false; }
   };
   MIH.zikrBanner = function (title, text, meta) {
     var old = document.getElementById('zikr-banner');
@@ -3082,7 +3105,8 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div class="zikr-show-meta">' + esc(zp.chapter) + (zp.n > 1 ? ' · ' + esc(MIH.isAr() ? 'يُقال ' + MIH.arNum(zp.n) + ' مرات' : 'said ' + zp.n + ' times') : '') + '</div>' +
         (zp.src ? '<div class="zikr-show-src">' + esc(MIH.isAr() ? 'المصدر: ' : 'Source: ') + esc(zp.src) + '</div>' : '') +
         '<div class="zikr-show-by">' + esc(MIH.isAr() ? 'من حصن المسلم' : 'From Hisn al-Muslim') + '</div>' +
-        '<button class="btn btn-sm btn-ghost" data-action="zikr-next">' + esc(MIH.isAr() ? 'ذكر آخر' : 'Another dhikr') + '</button>' +
+        '<div class="rowflex" style="justify-content:center;gap:8px;flex-wrap:wrap"><button class="btn btn-sm btn-ghost" data-action="zikr-next">' + esc(MIH.isAr() ? 'ذكر آخر' : 'Another dhikr') + '</button>' +
+        '<button class="btn btn-sm btn-ghost" data-action="zikr-speak" aria-pressed="' + !!MIH.state.zikrSpeak + '">' + esc(MIH.state.zikrSpeak ? (MIH.isAr() ? '🔊 صوت الجهاز: شغّال' : '🔊 Device voice: on') : (MIH.isAr() ? '🔈 قراءة بصوت الجهاز' : '🔈 Read aloud (device voice)')) + '</button></div>' +
       '</div>' : '';
     var zikrHome = '<div class="section-head"><h2 class="h2">' + esc(t('zikrHomeTitle')) + '</h2></div>' +
       '<div class="card zikr-home" id="zikr-home-card">' + zikrShow +
@@ -3096,7 +3120,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div class="rowflex" style="gap:6px;flex-wrap:wrap;margin-top:12px">' +
           zkPill(0, t('everyOff')) + zkPill(5, '٥') + zkPill(10, '١٠') + zkPill(15, '١٥') + zkPill(30, '٣٠') + zkPill(60, '٦٠') +
         '</div>' +
-        '<p class="sub" style="margin:10px 2px 0">' + esc(zkLists ? t('zikrHomeNote') : t('zikrHomeNoLists')) + '</p>' +
+        '<p class="sub" style="margin:10px 2px 0">' + esc(zkLists ? t('zikrHomeNote') : (MIH.isAr() ? 'من غير قايمة، بيظهر ذكر قصير تلقائي (سبحان الله، الصلاة على النبي، الاستغفار…) كل المدة اللي تختارها، والتطبيق مفتوح.' : 'With no list, a short dhikr appears on its own at the interval you pick, while the app is open.')) + '</p>' +
         '<div class="rowflex" style="justify-content:flex-end;margin-top:10px">' +
           '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/reminder">' + esc(t('rmTitle')) + ' ‹</button>' +
         '</div>' +
@@ -9800,6 +9824,15 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       MIH.state.pageMode = el.getAttribute('data-v') === 'text' ? 'text' : 'image';
       MIH.save(); render(); return;
     }
+    if (a === 'zikr-speak') {
+      MIH.state.zikrSpeak = !MIH.state.zikrSpeak; MIH.save();
+      if (MIH.state.zikrSpeak) {
+        var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+        if (!vs.filter(function (x) { return /^ar/i.test(x.lang); })[0]) { MIH.toast(MIH.isAr() ? 'جهازك مفيهوش صوت عربي، النص بس هيظهر' : 'No Arabic voice on this device'); }
+        else MIH.speakAr(MIH.zikrPreview().t);
+      }
+      render(); return;
+    }
     if (a === 'zikr-next') { MIH._zkStep = (MIH._zkStep || 0) + 1; render(); return; }
     if (a === 'mp-prev' || a === 'mp-next') {
       var stageEl = document.getElementById('mp-stage');
@@ -10348,6 +10381,28 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         try { new Notification(t('app') + ' — ' + t(np.key), { body: t('at') + ' ' + MIH.fmt(np.at), icon: 'icons/icon-192.png' }); } catch (e) {}
       }
     }
+    // automatic short dhikr: runs when the reminder is on and no list has items to cycle
+    (function () {
+      var every = parseInt(MIH.state.zikrEvery, 10) || 0;
+      if (!every) return;
+      var hasList = (MIH.lists() || []).some(function (l) { return (l.items || []).length; });
+      if (hasList) return;
+      var a = MIH.state.zikrAuto = MIH.state.zikrAuto || { idx: -1 };
+      var nowMs = Date.now();
+      if (!a.lastAt) { a.lastAt = nowMs; MIH.save(); return; }
+      if (nowMs - a.lastAt < every * 60000) return;
+      a.lastAt = nowMs;
+      if (MIH.zikrInQuiet && MIH.zikrInQuiet(now)) { MIH.save(); return; }
+      var f = MIH.zikrAutoNext();
+      MIH.save();
+      if (!f) return;
+      var title = MIH.isAr() ? 'ذكر' : 'Dhikr';
+      if (window.Notification && Notification.permission === 'granted') {
+        try { new Notification(t('app') + ' — ' + title, { body: f.t.slice(0, 160), icon: 'icons/icon-192.png', tag: 'zikr-auto' }); } catch (e) { }
+      }
+      MIH.zikrBanner(title, f.t, f.chapter + (f.src ? ' · ' + f.src : ''));
+      MIH.speakAr(f.t);
+    })();
     // repeating athkar reminders: one zikr from the list every N minutes, cycling
     (MIH.lists() || []).forEach(function (l) {
       var every = parseInt(l.every, 10) || 0;
