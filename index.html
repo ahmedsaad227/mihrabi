@@ -1416,7 +1416,8 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .prayer-row .row-main { flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px; }
 .prayer-pills { display: flex; gap: 6px; flex: 0 0 auto; }
 .prayer-pill { border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); font: inherit;
-  font-size: 12.5px; padding: 6px 9px; border-radius: 99px; cursor: pointer; white-space: nowrap; }
+  font-size: 12.5px; padding: 6px 9px; border-radius: 99px; cursor: pointer; white-space: nowrap;
+  min-width: 34px; min-height: 34px; }
 .prayer-pill.on.ontime { background: rgba(20,81,60,.12); border-color: var(--green-700); color: var(--green-800); font-weight: 600; }
 .prayer-pill.on.late { background: rgba(184,145,47,.16); border-color: var(--gold-500); color: var(--gold-600); font-weight: 600; }
 .prayer-pill.on.missed { background: rgba(150,60,50,.12); border-color: #9a4a3c; color: #7d3a2f; font-weight: 600; }
@@ -2699,7 +2700,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v49';
+  MIH.VERSION = 'v50';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -3521,14 +3522,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   var PAPERS = [
     { id: 'cream', name: 'عاجي', bg: '#FBF6E9', fg: '#1B2A22' },
-    { id: 'white', name: 'أبيض', bg: '#FFFFFF', fg: '#14201A' },
+    { id: 'white', name: 'أبيض', bg: '#FFFFFF', fg: '#0B0B0B' },
     { id: 'sepia', name: 'بني فاتح', bg: '#F3E7D3', fg: '#2B1F12' },
     { id: 'green', name: 'أخضر', bg: '#E8F0E6', fg: '#12291C' },
     { id: 'night', name: 'ليلي', bg: '#0D1B15', fg: '#E8E2CF' }
   ];
 
+  /* no stored choice: a white page in light mode, the night paper in dark mode.
+     An explicit pick from the paper swatches always wins. */
   MIH.mushafPaper = function () {
-    var id = MIH.state.paper || 'cream';
+    var id = MIH.state.paper;
+    if (!id) id = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'night' : 'white';
     for (var i = 0; i < PAPERS.length; i++) { if (PAPERS[i].id === id) return PAPERS[i]; }
     return PAPERS[0];
   };
@@ -7571,7 +7575,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<label class="my-adhan-pick"><input type="file" id="my-adhan-file" accept="audio/*" data-action="my-adhan-file">' +
       '<span>' + esc(tx('myAdhanChoose')) + '</span></label>' +
       '<div class="rowflex" style="gap:8px;margin-top:8px">' +
-      '<input id="my-adhan-name" type="text" maxlength="60" placeholder="' + esc(tx('myAdhanName')) + '" style="flex:1">' +
+      '<input id="my-adhan-name" type="text" maxlength="60" aria-label="' + esc(tx('myAdhanName')) + '" placeholder="' + esc(tx('myAdhanName')) + '" style="flex:1">' +
       '<button class="btn btn-sm" data-action="my-adhan-add">' + esc(tx('myAdhanAdd')) + '</button></div>' +
       (rows ? '<div class="my-adhan-list" style="margin-top:10px">' + rows + '</div>' : '<p class="sub" style="margin:10px 0 0">' + esc(tx('myAdhanEmpty')) + '</p>') +
       '</div>';
