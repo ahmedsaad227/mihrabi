@@ -1791,6 +1791,8 @@ body.ay-on .ab-bar{display:none}
 .zikr-show .btn { display: block; margin: 8px auto 0; }
 .zikr-banner-meta { font-size: 12px; opacity: .75; margin-top: 6px; }
 
+.wx-status{margin:10px 2px 0;padding:8px 10px;border-radius:10px;background:rgba(180,120,0,.12);font-size:13px;line-height:1.6}
+
 </style>
 </head>
 <body>
@@ -2885,7 +2887,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v79';
+  MIH.VERSION = 'v80';
   /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
      own source line. No explanation is written here: the data has none, so none is shown. */
   MIH.zikrFacts = function (cIdx, iIdx) {
@@ -8856,6 +8858,21 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
     return '🌡️';
   }
 
+  /* fetch with a time limit, so a blocked or hanging request ends in a visible message */
+  function tfetch(url, ms) {
+    return new Promise(function (resolve, reject) {
+      var done = false, tm = setTimeout(function () { if (!done) { done = true; reject(new Error('timeout')); } }, ms || 9000);
+      fetch(url).then(function (r) { if (!done) { done = true; clearTimeout(tm); resolve(r); } },
+        function (e) { if (!done) { done = true; clearTimeout(tm); reject(e); } });
+    });
+  }
+  function setStatus(msg) {
+    MIH.state._wxStatus = msg || '';
+    var el = document.getElementById('wx-status');
+    if (el) { el.textContent = msg || ''; el.hidden = !msg; }
+  }
+  function inApp() { return /FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)|MicroMessenger|Snapchat/i.test(navigator.userAgent || ''); }
+  function isOpera() { return /OPR\/|Opera|OPT\//.test(navigator.userAgent || ''); }
   MIH.weather = {
     get: load,
     /* where to ask about: the device fix when we have one, else the app's city */
@@ -8938,19 +8955,32 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         if (norm(c.ar).indexOf(nq) === 0 || norm(c.en).indexOf(nq) === 0) local.push({ id: 'L' + c.en, name: MIH.isAr() ? c.ar : c.en, country: '', latitude: c.lat, longitude: c.lon, population: 1e9 });
       });
       (function next(i) {
+        if (i >= tries.length && !found.length && !local.length) {
+          /* second free geocoder (OpenStreetMap Nominatim) when the first finds nothing or is blocked */
+          tfetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&accept-language=' + lang + '&q=' + encodeURIComponent(q))
+            .then(function (r) { return r.json(); }).then(function (arr) {
+              var res = (arr || []).map(function (o) {
+                var parts = String(o.display_name || '').split(',');
+                return { id: 'N' + o.place_id, name: parts[0].trim(), admin1: (parts[1] || '').trim(), country: (parts[parts.length - 1] || '').trim(), latitude: parseFloat(o.lat), longitude: parseFloat(o.lon) };
+              });
+              cb(null, res, 'osm');
+            }).catch(function () { cb(offline ? 'offline' : null, []); });
+          return;
+        }
         if (i >= tries.length) {
           found.sort(function (a, b) { return (b.population || 0) - (a.population || 0); });
           found = local.concat(found);
           cb(!found.length && offline ? 'offline' : null, found.slice(0, 8)); return;
         }
         var url = 'https://geocoding-api.open-meteo.com/v1/search?count=6&format=json&language=' + lang + '&name=' + encodeURIComponent(tries[i]);
-        fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+        tfetch(url).then(function (r) { return r.json(); }).then(function (j) {
           ((j && j.results) || []).forEach(function (r) { if (!ids[r.id]) { ids[r.id] = 1; found.push(r); } });
           next(i + 1);
         }).catch(function () { offline = true; next(i + 1); });
       })(0);
     },
     choose: function (r) {
+      MIH.state._wxStatus = '';
       var w = load();
       w.lat = r.latitude; w.lon = r.longitude;
       w.label = r.name + (r.country ? '، ' + r.country : '');
@@ -8958,6 +8988,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       save(w); MIH.weather.refresh();
     },
     useMyCity: function () {
+      MIH.state._wxStatus = '';
       var w = load(); delete w.lat; delete w.lon; delete w.label; w.ts = 0; w.data = null; w.days = null;
       save(w); MIH.weather.refresh();
     },
@@ -9007,6 +9038,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
         '<div class="sub">' + esc(place.label || (ar ? 'مدينتك' : 'Your city')) + (ago ? ' · ' + esc(ago) : '') + '</div></div>' +
         '<button class="chip" data-action="wx-refresh">' + esc(ar ? 'تحديث' : 'Refresh') + '</button>' +
       '</div>' + body +
+      '<div class="wx-status" id="wx-status" role="status" aria-live="polite"' + (MIH.state._wxStatus ? '' : ' hidden') + '>' + esc(MIH.state._wxStatus || '') + '</div>' +
       '<div class="wx-search"><input type="search" id="wx-q" aria-label="' + esc(ar ? 'ابحث عن مدينة' : 'Search a city') + '" placeholder="' + esc(ar ? 'ابحث عن مدينة أخرى…' : 'Search another city…') + '">' +
         '<button class="chip" data-action="wx-search">' + esc(ar ? 'بحث' : 'Search') + '</button></div>' +
       '<div class="wx-results" id="wx-results"></div>' +
@@ -9041,7 +9073,12 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       box.textContent = MIH.isAr() ? 'بيدوّر…' : 'Searching…';
       MIH.weather.search(q.trim(), function (err, list) {
         box.innerHTML = '';
-        if (!list.length) { box.textContent = err ? (MIH.isAr() ? 'تعذّر البحث، تأكد من الإنترنت' : 'Search failed, check your connection') : (MIH.isAr() ? 'مفيش نتائج' : 'No results'); return; }
+        if (!list.length) {
+          box.textContent = err
+            ? (MIH.isAr() ? 'البحث مش وصل للسيرفر. اتأكد من الإنترنت، أو جرّب تقفل موفّر البيانات/مانع الإعلانات في المتصفح وجرّب تاني.' : 'Search could not reach the server. Check the connection, or turn off data-saver / ad-blocker in the browser and retry.')
+            : (MIH.isAr() ? 'مفيش نتائج. جرّب اسم المدينة بالإنجليزي أو بسّط الاسم.' : 'No results. Try the English name or a simpler spelling.');
+          return;
+        }
         list.forEach(function (r) {
           var bt = document.createElement('button'); bt.className = 'chip wx-res';
           bt.textContent = r.name + (r.admin1 ? '، ' + r.admin1 : '') + (r.country ? '، ' + r.country : '');
@@ -9052,11 +9089,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       return;
     }
     if (a === 'wx-locate') {
-      MIH.toast(MIH.isAr() ? 'بنطلب إذن الموقع…' : 'Asking for location permission…');
+      setStatus(MIH.isAr() ? 'بنطلب إذن الموقع… لو ظهرت رسالة في المتصفح اختار «سماح».' : 'Asking for location permission… choose Allow if the browser asks.');
       MIH.weather.locate(function (err) {
-        if (err === 'denied') MIH.toast(MIH.isAr() ? 'الإذن مرفوض — هنستخدم مدينتك' : 'Permission denied - using your city');
-        else if (err) MIH.toast(MIH.isAr() ? 'مقدرناش نجيب الموقع' : 'Could not get a location');
-        else MIH.toast(MIH.isAr() ? 'تم تحديث الموقع والطقس' : 'Location and weather updated');
+        var ar = MIH.isAr(), hint = inApp()
+          ? (ar ? 'إنت فاتح الموقع جوّه تطبيق (مش متصفح كامل)، وده بيمنع الموقع. افتحه في Chrome أو Safari.' : 'You are inside an in-app browser, which blocks location. Open the site in Chrome or Safari.')
+          : isOpera()
+            ? (ar ? 'في أوبرا: اضغط على القفل جنب العنوان > إعدادات الموقع > الموقع > سماح، وفعّل الموقع في إعدادات أوبرا وإعدادات الموبايل.' : 'In Opera: tap the lock next to the address > Site settings > Location > Allow, and turn location on in Opera and phone settings.')
+            : (ar ? 'فعّل إذن الموقع للموقع ده من إعدادات المتصفح (القفل جنب العنوان)، وتأكد إن الـ GPS شغّال.' : 'Allow location for this site in the browser (lock icon by the address) and make sure GPS is on.');
+        if (err === 'denied') setStatus((ar ? 'الإذن بتاع الموقع مرفوض أو محجوب، فالطقس لسه على مدينتك المحفوظة (' + (MIH.weather.place().label || '') + '). ' : 'Location permission is denied or blocked, so the weather is still for your saved city (' + (MIH.weather.place().label || '') + '). ') + hint + (ar ? ' أو ابحث عن مدينتك تحت.' : ' Or search for your city below.'));
+        else if (err === 'unsupported') setStatus((ar ? 'المتصفح ده مبيدعمش الموقع. ' : 'This browser does not support location. ') + hint);
+        else if (err) setStatus((ar ? 'مقدرناش نجيب موقعك (انتهت المهلة أو الـ GPS مقفول). الطقس لسه على ' : 'Could not get a location (timed out or GPS off). Weather is still for ') + (MIH.weather.place().label || '') + '. ' + hint);
+        else setStatus(ar ? 'تم تحديث الموقع والطقس.' : 'Location and weather updated.');
       });
     }
   });
