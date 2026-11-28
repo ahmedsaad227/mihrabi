@@ -1709,6 +1709,19 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 [data-theme="dark"] .wx-chip{background:#18211d}
 #home-weather-full{margin-top:-4px}
 
+.hb-row{display:flex;align-items:center;gap:10px;margin:8px 0}.hb-row b{min-width:62px}
+.hb-rate{display:flex;gap:6px;flex-wrap:wrap}.chip.on{background:var(--gold-600,#B8912F);color:#fff;border-color:transparent}
+.hb-bar{display:grid;grid-template-columns:64px 1fr 34px;gap:10px;align-items:center;font-size:13px;margin:8px 0}
+.hb-bar div{background:rgba(15,61,46,.10);border-radius:99px;height:12px}.hb-bar i{display:block;height:100%;border-radius:99px;background:var(--gold-600,#B8912F)}
+.hb-tip{margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(184,145,47,.14);font-size:13px}
+.hb-check{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(15,61,46,.08)}.hb-check small{margin-inline-start:auto;color:var(--muted,#5b6b62)}
+.hb-check input{width:22px;height:22px}
+.hb-ayah{font-family:'Mihrabi Quran','Amiri Quran',serif;font-size:26px;line-height:2.2;text-align:center;padding:10px 0}
+.hb-gap{display:inline-block;min-width:3ch;border-bottom:2px dashed var(--gold-600,#B8912F);color:transparent;cursor:pointer}.hb-gap.show{color:var(--gold-600,#B8912F);border-bottom-style:solid}
+.hb-ctrl{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.wx-search select{flex:1;min-width:0;border:1px solid rgba(15,61,46,.18);border-radius:12px;padding:8px;font:inherit;background:var(--surface,#fff);color:inherit}
+[data-theme="dark"] .hb-bar div{background:rgba(255,255,255,.1)}
+
 </style>
 </head>
 <body>
@@ -2792,7 +2805,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v61';
+  MIH.VERSION = 'v62';
   MIH.zikrBanner = function (title, text) {
     var old = document.getElementById('zikr-banner');
     if (old) old.remove();
@@ -4551,6 +4564,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       ] },
       { k: 'secTools', items: [
         ['#/ai', 'i-star', (MIH.isAr() ? 'مِحراب AI' : 'MIHRABI AI')],
+        ['#/khushu', 'i-star', (MIH.isAr() ? 'خريطة الخشوع' : 'Khushu map')],
+        ['#/review', 'i-check', (MIH.isAr() ? 'مراجعة الحفظ' : 'Memorisation review')],
+        ['#/nawafil', 'i-check', (MIH.isAr() ? 'النوافل' : 'Nawafil')],
         ['#/zakat', 'i-star', MIH.tx('zakTitle')],
         ['#/backup', 'i-info', MIH.tx('bkTitle')],
         ['#/events', 'i-calendar', MIH.tx('mxEvents')],
@@ -8705,6 +8721,160 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   if (typeof window !== 'undefined') window.addEventListener('focus', kick);
 })();
 
+/* views-habits.js */
+/* MIHRABI - habits: khushu map, memorisation review (spaced repetition), nawafil log.
+   Design from his "ميزات جديدة" page; the code is written here. Local only (localStorage),
+   no account. Quran text always comes from the app's own verified data (MIH.quran), never
+   typed in. No advice or ruling text is generated: the screens show his own numbers. */
+(function () {
+  'use strict';
+  var MIH = window.MIH;
+  if (!MIH) return;
+  var esc = MIH.esc;
+  var KEY = 'mihrabi.habits.v1';
+
+  function load() {
+    var s = {};
+    try { s = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+    s.khushu = s.khushu || {}; s.nawafil = s.nawafil || {}; s.cards = s.cards || [];
+    return s;
+  }
+  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function dnum(p) { return p.y * 10000 + p.m * 100 + p.d; }
+  function today() { return dnum(MIH.cityNow()); }
+  function back(n) { return dnum(MIH.addDays(MIH.cityNow(), -n)); }
+  function ar() { return MIH.isAr(); }
+  function head(title, sub) {
+    return '<div class="section-head" style="margin-top:14px"><div><h1 class="h1">' + esc(title) + '</h1><p class="sub">' + esc(sub) + '</p></div>' +
+      '<button class="btn btn-sm btn-ghost" data-action="nav" data-to="#/more">' + esc(ar() ? 'المزيد' : 'More') + '</button></div>';
+  }
+  var PR = [['fajr', 'الفجر', 'Fajr'], ['dhuhr', 'الظهر', 'Dhuhr'], ['asr', 'العصر', 'Asr'], ['maghrib', 'المغرب', 'Maghrib'], ['isha', 'العشاء', 'Isha']];
+
+  /* ---------- khushu map ---------- */
+  MIH.views.khushu = function () {
+    var s = load(), t = String(today()); s.khushu[t] = s.khushu[t] || {};
+    var rows = PR.map(function (p) {
+      return '<div class="hb-row"><b>' + esc(ar() ? p[1] : p[2]) + '</b><div class="hb-rate">' +
+        [1, 2, 3, 4, 5].map(function (n) {
+          return '<button class="chip' + (s.khushu[t][p[0]] === n ? ' on' : '') + '" data-action="hb-khushu" data-p="' + p[0] + '" data-n="' + n + '" aria-pressed="' + (s.khushu[t][p[0]] === n) + '" aria-label="' + esc((ar() ? p[1] : p[2]) + ' ' + n) + '">' + MIH.arNum(n) + '</button>';
+        }).join('') + '</div></div>';
+    }).join('');
+    var avg = {}, cnt = {};
+    PR.forEach(function (p) {
+      var sum = 0, c = 0;
+      for (var i = 0; i < 30; i++) { var r = (s.khushu[String(back(i))] || {})[p[0]]; if (r) { sum += r; c++; } }
+      avg[p[0]] = c ? sum / c : 0; cnt[p[0]] = c;
+    });
+    var bars = PR.map(function (p) {
+      return '<div class="hb-bar"><span>' + esc(ar() ? p[1] : p[2]) + '</span><div><i style="width:' + Math.round(avg[p[0]] * 20) + '%"></i></div><span class="num">' + (avg[p[0]] ? MIH.arNum(avg[p[0]].toFixed(1)) : '–') + '</span></div>';
+    }).join('');
+    var rated = PR.filter(function (p) { return avg[p[0]]; }), tip;
+    if (rated.length < 2) tip = ar() ? 'سجّل بضعة أيام لتظهر المقارنة بين الصلوات.' : 'Log a few days to compare your prayers.';
+    else {
+      var w = rated.reduce(function (a, b) { return avg[a[0]] <= avg[b[0]] ? a : b; });
+      tip = (ar() ? 'أقل صلاة تقييمًا عندك خلال ٣٠ يومًا: ' + w[1] : 'Your lowest-rated prayer over 30 days: ' + w[2]);
+    }
+    return '<div class="view">' + head(ar() ? 'خريطة الخشوع' : 'Khushu map', ar() ? 'قيّم حضور قلبك في كل صلاة اليوم من ١ إلى ٥' : 'Rate your presence in each prayer today, 1 to 5') +
+      '<div class="card">' + rows + '</div>' +
+      '<div class="section-head"><h2 class="h2">' + esc(ar() ? 'متوسط ٣٠ يومًا' : '30-day average') + '</h2></div>' +
+      '<div class="card" id="hb-bars">' + bars + '<div class="hb-tip" id="hb-tip">' + esc(tip) + '</div></div>' +
+      '<div class="footer-note">' + esc(ar() ? 'تقييمك لنفسك فقط، محفوظ على هذا الجهاز بدون حساب.' : 'Your own self-rating, stored on this device only, no account.') + '</div></div>';
+  };
+
+  /* ---------- nawafil log ---------- */
+  var NW = [['duha', 'صلاة الضحى', 'Duha'], ['rawatib', 'السنن الرواتب', 'Rawatib (sunnah prayers)'], ['witr', 'الوتر', 'Witr'], ['qiyam', 'قيام الليل', 'Night prayer']];
+  MIH.views.nawafil = function () {
+    var s = load(), t = String(today()); s.nawafil[t] = s.nawafil[t] || [];
+    function count(k) { var c = 0; for (var i = 0; i < 14; i++) if ((s.nawafil[String(back(i))] || []).indexOf(k) !== -1) c++; return c; }
+    var list = NW.map(function (x) {
+      var on = s.nawafil[t].indexOf(x[0]) !== -1;
+      return '<label class="hb-check"><input type="checkbox" data-action="hb-nawafil" data-k="' + x[0] + '"' + (on ? ' checked' : '') + '><span>' + esc(ar() ? x[1] : x[2]) + '</span><small class="num">' + MIH.arNum(count(x[0])) + '/' + MIH.arNum(14) + ' ' + esc(ar() ? 'يومًا' : 'days') + '</small></label>';
+    }).join('');
+    var low = NW.reduce(function (a, b) { return count(a[0]) <= count(b[0]) ? a : b; });
+    var any = NW.some(function (x) { return count(x[0]) > 0; });
+    var tip = any ? (ar() ? 'الأقل مواظبة عندك في آخر ١٤ يومًا: ' + low[1] : 'Least logged in the last 14 days: ' + low[2]) : (ar() ? 'سجّل ما صليته اليوم ليظهر عدد الأيام.' : 'Tick what you prayed today to build the counts.');
+    return '<div class="view">' + head(ar() ? 'النوافل' : 'Nawafil', ar() ? 'سجّل ما صليته اليوم' : 'Log what you prayed today') +
+      '<div class="card" id="hb-nw">' + list + '<div class="hb-tip" id="hb-nw-tip">' + esc(tip) + '</div></div>' +
+      '<div class="footer-note">' + esc(ar() ? 'سجل شخصي للعدّ فقط وليس حكمًا شرعيًا. محفوظ على هذا الجهاز بدون حساب.' : 'A personal counting log, not a ruling. Stored on this device only, no account.') + '</div></div>';
+  };
+
+  /* ---------- memorisation review (simplified SM-2) ---------- */
+  var cur = null;
+  function dueCards(s) { var t = today(); return s.cards.filter(function (c) { return c.due <= t; }).sort(function (a, b) { return a.due - b.due; }); }
+  function hideSet(words) {
+    var h = {}; words.forEach(function (_, i) { if (i % 3 === 1 || words.length === 1) h[i] = true; }); return h;
+  }
+  function cardHtml(s) {
+    var due = dueCards(s); cur = due[0] || null;
+    var stat = (ar() ? 'متبقٍ اليوم: ' : 'Due today: ') + MIH.arNum(due.length) + ' · ' + (ar() ? 'إجمالي ما تراجعه: ' : 'In review: ') + MIH.arNum(s.cards.length);
+    if (!s.cards.length) return '<div class="card"><div class="sub">' + esc(ar() ? 'أضف آيات من القرآن لتبدأ المراجعة.' : 'Add ayahs from the Quran to start reviewing.') + '</div></div><p class="sub" id="hb-stat">' + esc(stat) + '</p>';
+    if (!cur) return '<div class="card" id="hb-card"><div class="sub" style="text-align:center">' + esc(ar() ? 'أنهيت مراجعة اليوم.' : 'Today\'s review is done.') + '</div></div><p class="sub" id="hb-stat">' + esc(stat) + '</p>';
+    var a = MIH.ayahOf(cur.s, cur.a); var words = String(a[0]).split(/\s+/), hide = hideSet(words);
+    var txt = words.map(function (w, i) { return hide[i] ? '<span class="hb-gap" tabindex="0" role="button" data-action="hb-gap">' + esc(w) + '</span>' : esc(w); }).join(' ');
+    var nm = MIH.quran.s[cur.s - 1][0];
+    return '<div class="card" id="hb-card"><div class="hb-ayah">' + txt + '</div><div class="sub" style="text-align:center">' + esc(nm) + ' · ' + MIH.arNum(cur.a) + '</div>' +
+      '<div class="hb-ctrl">' + [[ar() ? 'نسيت' : 'Forgot', 0], [ar() ? 'صعبة' : 'Hard', 1], [ar() ? 'جيدة' : 'Good', 2], [ar() ? 'سهلة' : 'Easy', 3]].map(function (x) {
+        return '<button class="chip" data-action="hb-rate" data-q="' + x[1] + '">' + esc(x[0]) + '</button>'; }).join('') + '</div></div><p class="sub" id="hb-stat" style="text-align:center">' + esc(stat) + '</p>';
+  }
+  MIH.views.review = function () {
+    var s = load();
+    var opts = MIH.quran.s.map(function (x, i) { return '<option value="' + (i + 1) + '">' + MIH.arNum(i + 1) + '. ' + esc(x[0]) + '</option>'; }).join('');
+    return '<div class="view">' + head(ar() ? 'مراجعة الحفظ' : 'Memorisation review', ar() ? 'اضغط على الفراغ لإظهار الكلمة ثم قيّم تذكّرك' : 'Tap a gap to reveal the word, then rate how well you recalled it') +
+      cardHtml(s) +
+      '<details class="card" style="margin-top:12px"><summary>' + esc(ar() ? 'إضافة آيات للمراجعة' : 'Add ayahs to review') + '</summary>' +
+        '<div class="wx-search"><select id="hb-s" aria-label="' + esc(ar() ? 'السورة' : 'Surah') + '">' + opts + '</select>' +
+        '<input id="hb-f" type="number" min="1" value="1" style="max-width:64px" aria-label="' + esc(ar() ? 'من آية' : 'From ayah') + '">' +
+        '<input id="hb-t" type="number" min="1" value="1" style="max-width:64px" aria-label="' + esc(ar() ? 'إلى آية' : 'To ayah') + '">' +
+        '<button class="chip" data-action="hb-add">' + esc(ar() ? 'إضافة' : 'Add') + '</button></div>' +
+        '<div class="sub" id="hb-msg"></div></details>' +
+      '<div class="footer-note">' + esc(ar() ? 'نص الآيات من بيانات التطبيق نفسها. المراجعة محفوظة على هذا الجهاز بدون حساب.' : 'Ayah text comes from the app\'s own data. Review progress is stored on this device only.') + '</div></div>';
+  };
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-action^="hb-"]');
+    if (!b) return;
+    var a = b.getAttribute('data-action'), s;
+    if (a === 'hb-khushu') {
+      s = load(); var t = String(today()); s.khushu[t] = s.khushu[t] || {};
+      s.khushu[t][b.getAttribute('data-p')] = parseInt(b.getAttribute('data-n'), 10); save(s); MIH.render(); return;
+    }
+    if (a === 'hb-gap') { b.classList.toggle('show'); return; }
+    if (a === 'hb-add') {
+      var sn = parseInt(document.getElementById('hb-s').value, 10), f = parseInt(document.getElementById('hb-f').value, 10) || 1, to = parseInt(document.getElementById('hb-t').value, 10) || f;
+      var max = MIH.quran.s[sn - 1][4]; f = Math.max(1, Math.min(f, max)); to = Math.max(f, Math.min(to, max));
+      s = load(); var added = 0;
+      for (var n = f; n <= to && added < 50; n++) {
+        if (!s.cards.some(function (c) { return c.s === sn && c.a === n; })) { s.cards.push({ s: sn, a: n, ease: 2.5, int: 0, due: today() }); added++; }
+      }
+      save(s); MIH.render();
+      setTimeout(function () { var m = document.getElementById('hb-msg'); if (m) m.textContent = (ar() ? 'أُضيفت ' : 'Added ') + MIH.arNum(added); }, 50);
+      return;
+    }
+    if (a === 'hb-rate') {
+      s = load(); var q = parseInt(b.getAttribute('data-q'), 10);
+      var c = dueCards(s)[0]; if (!c) return;
+      var real = s.cards.filter(function (x) { return x.s === c.s && x.a === c.a; })[0];
+      if (q === 0) { real.int = 0; real.ease = Math.max(1.3, real.ease - 0.2); real.due = today(); real.miss = (real.miss || 0) + 1; }
+      else {
+        real.int = real.int === 0 ? 1 : real.int === 1 ? 3 : Math.round(real.int * real.ease * (q === 1 ? 0.8 : q === 3 ? 1.3 : 1));
+        real.ease = Math.max(1.3, real.ease + (q - 2) * 0.1);
+        real.due = dnum(MIH.addDays(MIH.cityNow(), real.int));
+      }
+      if (q === 0) { s.cards = s.cards.filter(function (x) { return x !== real; }); s.cards.push(real); real.due = today(); }
+      save(s); MIH.render(); return;
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el && el.getAttribute && el.getAttribute('data-action') === 'hb-nawafil') {
+      var s = load(), t = String(today()), k = el.getAttribute('data-k'); s.nawafil[t] = s.nawafil[t] || [];
+      var i = s.nawafil[t].indexOf(k);
+      if (el.checked && i === -1) s.nawafil[t].push(k); else if (!el.checked && i !== -1) s.nawafil[t].splice(i, 1);
+      save(s); MIH.render();
+    }
+  });
+})();
+
 /* boot.js */
 /* MIHRABI — boot: state, routing, events */
 (function () {
@@ -8769,7 +8939,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
   function renderNav(active) {
     nav.innerHTML = NAV.map(function (n) {
-      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || (active === 'hifz' && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
+      var on = active === n[0].slice(2) || ((active === 'reader' || active === 'mushafPage') && n[0] === '#/quran') || ((active === 'azkarOne' || active === 'azkarCat' || active === 'list' || active === 'listAdd') && n[0] === '#/azkar') || (active === 'qibla' && n[0] === '#/more') || (active === 'wird' && n[0] === '#/more') || (active === 'khatma' && n[0] === '#/more') || (active === 'names' && n[0] === '#/more') || (active === 'dua' && n[0] === '#/more') || (active === 'hadith' && n[0] === '#/more') || ((active === 'hifz' || active === 'khushu' || active === 'review' || active === 'nawafil') && n[0] === '#/more') || (active === 'tasmi' && n[0] === '#/more') || (active === 'library' && n[0] === '#/more') || (active === 'audio' && n[0] === '#/more') || (active === 'credits' && n[0] === '#/more');
       return '<button class="nav-btn" data-action="nav" data-to="' + n[0] + '"' + (on ? ' aria-current="page"' : '') + '>' +
         '<svg><use href="#' + n[1] + '"/></svg><span>' + MIH.esc(t(n[2])) + '</span></button>';
     }).join('');
@@ -8850,6 +9020,9 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       if (parts[1]) { view = 'tasmi'; html = MIH.views.tasmi(parseInt(parts[1], 10)); }
       else { view = 'hifz'; html = MIH.views.hifz(); }
     }
+    else if (parts[0] === 'khushu') { view = 'khushu'; html = MIH.views.khushu(); }
+    else if (parts[0] === 'review') { view = 'review'; html = MIH.views.review(); }
+    else if (parts[0] === 'nawafil') { view = 'nawafil'; html = MIH.views.nawafil(); }
     else if (parts[0] === 'notes') { view = 'mpNotes'; html = MIH.views.mpNotes(); }
     else if (parts[0] === 'search') { view = 'mxSearch'; html = MIH.views.mxSearch(); }
     else if (parts[0] === 'share') { view = 'mxShare'; html = MIH.views.mxShare(parts[1], parts[2]); }
