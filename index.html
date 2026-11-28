@@ -222,7 +222,7 @@ button { font: inherit; color: inherit; }
   position: relative;
   overflow: hidden;
   border-radius: var(--r-xl);
-  background: radial-gradient(120% 120% at 85% -10%, #1C6047 0%, #0F3D2E 45%, #0A2A20 100%);
+  background: var(--green-800);
   color: #F6F1E2;
   padding: 22px;
   box-shadow: var(--shadow-lg);
@@ -368,7 +368,7 @@ html[dir="rtl"] .chev { transform: scaleX(-1); }
 .tasbih-circle {
   width: min(260px, 70vw); height: min(260px, 70vw); border-radius: 50%;
   margin: 8px auto; display: grid; place-items: center; cursor: pointer;
-  background: radial-gradient(circle at 50% 30%, #1C6047, #0B2E23);
+  background: var(--green-900);
   color: #F6F1E2; border: 1px solid var(--gold-300);
   box-shadow: var(--shadow-lg), inset 0 0 0 10px rgba(217, 192, 132, .06);
   transition: transform .1s var(--ease);
@@ -811,7 +811,7 @@ button { font: inherit; color: inherit; }
   position: relative;
   overflow: hidden;
   border-radius: var(--r-xl);
-  background: radial-gradient(120% 120% at 85% -10%, #1C6047 0%, #0F3D2E 45%, #0A2A20 100%);
+  background: var(--green-800);
   color: #F6F1E2;
   padding: 22px;
   box-shadow: var(--shadow-lg);
@@ -957,7 +957,7 @@ html[dir="rtl"] .chev { transform: scaleX(-1); }
 .tasbih-circle {
   width: min(260px, 70vw); height: min(260px, 70vw); border-radius: 50%;
   margin: 8px auto; display: grid; place-items: center; cursor: pointer;
-  background: radial-gradient(circle at 50% 30%, #1C6047, #0B2E23);
+  background: var(--green-900);
   color: #F6F1E2; border: 1px solid var(--gold-300);
   box-shadow: var(--shadow-lg), inset 0 0 0 10px rgba(217, 192, 132, .06);
   transition: transform .1s var(--ease);
@@ -1313,7 +1313,7 @@ table.times tr.today td { background: rgba(184, 145, 47, .08); font-weight: 700;
 .ab-mid { flex: 1; min-width: 0; }
 .ab-track { height: 5px; border-radius: 99px; background: var(--bg-2); overflow: hidden; }
 .ab-fill { display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: right center;
-  background: linear-gradient(90deg, var(--gold-500), var(--green-600)); transition: transform .12s linear; }
+  background: var(--green-600); transition: transform .12s linear; }
 html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .ab-label { font-size: 11px; color: var(--muted); margin-top: 5px; white-space: nowrap; overflow: hidden;
   text-overflow: ellipsis; }
@@ -1361,7 +1361,7 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .mp-aya.ab-cur { background: rgba(184,145,47,.10); border-radius: 6px; }
 /* the line that travels down the page while auto-browse runs */
 .ab-line { position: absolute; left: 4px; right: 4px; height: 0; pointer-events: none;
-  border-top: 2px solid var(--gold-500); box-shadow: 0 0 12px rgba(184,145,47,.55); border-radius: 2px; }
+  border-top: 2px solid var(--gold-500); border-radius: 2px; }
 .mp-sheet, .mp-stage { position: relative; }
 .mp-aya[data-mark*="n"] { box-shadow: inset 0 -2px 0 var(--gold-500); }
 .mp-aya[data-mark*="b"] { background: rgba(184,145,47,.12); border-radius: 6px; }
@@ -1496,7 +1496,7 @@ html[dir="ltr"] .ab-fill { transform-origin: left center; }
 .rm-power { width: 88px; height: 88px; border-radius: 999px; border: 2px solid var(--line, #E6DFCF); background: var(--card, #fff); color: var(--muted, #7a7a7a); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .15s var(--ease), background .2s, color .2s, border-color .2s; }
 .rm-power svg { width: 38px; height: 38px; }
 .rm-power:active { transform: scale(.96); }
-.rm-power.on { background: var(--green-700, #14513C); border-color: transparent; color: #F6F1E2; box-shadow: 0 8px 20px rgba(20,81,60,.28); }
+.rm-power.on { background: var(--green-700, #14513C); border-color: transparent; color: #F6F1E2;  }
 .rm-state { font-weight: 700; font-size: 18px; margin-top: 12px; }
 .rm-seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .rm-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 8px; background: none; border: 0; border-bottom: 1px solid var(--line, #E6DFCF); font: inherit; color: inherit; text-align: start; cursor: pointer; }
@@ -1810,6 +1810,8 @@ body.ay-on .ab-bar{display:none}
 .zs-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .zs-ta{width:100%;box-sizing:border-box;border:1px solid var(--line-2,rgba(0,0,0,.2));border-radius:10px;padding:10px;font:inherit;background:transparent;color:inherit}
 .zs-file{display:inline-block;cursor:pointer}
+
+.q-am{font-family:'Mihrabi Quran','Amiri Quran',serif}
 
 </style>
 </head>
@@ -2917,7 +2919,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
   };
   /* the build the device is actually running, shown on About and Credits so a stale
      copy is easy to spot */
-  MIH.VERSION = 'v85';
+  MIH.VERSION = 'v87';
   /* a dhikr from the app's own Hisn al-Muslim data, with the book's chapter title and its
      own source line. No explanation is written here: the data has none, so none is shown. */
   MIH.zikrFacts = function (cIdx, iIdx) {
@@ -3229,7 +3231,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
           '<div class="badge badge-gold num">' + wirdPct + '%</div>' +
         '</div>' +
         '<div style="height:8px;border-radius:99px;background:var(--line-2);margin:14px 0 12px;overflow:hidden">' +
-          '<div style="height:100%;width:' + wirdPct + '%;background:linear-gradient(90deg,var(--green-700),var(--gold-500));border-radius:99px"></div>' +
+          '<div style="height:100%;width:' + wirdPct + '%;background:var(--green-700);border-radius:99px"></div>' +
         '</div>' +
         '<button class="btn btn-block" data-action="nav" data-to="#/quran/' + MIH.state.lastRead.s + '/' + MIH.state.lastRead.a + '">' +
           esc(wirdPct >= 100 ? t('wirdDone') : t('wirdContinue')) + '</button>' +
@@ -3635,7 +3637,7 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       '<p class="sub">' + esc(t('surahs')) + ' · 114</p></div>' +
       '<span class="badge badge-green">' + esc(t('offlineReady')) + '</span></div>' +
 
-      '<div class="card" style="background:linear-gradient(135deg,var(--green-800),var(--green-900));border:0;color:#F6F1E2">' +
+      '<div class="card" style="background:var(--green-800);border:0;color:#F6F1E2">' +
         '<div class="hero-label">' + esc(t('quranContinue')) + '</div>' +
         '<div class="h2" style="margin-top:6px">' + esc(MIH.surahName(lr.s)) + ' · ' + t('ayah') + ' ' + lr.a + '</div>' +
         '<div class="sub" style="color:#CFE3D8;margin-top:2px">' + esc(MIH.isAr() ? MIH.quran.s[lr.s - 1][2] : MIH.quran.s[lr.s - 1][2]) + '</div>' +
@@ -4129,13 +4131,21 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
       esc(t('juzWord')) + ' ' + arNum(j) + '</span><span class="mp-juzline"></span></div>';
   }
 
+  /* Safari keeps a combining mark in the font of its base letter, so U+06DF would take the Hafs glyph
+     (a black disc) even though the face excludes it. Words that carry it are set whole in Amiri Quran. */
+  function qtext(txt) {
+    return String(txt).split(' ').map(function (w) {
+      return w.indexOf('\u06DF') >= 0 ? '<span class="q-am">' + esc(w) + '</span>' : esc(w);
+    }).join(' ');
+  }
+
   function ayahSpan(x) {
     var noted = MIH.mpNote ? MIH.mpNote(x.s, x.a) : '';
     var marked = (MIH.state.bookmarks || []).some(function (b) { return b.s === x.s && b.a === x.a; });
     var lr = MIH.state.lastRead || {};
     var isLast = lr.s === x.s && lr.a === x.a;
     return '<span class="mp-aya' + (isLast ? ' is-last' : '') + '" data-action="mp-ayah" data-s="' + x.s + '" data-a="' + x.a + '"' +
-      (noted || marked ? ' data-mark="' + (noted ? 'n' : '') + (marked ? 'b' : '') + '"' : '') + '>' + esc(x.text) +
+      (noted || marked ? ' data-mark="' + (noted ? 'n' : '') + (marked ? 'b' : '') + '"' : '') + '>' + qtext(x.text) +
       mark(x.a, x.s) + '</span> ';
   }
 
@@ -10105,6 +10115,17 @@ window.MIH_TR_INDONESIAN=["Dengan menyebut nama Allah Yang Maha Pemurah lagi Mah
 
     currentRoute = view;
     app.innerHTML = topbar(view === 'home') + html;
+    /* accessibility pass: every control gets a name; decorative backdrops are hidden from screen readers */
+    try {
+      app.querySelectorAll('input:not([aria-label])').forEach(function (inp) {
+        if (inp.type === 'hidden') return;
+        var host = inp.closest('.field,label,.row,li,.card');
+        var lab = host && host.querySelector('.field-label,.row-title,b,span');
+        var txt = lab ? lab.textContent.trim().slice(0, 80) : '';
+        if (txt) inp.setAttribute('aria-label', txt);
+      });
+      app.querySelectorAll('.aycard-back').forEach(function (d) { d.setAttribute('aria-hidden', 'true'); });
+    } catch (e) {}
     renderNav(view);
     window.scrollTo(0, 0);
     if (MIH.focusOwnZikr) {
